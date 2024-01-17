@@ -4,17 +4,11 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Climber extends SubsystemBase {
-  /** Creates a new Climber. */
-  public Climber(AHRS navx) {
-    //TODO Auto-generated constructor stub
-  }
+public class Passthrough extends SubsystemBase {
+  /** Creates a new Passthrough. */
+  public Passthrough() {}
 
   @Override
   public void periodic() {

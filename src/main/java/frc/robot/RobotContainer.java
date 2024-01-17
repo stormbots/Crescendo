@@ -4,26 +4,21 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.Vision;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -38,8 +33,9 @@ public class RobotContainer {
   // public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(null, null, null, null);
   public AHRS navx = new AHRS();
   public final Chassis chassis = new Chassis(navx); //TODO: needs Kinematics and Poste Estimator
-  public final Climber climber = new Climber();
+  public final Climber climber = new Climber(navx);
   public final Intake intake = new Intake();
+  public final Passthrough passthrough = new Passthrough();
   public final Shooter shooter = new Shooter();
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
