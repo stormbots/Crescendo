@@ -62,7 +62,7 @@ public class RobotContainer {
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
-  public final Vision vision = new Vision();
+  public final Vision vision = new Vision(navx);
   
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
