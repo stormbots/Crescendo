@@ -6,10 +6,17 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
@@ -29,10 +36,25 @@ import frc.robot.subsystems.Vision;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  // public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(...);
-  // public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(null, null, null, null);
+  public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
+    new Translation2d(DriveConstants.kTrackWidth / 2, DriveConstants.kTrackWidth / 2),
+    new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
+    new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
+    new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
+  );
+
+  public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, new Rotation2d(), 
+    new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+    }, 
+    new Pose2d(0, 0 , new Rotation2d())
+  );
+
   public AHRS navx = new AHRS();
-  public final Chassis chassis = new Chassis(navx); //TODO: needs Kinematics and Poste Estimator
+  public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator);
   public final Climber climber = new Climber(navx);
   public final Intake intake = new Intake();
   public final Passthrough passthrough = new Passthrough();
