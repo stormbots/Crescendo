@@ -257,4 +257,13 @@ public class Chassis extends SubsystemBase {
   public double getHeading() {
     return navx.getRotation2d().getDegrees();
   }
+
+  public void resetPose(Pose2d pose){
+    swerveDrivePoseEstimator.resetPosition(pose.getRotation(), new SwerveModulePosition[] {
+      new SwerveModulePosition(pose.getX(), pose.getRotation()),
+      new SwerveModulePosition(pose.getX(), pose.getRotation()),
+      new SwerveModulePosition(pose.getX(), pose.getRotation()),
+      new SwerveModulePosition(pose.getX(), pose.getRotation())
+  }, pose);
+  }
 }
