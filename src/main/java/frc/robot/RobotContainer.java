@@ -62,7 +62,7 @@ public class RobotContainer {
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
-  public final Vision vision = new Vision(navx);
+  public final Vision vision = new Vision(navx, swerveDrivePoseEstimator);
   
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
@@ -106,6 +106,7 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    
   }
 
   private void configureOperatorBindings(){
