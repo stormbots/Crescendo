@@ -23,9 +23,9 @@ public class ChassisConstants {
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
 
     // Chassis configuration
-    public static final double kTrackWidth = Units.inchesToMeters(20.5);
+    public static final double kTrackWidth = Units.inchesToMeters(28);
     // Distance between centers of right and left wheels on robot
-    public static final double kWheelBase = Units.inchesToMeters(20.5);
+    public static final double kWheelBase = Units.inchesToMeters(28);
     // Distance between front and back wheels on robot
 
     // Angular offsets of the modules relative to the chassis in radians
@@ -34,16 +34,18 @@ public class ChassisConstants {
     public static final double kBackLeftChassisAngularOffset = 0;
     public static final double kBackRightChassisAngularOffset = 0;
 
-    // SPARK MAX CAN IDs
-    public static final int kFrontLeftDrivingCanId = 1;
+    // SPARK FLEX CAN IDs
+    public static final int kFrontLeftDrivingCanId = 2;
     public static final int kRearLeftDrivingCanId = 4;
-    public static final int kFrontRightDrivingCanId = 2;
+    public static final int kFrontRightDrivingCanId = 1;
     public static final int kRearRightDrivingCanId = 3;
 
-    public static final int kFrontLeftTurningCanId = 11;
-    public static final int kRearLeftTurningCanId = 14;
-    public static final int kFrontRightTurningCanId = 12;
-    public static final int kRearRightTurningCanId = 13; 
+    // SPARK MAX CAN IDs
+
+    public static final int kFrontLeftTurningCanId = 6;
+    public static final int kRearLeftTurningCanId = 8;
+    public static final int kFrontRightTurningCanId = 5;
+    public static final int kRearRightTurningCanId = 7; 
 
   }
 
@@ -51,7 +53,7 @@ public class ChassisConstants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T, 13T, or 14T.
     // This changes the drive speed of the module (a pinion gear with more teeth will result in a
     // robot that drives faster).
-    public static final int kDrivingMotorPinionTeeth = 13;
+    public static final int kDrivingMotorPinionTeeth = 14;
 
     // Invert the turning encoder, since the output shaft rotates in the opposite direction of
     // the steering motor in the MAXSwerve Module.
@@ -63,6 +65,7 @@ public class ChassisConstants {
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15 teeth on the bevel pinion
     public static final double kDrivingMotorReduction = (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
+    //Theoretical max speed, has nothing to do with rotation
     public static final double kDriveWheelFreeSpeedRps = (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters)
         / kDrivingMotorReduction;
 
@@ -120,6 +123,6 @@ public class ChassisConstants {
   }
 
   public static final class NeoMotorConstants {
-    public static final double kFreeSpeedRpm = 5676;
+    public static final double kFreeSpeedRpm = 6784;
   }
 }
