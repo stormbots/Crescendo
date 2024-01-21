@@ -8,12 +8,14 @@ import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Vision.LimelightPipeline;
 
+import java.util.Optional;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class VisionTurnToTarget extends Command {
+public class VisionTurnToTargetOdometry extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private Vision vision;
   private Chassis chassis;
@@ -24,7 +26,7 @@ public class VisionTurnToTarget extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToTarget(Vision vision, Chassis chassis, AHRS navx) {
+  public VisionTurnToTargetOdometry(Vision vision, Chassis chassis, AHRS navx) { 
     this.vision = vision;
     this.chassis = chassis;
     this.navx = navx;
@@ -45,6 +47,8 @@ public class VisionTurnToTarget extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    Optional<Double> distance = vision.getDistanceOdometry();
+    Optional<Double> angle;
     //TODO: actually turning!!
   }
 
