@@ -17,6 +17,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase {
@@ -27,7 +28,7 @@ public class Vision extends SubsystemBase {
     kNoZoom, kZoom
   }
 
-  NetworkTable frontCamera = NetworkTableInstance.getDefault().getTable("front limelight");
+  NetworkTable frontCamera = NetworkTableInstance.getDefault().getTable("limelight");
   NetworkTable backCamera = NetworkTableInstance.getDefault().getTable("back limelight");
   
   NetworkTableEntry bpTableFront = frontCamera.getEntry("botpose front"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose; may or may not change
@@ -38,6 +39,11 @@ public class Vision extends SubsystemBase {
 
   public double bpDefault [] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   public Rotation2d rotFront = new Rotation2d(0,0);
+  public double verticalOffset = 0.0;
+  public double llTargetValid = 0.0;
+  public double targetHeight = 48.0;
+  public double camHeight = 6.0;
+  public double camAngle = 80.0; //degrees
 
   Field2d field = new Field2d();
 
@@ -56,11 +62,20 @@ public class Vision extends SubsystemBase {
     double xBack = backCamera.getEntry("x").getDouble(0);
     double yBack = backCamera.getEntry("y").getDouble(0);
 
+    verticalOffset = frontCamera.getEntry("ty").getDouble(0.0);
+
     double[] bpFront = bpTableFront.getDoubleArray(bpDefault);
     if (Array.getLength(bpFront)<6) {return;}
 
     double[] bpBack = bpTableBack.getDoubleArray(bpDefault);
     if (Array.getLength(bpBack)<6) {return;}
+
+    // var target = getDistanceAprilTag();
+    // if(target.isEmpty()){return;}
+    // SmartDashboard.putNumber("distance", target.get());
+    // SmartDashboard.putNumber("verticalOffset", verticalOffset);
+    var distance = frontCamera.getEntry("botpose_targetspace").getDoubleArray(new double[6])[2]; //meters
+    SmartDashboard.putNumber("limelight/translation2d", -distance); //distance is a negative for some reason
 
     rotFront = new Rotation2d( Math.toRadians(bpFront[5]) );
 
@@ -70,7 +85,16 @@ public class Vision extends SubsystemBase {
 
   public Optional<Double> getDistanceAprilTag() { //or use Translation2d
     //TODO: if has value return non-empty but no values rn :( (april tag)
-    return Optional.empty();
+
+
+    double[] bpBack = bpTableBack.getDoubleArray(bpDefault);
+    if (Array.getLength(bpBack)<6) {return Optional.empty();}
+
+
+    double y = verticalOffset;
+    double angleRadians = Math.toRadians(y + verticalOffset);
+    Double distance = (targetHeight-camHeight)/Math.tan(angleRadians);
+    return Optional.of(distance);
   }
 
   public Optional<Double> getDistanceOdometry() {
