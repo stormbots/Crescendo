@@ -19,13 +19,16 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.VisionTurnToTargetAprilTag;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
+import frc.robot.subsystems.ShooterVision;
 import frc.robot.subsystems.Vision;
 
 /**
@@ -73,6 +76,10 @@ public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
+  public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
+  public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
+  public final CommandJoystick driverTest = new CommandJoystick(0);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Run delayed constructors
@@ -107,7 +114,9 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    
+    driverTest.button(4).whileTrue(
+      new VisionTurnToTargetAprilTag(shooterVision, intakeVision, chassis, navx)
+    );
   }
 
   private void configureOperatorBindings(){
