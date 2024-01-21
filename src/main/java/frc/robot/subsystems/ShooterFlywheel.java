@@ -13,9 +13,9 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
 public class ShooterFlywheel extends SubsystemBase {
-  public CANSparkMax leftFlywheel = new CANSparkMax(23, MotorType.kBrushless);
-  public CANSparkMax rightFlywheel1 = new CANSparkMax(24, MotorType.kBrushless);
-  public CANSparkMax rightFlywheel2 = new CANSparkMax(25, MotorType.kBrushless);
+  public CANSparkMax leftFlywheel = new CANSparkMax(15, MotorType.kBrushless);
+  public CANSparkMax rightFlywheel1 = new CANSparkMax(16, MotorType.kBrushless);
+  public CANSparkMax rightFlywheel2 = new CANSparkMax(17, MotorType.kBrushless);
   public RelativeEncoder leftFlywheelEncoder;
   public RelativeEncoder rigtFlywheelEncoder;
   public SparkPIDController leftFlywheelPIDController;

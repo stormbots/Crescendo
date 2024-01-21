@@ -41,7 +41,6 @@ public class ChassisConstants {
     public static final int kRearRightDrivingCanId = 3;
 
     // SPARK MAX CAN IDs
-
     public static final int kFrontLeftTurningCanId = 6;
     public static final int kRearLeftTurningCanId = 8;
     public static final int kFrontRightTurningCanId = 5;

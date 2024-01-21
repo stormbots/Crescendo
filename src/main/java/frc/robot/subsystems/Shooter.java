@@ -9,23 +9,20 @@ import com.revrobotics.ControlType;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Lerp;
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
-  public CANSparkMax shooterMotor = new CANSparkMax(21, MotorType.kBrushless);
+  public CANSparkMax shooterMotor = new CANSparkMax(14, MotorType.kBrushless);
   private SparkPIDController pidController = shooterMotor.getPIDController();
   private DutyCycleEncoder shooterAbsEncoder = new DutyCycleEncoder(21);
   private double shooterSetPoint = 0.0;
   private Lerp shooterAnalogLerp = new Lerp(0, 0, 0, 0);
-
-  //temp values
-  private IdleMode idle;
-  private CANSparkMax.ControlType controlType;
-
 
   public Shooter() {
     shooterMotor.restoreFactoryDefaults();
@@ -33,30 +30,32 @@ public class Shooter extends SubsystemBase {
     pidController = shooterMotor.getPIDController();
 
     //closed-loop control
-    double kP = 0;
+    double kP = 0.1;
     double kI = 0;
     double kD = 0;
     double kIz = 0;
-    double kFF = 0;
-    double kMaxOutput = 0;
-    double kMinOutput = -0.3;
 
     pidController.setP(kP);
     pidController.setI(kI);
     pidController.setD(kD);
     pidController.setIZone(kIz);
-    pidController.setFF(kFF);
-    pidController.setOutputRange(kMinOutput, kMaxOutput);
+    pidController.setFF(0);
 
     //current limits?
     //soft limits
 
-    shooterMotor.setIdleMode(idle);
+    shooterMotor.setIdleMode(IdleMode.kBrake);
   }
 
   @Override
   public void periodic() {
+    setShooterPID(0);
+    // shooterMotor.set(0.1);
+    // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
+
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Rotations", shooterMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("output", shooterMotor.getAppliedOutput());
   }
 
   public void moveShooter(double speed) {
@@ -75,6 +74,6 @@ public class Shooter extends SubsystemBase {
     this.shooterSetPoint = setPoint;
     var shooterFF = Lerp.lerp(0, 0, 0, 0, 0);
     shooterFF*=Math.cos(Math.toRadians(getShooterAngle()));
-    pidController.setReference(setPoint, controlType, 21, shooterFF); //TODO: voltage control
+    pidController.setReference(setPoint, com.revrobotics.CANSparkBase.ControlType.kPosition, 0, shooterFF,ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 }
