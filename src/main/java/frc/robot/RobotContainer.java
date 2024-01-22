@@ -5,8 +5,8 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,10 +14,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.VisionTurnToTargetAprilTag;
 import frc.robot.subsystems.Chassis;
@@ -78,7 +81,6 @@ public class RobotContainer {
 
   public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
   public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
-  public final CommandJoystick driverTest = new CommandJoystick(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -90,6 +92,16 @@ public class RobotContainer {
     // Sensor Driven triggers/commands
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
+    chassis.setDefaultCommand(
+        // The left stick controls translation of the robot.
+        // Turning is controlled by the X axis of the right stick.
+        new RunCommand(
+            () -> chassis.drive(
+                -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getRawAxis(2), OIConstants.kDriveDeadband),
+                true, true),
+            chassis));
 
     // Configure the trigger bindings
     configureDefaultCommands();
@@ -114,9 +126,13 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    driverTest.button(4).whileTrue(
+    driverController.button(4).whileTrue(
       new VisionTurnToTargetAprilTag(shooterVision, intakeVision, chassis, navx)
     );
+
+    //Reset Gyro
+    driverController.button(10).onTrue(new InstantCommand()
+    .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
   }
 
   private void configureOperatorBindings(){

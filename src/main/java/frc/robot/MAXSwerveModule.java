@@ -4,22 +4,22 @@
 
 package frc.robot;
 
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
-
 import frc.robot.ChassisConstants.ModuleConstants;
 
 public class MAXSwerveModule {
-  public final CANSparkMax drivingSparkMax;
+  public final CANSparkFlex drivingSparkFlex;
   private final CANSparkMax turningSparkMax;
 
   public final RelativeEncoder drivingEncoder;
@@ -38,18 +38,18 @@ public class MAXSwerveModule {
    * Encoder.
    */
   public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
-    drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
+    drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
     turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
 
     // Factory reset, so we get the SPARKS MAX to a known state before configuring
     // them. This is useful in case a SPARK MAX is swapped out.
-    drivingSparkMax.restoreFactoryDefaults();
+    drivingSparkFlex.restoreFactoryDefaults();
     turningSparkMax.restoreFactoryDefaults();
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
-    drivingEncoder = drivingSparkMax.getEncoder();
+    drivingEncoder = drivingSparkFlex.getEncoder();
     turningEncoder = turningSparkMax.getAbsoluteEncoder(Type.kDutyCycle);
-    drivingPIDController = drivingSparkMax.getPIDController();
+    drivingPIDController = drivingSparkFlex.getPIDController();
     turningPIDController = turningSparkMax.getPIDController();
     drivingPIDController.setFeedbackDevice(drivingEncoder);
     turningPIDController.setFeedbackDevice(turningEncoder);
@@ -96,14 +96,14 @@ public class MAXSwerveModule {
     turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
         ModuleConstants.kTurningMaxOutput);
 
-    drivingSparkMax.setIdleMode(ModuleConstants.kDrivingMotorIdleMode);
+    drivingSparkFlex.setIdleMode(ModuleConstants.kDrivingMotorIdleMode);
     turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode);
-    drivingSparkMax.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
+    drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
-    drivingSparkMax.burnFlash();
+    drivingSparkFlex.burnFlash();
     turningSparkMax.burnFlash();
 
     this.chassisAngularOffset = chassisAngularOffset;
