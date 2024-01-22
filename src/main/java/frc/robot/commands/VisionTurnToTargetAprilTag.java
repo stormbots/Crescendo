@@ -54,18 +54,19 @@ public class VisionTurnToTargetAprilTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<Double> distanceShooter = shooterVision.getDistanceAprilTag();
-    Optional<Double> distanceIntake = intakeVision.getDistanceAprilTag();
-    if (distanceShooter.isPresent()) {
-      double x = shooterVision.getHorizontalOffset();
-      double y = shooterVision.getVerticalOffset();
-      SmartDashboard.putNumber("shooter/x", x);
-      SmartDashboard.putNumber("shooter/y", y);
-      
+    Optional<double[]> shooterOffset = shooterVision.getCrosshairOffset();
+    Optional<double[]> intakeOffset = intakeVision.getCrosshairOffset();
+    if (shooterOffset.isPresent()) {
+      double x = -shooterOffset.get()[0];
+      var rotation = 0.5/60.0 * x;
+      chassis.drive(0, 0, rotation, true, true);
     }
-    if (distanceIntake.isPresent()) {}
-    //TODO: actually turning!!
-
+    //do same thing for intake vision
+    if (intakeOffset.isPresent()) {
+      double x = intakeOffset.get()[0];
+      var rotation = 0.5/60.0 * x;
+      chassis.drive(0, 0, rotation, true, true);
+    }
   }
 
   // Called once the command ends or is interrupted.

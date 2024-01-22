@@ -42,7 +42,7 @@ public class IntakeVision extends SubsystemBase {
   public double targetHeight = 48.0;
   public double camHeight = 6.0;
   public double camAngle = 80.0; //degrees
-  private double x = 0.0;
+  private double horizontalOffset = 0.0;
 
   Field2d field = new Field2d();
 
@@ -55,7 +55,6 @@ public class IntakeVision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    x = camera.getEntry("x").getDouble(0.0);
     double[] bp = bpTable.getDoubleArray(bpDefault);
     if (Array.getLength(bp)<6) {return;}
     rot = new Rotation2d( Math.toRadians(bp[5]) );
@@ -118,6 +117,15 @@ public class IntakeVision extends SubsystemBase {
   }
 
   public double getTargetHeading() {
-    return gyro.getAngle() + x;
+    return gyro.getAngle() + horizontalOffset;
+  }
+
+  public Optional<double[]> getCrosshairOffset() {
+    double[] bp = bpTable.getDoubleArray(bpDefault);
+    if (Array.getLength(bp)<6) {return Optional.empty();} //should work?
+    horizontalOffset = camera.getEntry("tx").getDouble(0.0);
+    verticalOffset = camera.getEntry("ty").getDouble(0.0);
+    double[] offset = {horizontalOffset, verticalOffset};
+    return Optional.of(offset);
   }
 }

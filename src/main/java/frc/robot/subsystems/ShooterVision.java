@@ -55,8 +55,6 @@ public class ShooterVision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    horizontalOffset = camera.getEntry("x").getDouble(0);
-    verticalOffset = camera.getEntry("y").getDouble(0.0);
   
     double[] bp = bpTable.getDoubleArray(bpDefault);
     if (Array.getLength(bp)<6) {return;}
@@ -122,12 +120,20 @@ public class ShooterVision extends SubsystemBase {
     return gyro.getAngle() + horizontalOffset;
   }
 
-  public double getHorizontalOffset() {
-    return horizontalOffset;
-  }
+  // public double getHorizontalOffset() {
+  //   return horizontalOffset;
+  // }
 
-  public double getVerticalOffset() {
-    return verticalOffset;
-  }
+  // public double getVerticalOffset() {
+  //   return verticalOffset;
+  // }
 
+  public Optional<double[]> getCrosshairOffset() {
+    double[] bp = bpTable.getDoubleArray(bpDefault);
+    if (Array.getLength(bp)<6) {return Optional.empty();} //should work?
+    horizontalOffset = camera.getEntry("tx").getDouble(0.0);
+    verticalOffset = camera.getEntry("ty").getDouble(0.0);
+    double[] offset = {horizontalOffset, verticalOffset};
+    return Optional.of(offset);
+  }
 }
