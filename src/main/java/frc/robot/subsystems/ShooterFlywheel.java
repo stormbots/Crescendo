@@ -4,13 +4,16 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Clamp;
 
 public class ShooterFlywheel extends SubsystemBase {
   public CANSparkMax leftFlywheel = new CANSparkMax(15, MotorType.kBrushless);
@@ -24,10 +27,15 @@ public class ShooterFlywheel extends SubsystemBase {
    
   /** Creates a new Flywheel. */
   public ShooterFlywheel() {
+
+    leftFlywheel.restoreFactoryDefaults();
+    rightFlywheel1.restoreFactoryDefaults();
+    rightFlywheel2.restoreFactoryDefaults();
+
     
     //Set up components
     rightFlywheel2.follow(rightFlywheel1);
-    leftFlywheel.setInverted(true);
+    leftFlywheel.setInverted(false);
     leftFlywheelEncoder = leftFlywheel.getEncoder();
     rigtFlywheelEncoder = rightFlywheel1.getEncoder();
     leftFlywheelPIDController = leftFlywheel.getPIDController();
@@ -62,29 +70,36 @@ public class ShooterFlywheel extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("targetRPM", targetRPM);
-    SmartDashboard.putBoolean("isOnTarget", isOnTarget(leftFlywheel));
-    SmartDashboard.putNumber("currentRPM", getRPM(leftFlywheel));    
+    SmartDashboard.putBoolean("isOnTarget", isOnTarget());
+    SmartDashboard.putNumber("currentRPM", getRPM());
+    // leftFlywheel.set(.1);
+    
+    // leftFlywheelPIDController.setReference(1200, CANSparkMax.ControlType.kVelocity);
   }
   public void setRPM(double targetRPM) {
-    this.targetRPM = targetRPM;
+    this.targetRPM = targetRPM;//Will need seprate target for right
     leftFlywheelPIDController.setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
-    //rightFlywheelPIDController.setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
+    rightFlywheelPIDController.setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
   }
 
-  public boolean isOnTarget(CANSparkMax motor){
-    RelativeEncoder motorEncoder = motor.getEncoder();
-    double currentRPM = motorEncoder.getVelocity();
-    double setRPM = targetRPM;
-    double error = Math.abs(setRPM-currentRPM);
-    double tolerance = setRPM * .05;
-
-    if (error > tolerance) return false;
+  public boolean isOnTarget(){
+    double leftSetRPM = targetRPM;
+    double tolerance = leftSetRPM * .05;
+    //ADD RIGHT
+    if ( ! Clamp.bounded(leftFlywheelEncoder.getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;
+    if ( ! Clamp.bounded(rigtFlywheelEncoder.getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;
     return true;
   }
-  public double getRPM(CANSparkMax motor){
-    RelativeEncoder motorEncoder = motor.getEncoder();
-    double currentRPM = motorEncoder.getVelocity();
-    return currentRPM;
+  public double getRPM(){
+    var rpm = leftFlywheelEncoder.getVelocity();
+    rpm += rightFlywheel1.getEncoder().getVelocity();
+    rpm /= 2;
+    return rpm;
   }
 
+  public Command getShooterSetRPMCommand(double rpm){
+    return new RunCommand(()->setRPM(rpm) )
+    .until(()->isOnTarget())
+    ;
+  }
 }

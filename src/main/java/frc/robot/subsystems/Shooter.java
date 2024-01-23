@@ -4,15 +4,16 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
-import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Lerp;
 
@@ -30,7 +31,7 @@ public class Shooter extends SubsystemBase {
     pidController = shooterMotor.getPIDController();
 
     //closed-loop control
-    double kP = 0.1;
+    double kP = 0; //1.0 works on testbench
     double kI = 0;
     double kD = 0;
     double kIz = 0;
@@ -49,7 +50,7 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    setShooterPID(0);
+
     // shooterMotor.set(0.1);
     // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
 
@@ -75,5 +76,10 @@ public class Shooter extends SubsystemBase {
     var shooterFF = Lerp.lerp(0, 0, 0, 0, 0);
     shooterFF*=Math.cos(Math.toRadians(getShooterAngle()));
     pidController.setReference(setPoint, com.revrobotics.CANSparkBase.ControlType.kPosition, 0, shooterFF,ArbFFUnits.kPercentOut); //TODO: voltage control
+  }
+
+  public Command getManualMoveCommand(double speed){
+    return new RunCommand(()->{moveShooter(speed);}, this)
+    .finallyDo((end)->moveShooter(0));
   }
 }
