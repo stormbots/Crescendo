@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -59,7 +61,7 @@ public class RobotContainer {
     }, 
     new Pose2d(0, 0 , new Rotation2d())
   );
-
+  public Field2d field = new Field2d();
   public AHRS navx = new AHRS();
   public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator);
   public final Climber climber = new Climber(navx);
@@ -107,7 +109,9 @@ public class RobotContainer {
     configureDefaultCommands();
     configureDriverBindings();
     configureOperatorBindings();
-    
+    SmartDashboard.putData("Field", field);
+    SmartDashboard.putNumber("botpose/x", intakeVision.getBotPose().getX());
+    SmartDashboard.putNumber("botpose/y", intakeVision.getBotPose().getY());
   }
 
   private void configureDefaultCommands() {
