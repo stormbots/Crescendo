@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
@@ -25,8 +26,11 @@ public class Shooter extends SubsystemBase {
   private double shooterSetPoint = 0.0;
   private Lerp shooterAnalogLerp = new Lerp(0, 0, 0, 0);
 
+
   public Shooter() {
     shooterMotor.restoreFactoryDefaults();
+    shooterMotor.setSoftLimit(SoftLimitDirection.kForward, 45);
+    shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
 
     pidController = shooterMotor.getPIDController();
 
