@@ -127,17 +127,17 @@ public class RobotContainer {
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-    driverController.button(8).onTrue(
-       new RunCommand(
-            () -> chassis.driveToBearing(
-                -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
-                ),
-            chassis)
-    );
+    // driverController.button(8).onTrue(
+    //    new RunCommand(
+    //         () -> chassis.driveToBearing(
+    //             -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+    //             -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+    //             Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
+    //             ),
+    //         chassis)
+    // );
 
-    driverController.button(7).and(inDeadzone).onTrue(
+    driverController.button(8).and(inDeadzone).onTrue(
       new RunCommand(
         () -> chassis.driveToBearing(
             -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
