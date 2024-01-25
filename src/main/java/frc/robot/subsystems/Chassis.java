@@ -6,6 +6,9 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -70,6 +73,9 @@ public class Chassis extends SubsystemBase {
   private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double prevTime = WPIUtilJNI.now() * 1e-6;
 
+  PIDController turnpid = new PIDController(1/Math.PI,0,0);
+  //Good, 2/pi is too much, cause backlash
+
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
@@ -121,8 +127,8 @@ public class Chassis extends SubsystemBase {
   /**
    * Method to drive the robot using joystick info.
    *
-   * @param xSpeed        Speed of the robot in the x direction (forward).
-   * @param ySpeed        Speed of the robot in the y direction (sideways).
+   * @param xSpeed        Percent output of the robot in the x direction (forward).
+   * @param ySpeed        Percent output of the robot in the y direction (sideways).
    * @param rot           Angular rate of the robot.
    * @param fieldRelative Whether the provided x and y speeds are relative to the
    *                      field.
@@ -274,6 +280,36 @@ public class Chassis extends SubsystemBase {
       frontRight.getState(),
       rearLeft.getState(),
       rearRight.getState()
-  });
+    });
+  }
+  
+  // PIDController turnpid = new PIDController(1/90.0,0,0);
+
+  public void driveToBearing(double xSpeed, double ySpeed, double bearing){
+    //move elsewhere
+    turnpid.enableContinuousInput(0, Math.PI*2);
+    // turnpid.atSetpoint();
+    // turnpid.setTolerance(4);
+
+    //In degrees
+    double currentTheta = navx.getRotation2d().getRadians(); 
+    // double thetaError = Math.toDegrees(MathUtil.angleModulus(rot - currentTheta.getRadians()));
+
+    double output = turnpid.calculate(currentTheta,bearing);
+
+    // if(thetaError > 180){  
+    //   thetaError -= 360;
+    // }
+    // else if (thetaError < -180){
+    //   thetaError += 360;
+    // }
+    // double proportionalRotation = thetaError / 180.0;
+    // //may not be needed but just to be safe
+    // if(proportionalRotation > 1.0){
+    //   proportionalRotation = 1.0;
+    // }
+
+    drive(xSpeed, ySpeed, output, true, true);
+    SmartDashboard.putNumber("bearing", bearing);
   }
 }

@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,10 +16,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
@@ -60,9 +66,7 @@ public class RobotContainer {
   public final Passthrough passthrough = new Passthrough();
   public final Shooter shooter = new Shooter();
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
-  //TODO: Vision Needs access to pose estimator: Either by objects in 
-  // Robotcontainer or via a method in Chassis
-  public final Vision vision = new Vision();
+  public final Vision vision = new Vision(navx, swerveDrivePoseEstimator);
   
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
@@ -72,16 +76,28 @@ public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
+  //pythagorean thoremo!!!!!!!!11
+  BooleanSupplier inDeadzone = ()->{return (Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5;};
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Run delayed constructors
     sequenceFactory = new SequenceFactory(this);
     autoFactory = new AutoFactory(this);
 
-
     // Sensor Driven triggers/commands
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
+    chassis.setDefaultCommand(
+        // The left stick controls translation of the robot.
+        // Turning is controlled by the X axis of the right stick.
+        new RunCommand(
+            () -> chassis.drive(
+                -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getRawAxis(2), OIConstants.kDriveDeadband),
+                true, true), //TODO figure out the correct ramp rate
+            chassis));
 
     // Configure the trigger bindings
     configureDefaultCommands();
@@ -106,6 +122,42 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    //Reset Gyro
+    driverController.button(10).onTrue(new InstantCommand()
+    .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+
+    // driverController.button(8).onTrue(
+    //    new RunCommand(
+    //         () -> chassis.driveToBearing(
+    //             -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+    //             -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+    //             Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
+    //             ),
+    //         chassis)
+    // );
+
+    driverController.button(8).and(inDeadzone).onTrue(
+      new RunCommand(
+        () -> chassis.driveToBearing(
+            -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+            Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
+            ),
+        chassis))
+        
+        //This should be unnecessary ; default command
+      //   .onFalse(
+      // new RunCommand(
+      //   () -> chassis.drive(
+      //       -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+      //       -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+      //       0, true, true
+      //       ),
+      //   chassis))
+        ;
+    
+    // driverController.a().and(new Trigger((()->{(Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5})));
   }
 
   private void configureOperatorBindings(){
