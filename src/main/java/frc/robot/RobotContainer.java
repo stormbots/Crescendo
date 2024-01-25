@@ -7,12 +7,14 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,8 +53,8 @@ public class RobotContainer {
     new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
   );
-
-  public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, new Rotation2d(), 
+  public AHRS navx = new AHRS();
+  public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, navx.getRotation2d(), 
     new SwerveModulePosition[] {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
@@ -61,17 +63,14 @@ public class RobotContainer {
     }, 
     new Pose2d(0, 0 , new Rotation2d())
   );
+
   public Field2d field = new Field2d();
-  public AHRS navx = new AHRS();
-  public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator);
+  public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
   public final Climber climber = new Climber(navx);
   public final Intake intake = new Intake();
   public final Passthrough passthrough = new Passthrough();
   public final Shooter shooter = new Shooter();
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
-  //TODO: Vision Needs access to pose estimator: Either by objects in 
-  // Robotcontainer or via a method in Chassis
-  public final Vision vision = new Vision(navx, swerveDrivePoseEstimator);
   
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
@@ -82,7 +81,7 @@ public class RobotContainer {
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
   public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
-  public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
+  //public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -112,6 +111,8 @@ public class RobotContainer {
     SmartDashboard.putData("Field", field);
     SmartDashboard.putNumber("botpose/x", intakeVision.getBotPose().getX());
     SmartDashboard.putNumber("botpose/y", intakeVision.getBotPose().getY());
+    field.setRobotPose(intakeVision.getBotPose());
+    
   }
 
   private void configureDefaultCommands() {
@@ -130,9 +131,9 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    driverController.x().whileTrue(
-      new VisionTurnToTargetAprilTag(shooterVision, intakeVision, chassis, navx)
-    );
+    // driverController.x().whileTrue(
+    //   new VisionTurnToTargetAprilTag(shooterVision, intakeVision, chassis, navx)
+    // );
 
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()

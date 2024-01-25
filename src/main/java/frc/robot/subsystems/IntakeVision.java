@@ -32,7 +32,6 @@ public class IntakeVision extends SubsystemBase {
   NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
   
   NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose; may or may not change; currently gets bp relative to the target
-  Pose2d botPose = new Pose2d(0, 0, new Rotation2d());
   private SwerveDrivePoseEstimator poseEstimator;
   //is there a way we can cross check the two bot poses????
 
@@ -44,12 +43,13 @@ public class IntakeVision extends SubsystemBase {
   public double camHeight = 6.0;
   public double camAngle = 80.0; //degrees
   private double horizontalOffset = 0.0;
-
+  public Pose2d botPose = new Pose2d(0, 0, new Rotation2d(0));
   Field2d field = new Field2d();
 
   public IntakeVision(AHRS gyro, SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
     this.gyro = gyro;
     this.poseEstimator = poseEstimator;
+    
     setPipeline(LimelightPipeline.kNoZoom);
   }
 
@@ -57,7 +57,8 @@ public class IntakeVision extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     double[] bp = bpTable.getDoubleArray(bpDefault);
-    if (Array.getLength(bp)<6) {return;}
+    double tv = camera.getEntry("tv").getDouble(0);
+    if (tv<1) {return;}
 
     // var target = getDistanceAprilTag();
     // if(target.isEmpty()){return;}
