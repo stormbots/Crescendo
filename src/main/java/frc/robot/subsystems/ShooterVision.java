@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -56,8 +57,11 @@ public class ShooterVision extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   
+    
+    double tv = camera.getEntry("tv").getDouble(0.0);
+    var valid = tv >=1;
+    if (! valid) {return;}
     double[] bp = bpTable.getDoubleArray(bpDefault);
-    if (Array.getLength(bp)<6) {return;}
     rot = new Rotation2d( Math.toRadians(bp[5]) );
 
     // var target = getDistanceAprilTag();
@@ -68,7 +72,11 @@ public class ShooterVision extends SubsystemBase {
     SmartDashboard.putNumber("limelight/translation2d", -distance.get()); //distance is a negative for some reason
 
     rot = new Rotation2d( Math.toRadians(bp[5]) );
-    botPose = new Pose2d(bp[0], bp[1], rot);
+    botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
+    poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
+    field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
+    field.getObject("visionpose").setPose(botPose);
+    SmartDashboard.putData("shootervision", field);
   }
 
   public Optional<Double> getDistanceAprilTag() {

@@ -36,7 +36,6 @@ import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -48,7 +47,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-    new Translation2d(DriveConstants.kTrackWidth / 2, DriveConstants.kTrackWidth / 2),
+    new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
     new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
@@ -108,11 +107,7 @@ public class RobotContainer {
     configureDefaultCommands();
     configureDriverBindings();
     configureOperatorBindings();
-    SmartDashboard.putData("Field", field);
-    SmartDashboard.putNumber("botpose/x", intakeVision.getBotPose().getX());
-    SmartDashboard.putNumber("botpose/y", intakeVision.getBotPose().getY());
-    field.setRobotPose(intakeVision.getBotPose());
-    
+
   }
 
   private void configureDefaultCommands() {

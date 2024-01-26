@@ -56,9 +56,11 @@ public class IntakeVision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    double tv = camera.getEntry("tv").getDouble(0.0);
+    var valid = tv >=1;
+    if (! valid) {return;}
     double[] bp = bpTable.getDoubleArray(bpDefault);
-    double tv = camera.getEntry("tv").getDouble(0);
-    if (tv<1) {return;}
+    rot = new Rotation2d( Math.toRadians(bp[5]) );
 
     // var target = getDistanceAprilTag();
     // if(target.isEmpty()){return;}
@@ -70,6 +72,10 @@ public class IntakeVision extends SubsystemBase {
     rot = new Rotation2d( Math.toRadians(bp[5]) );
     botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
+
+    field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
+    field.getObject("visionpose").setPose(botPose);
+    SmartDashboard.putData("visionfield", field);
   }
 
   public Optional<Double> getDistanceAprilTag() {

@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -73,14 +74,14 @@ public class Chassis extends SubsystemBase {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
     this.swerveDrivePoseEstimator = swerveDrivePoseEstimator;
-    this.field = field;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   // Update the odometry in the periodic block
-    swerveDrivePoseEstimator.update(
+    swerveDrivePoseEstimator.updateWithTime(
+        Timer.getFPGATimestamp(),
         navx.getRotation2d(),
         new SwerveModulePosition[] {
             frontLeft.getPosition(),
@@ -89,7 +90,15 @@ public class Chassis extends SubsystemBase {
             rearRight.getPosition()
         });
 
-    field.setRobotPose(swerveDrivePoseEstimator.getEstimatedPosition());
+    var pose = swerveDrivePoseEstimator.getEstimatedPosition();
+    field.setRobotPose(pose);
+    
+    SmartDashboard.putData("chassis", field);
+    SmartDashboard.putData("modules/fr", frontRight);
+    SmartDashboard.putData("modules/fl", frontLeft);
+    SmartDashboard.putData("modules/rr", rearRight);
+    SmartDashboard.putData("modules/rl", rearLeft);
+    
     SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
     SmartDashboard.putNumber("/angle/frmotor", frontRight.getState().angle.getDegrees());
