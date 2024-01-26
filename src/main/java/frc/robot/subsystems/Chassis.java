@@ -89,8 +89,11 @@ public class Chassis extends SubsystemBase {
             rearLeft.getPosition(),
             rearRight.getPosition()
         });
-
+    
+    //i WILL cry if this doesn't work by next week
     var pose = swerveDrivePoseEstimator.getEstimatedPosition();
+    SmartDashboard.putNumber("chassis/x",pose.getX());
+    SmartDashboard.putNumber("chassis/y",pose.getY());
     field.setRobotPose(pose);
     
     SmartDashboard.putData("chassis", field);

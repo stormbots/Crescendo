@@ -98,8 +98,8 @@ public class MAXSwerveModule implements Sendable{
     turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
         ModuleConstants.kTurningMaxOutput);
 
-    drivingSparkFlex.setIdleMode(ModuleConstants.kDrivingMotorIdleMode);
-    turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode);
+    drivingSparkFlex.setIdleMode(IdleMode.kCoast);
+    turningSparkMax.setIdleMode(IdleMode.kCoast);
     drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
