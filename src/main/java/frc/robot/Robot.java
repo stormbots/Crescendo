@@ -65,6 +65,7 @@ public class Robot extends TimedRobot {
     }
 
     //TODO: Remove this, temp
+    m_robotContainer.chassis.zeroHeading();
     m_robotContainer.chassis.resetOdometry(new Pose2d());
     m_robotContainer.chassis.resetEncoders();
   }
@@ -84,6 +85,7 @@ public class Robot extends TimedRobot {
     }
 
     //TODO: Remove this, temp
+    m_robotContainer.chassis.zeroHeading();
     m_robotContainer.chassis.resetOdometry(new Pose2d());
     m_robotContainer.chassis.resetEncoders();
   }

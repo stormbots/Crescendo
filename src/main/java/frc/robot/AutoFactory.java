@@ -38,7 +38,19 @@ public class AutoFactory {
     ProfiledPIDController thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0,
         AutoConstants.kThetaControllerConstraints);
-
+    
+    Trajectory oneMeterForwardTraj = TrajectoryGenerator.generateTrajectory(
+        new Pose2d(0, 0, new Rotation2d(0)),
+        List.of(),
+        new Pose2d(1,0, new Rotation2d(0)),
+        trajectoryConfig);
+        
+    Trajectory oneMeterLeftTraj = TrajectoryGenerator.generateTrajectory(
+        new Pose2d(1, 0, new Rotation2d(0)),
+        List.of(),
+        new Pose2d(1,1, new Rotation2d(0)),
+        trajectoryConfig);
+  
     public AutoFactory(RobotContainer rc){
         this.rc = rc;
 
@@ -119,11 +131,15 @@ public class AutoFactory {
     }
 
     public SwerveControllerCommand getSwerveControllerCommand(){
-        return generateTrajectory(TrajectoryGenerator.generateTrajectory(
-          new Pose2d(0, 0, new Rotation2d(0)),
-          List.of(),
-          new Pose2d(1,0, new Rotation2d(0)),
-          trajectoryConfig));
+        return generateTrajectory(oneMeterForwardTraj);
     }
 
+    public Trajectory getTrajectoryTo(Pose2d pose){
+        return TrajectoryGenerator.generateTrajectory(
+          rc.chassis.getPose(),
+          List.of(),
+          pose,
+          trajectoryConfig
+          );
+    }
 }

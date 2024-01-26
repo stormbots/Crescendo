@@ -102,6 +102,12 @@ public class Chassis extends SubsystemBase {
     SmartDashboard.putNumber("/angle/flmotor", frontLeft.getState().angle.getDegrees());
     SmartDashboard.putNumber("/angle/brmotor", rearRight.getState().angle.getDegrees());
     SmartDashboard.putNumber("/angle/blmotor", rearLeft.getState().angle.getDegrees());
+    SmartDashboard.putString("Pose2d", swerveDrivePoseEstimator.getEstimatedPosition().getX() + ", " + swerveDrivePoseEstimator.getEstimatedPosition().getY());
+    SmartDashboard.putNumber("fl Pos", frontLeft.getPosition().distanceMeters);
+    SmartDashboard.putNumber("fr Pos", frontRight.getPosition().distanceMeters);
+    SmartDashboard.putNumber("rl Pos", rearLeft.getPosition().distanceMeters);
+    SmartDashboard.putNumber("rr Pos", rearRight.getPosition().distanceMeters);
+
 
   }
   public Pose2d getPose() {
@@ -282,7 +288,7 @@ public class Chassis extends SubsystemBase {
       rearRight.getState()
     });
   }
-  
+
   // PIDController turnpid = new PIDController(1/90.0,0,0);
 
   public void driveToBearing(double xSpeed, double ySpeed, double bearing){

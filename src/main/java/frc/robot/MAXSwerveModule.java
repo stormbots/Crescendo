@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -96,7 +97,7 @@ public class MAXSwerveModule {
     turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
         ModuleConstants.kTurningMaxOutput);
 
-    drivingSparkFlex.setIdleMode(ModuleConstants.kDrivingMotorIdleMode);
+    drivingSparkFlex.setIdleMode(IdleMode.kCoast);
     turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode);
     drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);

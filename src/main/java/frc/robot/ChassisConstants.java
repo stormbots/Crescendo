@@ -107,8 +107,8 @@ public class ChassisConstants {
 
   public static final class AutoConstants {
     //Feels uneeded, as we can use drive constants instead, might allow us to keep track of our lower max speed in autos
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final double kMaxSpeedMetersPerSecond = 4;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 4;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
 

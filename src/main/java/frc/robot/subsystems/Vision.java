@@ -64,7 +64,7 @@ public class Vision extends SubsystemBase {
 
     rotFront = new Rotation2d( Math.toRadians(bpFront[5]) );
 
-    poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
+    // poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
     //TODO: chassis stuff
   }
 
