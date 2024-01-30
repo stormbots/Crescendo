@@ -45,15 +45,15 @@ public class Chassis extends SubsystemBase {
       DriveConstants.kFrontRightTurningCanId,
       0);
 
-  private final MAXSwerveModule rearLeft = new MAXSwerveModule(
-      DriveConstants.kRearLeftDrivingCanId,
-      DriveConstants.kRearLeftTurningCanId,
-      0);
+  // private final MAXSwerveModule rearLeft = new MAXSwerveModule(
+  //     DriveConstants.kRearLeftDrivingCanId,
+  //     DriveConstants.kRearLeftTurningCanId,
+  //     0);
 
-  private final MAXSwerveModule rearRight = new MAXSwerveModule(
-      DriveConstants.kRearRightDrivingCanId,
-      DriveConstants.kRearRightTurningCanId,
-      0);
+  // private final MAXSwerveModule rearRight = new MAXSwerveModule(
+  //     DriveConstants.kRearRightDrivingCanId,
+  //     DriveConstants.kRearRightTurningCanId,
+  //     0);
 
   // The gyro sensor
   public AHRS navx;
@@ -86,8 +86,8 @@ public class Chassis extends SubsystemBase {
         new SwerveModulePosition[] {
             frontLeft.getPosition(),
             frontRight.getPosition(),
-            rearLeft.getPosition(),
-            rearRight.getPosition()
+            // rearLeft.getPosition(),
+            // rearRight.getPosition()
         });
     
     //i WILL cry if this doesn't work by next week
@@ -99,15 +99,15 @@ public class Chassis extends SubsystemBase {
     SmartDashboard.putData("chassis", field);
     SmartDashboard.putData("modules/fr", frontRight);
     SmartDashboard.putData("modules/fl", frontLeft);
-    SmartDashboard.putData("modules/rr", rearRight);
-    SmartDashboard.putData("modules/rl", rearLeft);
+    // SmartDashboard.putData("modules/rr", rearRight);
+    // SmartDashboard.putData("modules/rl", rearLeft);
     
     SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
     SmartDashboard.putNumber("/angle/frmotor", frontRight.getState().angle.getDegrees());
     SmartDashboard.putNumber("/angle/flmotor", frontLeft.getState().angle.getDegrees());
-    SmartDashboard.putNumber("/angle/brmotor", rearRight.getState().angle.getDegrees());
-    SmartDashboard.putNumber("/angle/blmotor", rearLeft.getState().angle.getDegrees());
+    // SmartDashboard.putNumber("/angle/brmotor", rearRight.getState().angle.getDegrees());
+    // SmartDashboard.putNumber("/angle/blmotor", rearLeft.getState().angle.getDegrees());
 
   }
   public Pose2d getPose() {
@@ -125,8 +125,8 @@ public class Chassis extends SubsystemBase {
         new SwerveModulePosition[] {
             frontLeft.getPosition(),
             frontRight.getPosition(),
-            rearLeft.getPosition(),
-            rearRight.getPosition()
+            // rearLeft.getPosition(),
+            // rearRight.getPosition()
         },
         pose);
   }
@@ -221,8 +221,8 @@ public class Chassis extends SubsystemBase {
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     frontLeft.setDesiredState(swerveModuleStates[0]);
     frontRight.setDesiredState(swerveModuleStates[1]);
-    rearLeft.setDesiredState(swerveModuleStates[2]);
-    rearRight.setDesiredState(swerveModuleStates[3]);
+    // rearLeft.setDesiredState(swerveModuleStates[2]);
+    // rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
   /**
@@ -231,8 +231,8 @@ public class Chassis extends SubsystemBase {
   public void setX() {
     frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
     frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    // rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+    // rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
   }
 
   /**
@@ -245,16 +245,16 @@ public class Chassis extends SubsystemBase {
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     frontLeft.setDesiredState(desiredStates[0]);
     frontRight.setDesiredState(desiredStates[1]);
-    rearLeft.setDesiredState(desiredStates[2]);
-    rearRight.setDesiredState(desiredStates[3]);
+    // rearLeft.setDesiredState(desiredStates[2]);
+    // rearRight.setDesiredState(desiredStates[3]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
     frontLeft.resetEncoders();
-    rearLeft.resetEncoders();
+    // rearLeft.resetEncoders();
     frontRight.resetEncoders();
-    rearRight.resetEncoders();
+    // rearRight.resetEncoders();
   }
 
   /** Zeroes the heading of the robot. */

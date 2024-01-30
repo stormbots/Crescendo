@@ -5,10 +5,14 @@
 package frc.robot.subsystems;
 
 import java.lang.reflect.Array;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -72,6 +76,9 @@ public class IntakeVision extends SubsystemBase {
     rot = new Rotation2d( Math.toRadians(bp[5]) );
     botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
+
+    var stdevs = new Matrix<>(Nat.N3(), Nat.N1(), new double[]{1,1,1});
+    poseEstimator.setVisionMeasurementStdDevs(stdevs);
 
     field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
     field.getObject("visionpose").setPose(botPose);
