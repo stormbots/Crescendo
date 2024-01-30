@@ -1,17 +1,49 @@
 {
   "NetworkTables": {
+    "retained": {
+      "limelight": {
+        "open": true
+      }
+    },
+    "transitory": {
+      "LiveWindow": {
+        ".status": {
+          "open": true
+        },
+        "open": true
+      },
+      "Shuffleboard": {
+        "open": true
+      },
+      "SmartDashboard": {
+        "open": true
+      }
+    },
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/chassis": "Field2d",
       "/SmartDashboard/visionfield": "Field2d"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/chassis": {
         "window": {
           "visible": true
         }
       },
       "/SmartDashboard/visionfield": {
+        "visionpose": {
+          "color": [
+            0.025465907528996468,
+            0.3720238208770752,
+            0.04403151199221611,
+            255.0
+          ]
+        },
         "window": {
           "visible": true
         }
@@ -24,5 +56,8 @@
   "NetworkTables Settings": {
     "mode": "Client (NT4)",
     "serverTeam": "2811"
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

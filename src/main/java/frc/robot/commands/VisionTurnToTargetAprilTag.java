@@ -47,8 +47,6 @@ public class VisionTurnToTargetAprilTag extends Command {
   public void initialize() {
     shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
     intakeVision.setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
-    
-    
   }
 
   // Called every time the scheduler runs while the command is scheduled.

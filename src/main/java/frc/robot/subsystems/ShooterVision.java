@@ -62,7 +62,6 @@ public class ShooterVision extends SubsystemBase {
     var valid = tv >=1;
     if (! valid) {return;}
     double[] bp = bpTable.getDoubleArray(bpDefault);
-    rot = new Rotation2d( Math.toRadians(bp[5]) );
 
     // var target = getDistanceAprilTag();
     // if(target.isEmpty()){return;}
@@ -71,6 +70,7 @@ public class ShooterVision extends SubsystemBase {
     var distance = getDistanceAprilTag(); //meters
     SmartDashboard.putNumber("limelight/translation2d", -distance.get()); //distance is a negative for some reason
 
+    ifZoom();
     rot = new Rotation2d( Math.toRadians(bp[5]) );
     botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
@@ -143,5 +143,15 @@ public class ShooterVision extends SubsystemBase {
     verticalOffset = camera.getEntry("ty").getDouble(0.0);
     double[] offset = {horizontalOffset, verticalOffset};
     return Optional.of(offset);
+  }
+  public void ifZoom() {
+    double tx = camera.getEntry("tx").getDouble(0.0);
+    double ty = camera.getEntry("ty").getDouble(0.0);
+    if ((tx<=11.0&&tx>=-11.0) && (ty<=5.0&&tx>=-5)) {
+      setPipeline(ShooterVision.LimelightPipeline.kZoom);
+    }
+    else {
+      setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
+    }
   }
 }

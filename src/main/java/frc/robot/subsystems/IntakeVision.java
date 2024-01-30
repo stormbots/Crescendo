@@ -62,10 +62,9 @@ public class IntakeVision extends SubsystemBase {
     // This method will be called once per scheduler run
     double tv = camera.getEntry("tv").getDouble(0.0);
     var valid = tv >=1;
-    if (! valid) {return;}
+    if (!valid) {return;}
     double[] bp = bpTable.getDoubleArray(bpDefault);
-    rot = new Rotation2d( Math.toRadians(bp[5]) );
-
+    
     // var target = getDistanceAprilTag();
     // if(target.isEmpty()){return;}
     // SmartDashboard.putNumber("distance", target.get());
@@ -73,6 +72,7 @@ public class IntakeVision extends SubsystemBase {
     var distance = getDistanceAprilTag(); //meters
     SmartDashboard.putNumber("limelight/translation2d", -distance.get()); //distance is a negative for some reason
 
+    ifZoom();
     rot = new Rotation2d( Math.toRadians(bp[5]) );
     botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
@@ -141,5 +141,17 @@ public class IntakeVision extends SubsystemBase {
     verticalOffset = camera.getEntry("ty").getDouble(0.0);
     double[] offset = {horizontalOffset, verticalOffset};
     return Optional.of(offset);
+  }
+  public void ifZoom() {
+    double tx = camera.getEntry("tx").getDouble(0.0);
+    double ty = camera.getEntry("ty").getDouble(0.0);
+    if ((tx<=11.0&&tx>=-11.0) && (ty<=5.0&&tx>=-5)) {
+      setPipeline(IntakeVision.LimelightPipeline.kZoom);
+    }
+    else {
+      setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
+    }
+
+    //TODO: average bot pose between zooms (because the position shifts about a meter up)
   }
 }
