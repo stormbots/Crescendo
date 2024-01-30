@@ -48,17 +48,17 @@ public class RobotContainer {
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
-    new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)//,
-    // new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
-    // new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
+    new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
+    new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
+    new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
   );
   public AHRS navx = new AHRS();
   public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, navx.getRotation2d(), 
     new SwerveModulePosition[] {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
-        // new SwerveModulePosition(),
-        // new SwerveModulePosition()
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
     }, 
     new Pose2d(0, 0 , new Rotation2d())
   );
