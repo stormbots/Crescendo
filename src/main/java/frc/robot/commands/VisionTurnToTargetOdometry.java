@@ -5,17 +5,21 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Chassis;
-import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.Vision.LimelightPipeline;
+import frc.robot.subsystems.IntakeVision;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterVision;
+
+import java.util.Optional;
 
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class VisionTurnToTarget extends Command {
+public class VisionTurnToTargetOdometry extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private Vision vision;
+  private ShooterVision shooterVision;
+  private IntakeVision intakeVision;
   private Chassis chassis;
   private AHRS navx;
 
@@ -24,27 +28,33 @@ public class VisionTurnToTarget extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToTarget(Vision vision, Chassis chassis, AHRS navx) {
-    this.vision = vision;
+  public VisionTurnToTargetOdometry(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis, AHRS navx) {  //not accounted for multiple cameras yet!!
+    this.shooterVision = shooterVision;
+    this.intakeVision = intakeVision;
     this.chassis = chassis;
     this.navx = navx;
     //TODO: get turn power/pid/field stuff
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(vision);
+    addRequirements(shooterVision);
+    addRequirements(intakeVision);
     addRequirements(chassis);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    vision.setPipeline(Vision.LimelightPipeline.kNoZoom);
+    shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
+    intakeVision.setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
     
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    Optional<Double> distanceVision;
+    Optional<Double> intakeVision;
+    Optional<Double> angle;
     //TODO: actually turning!!
   }
 
