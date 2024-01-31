@@ -22,6 +22,7 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/chassis": "Field2d",
+      "/SmartDashboard/robot/scheduler": "Scheduler",
       "/SmartDashboard/visionfield": "Field2d"
     },
     "windows": {
@@ -31,6 +32,13 @@
         }
       },
       "/SmartDashboard/chassis": {
+        "bottom": 544,
+        "builtin": "2024 Crescendo",
+        "height": 8.013679504394531,
+        "left": 46,
+        "right": 1088,
+        "top": 36,
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }

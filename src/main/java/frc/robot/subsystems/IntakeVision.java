@@ -145,7 +145,7 @@ public class IntakeVision extends SubsystemBase {
   public void ifZoom() {
     double tx = camera.getEntry("tx").getDouble(0.0);
     double ty = camera.getEntry("ty").getDouble(0.0);
-    if ((tx<=11.0&&tx>=-11.0) && (ty<=5.0&&tx>=-5)) {
+    if ((tx<=11.0&&tx>=-11.0) && (ty<=10.0&&tx>=-10.0)) {
       setPipeline(IntakeVision.LimelightPipeline.kZoom);
     }
     else {
