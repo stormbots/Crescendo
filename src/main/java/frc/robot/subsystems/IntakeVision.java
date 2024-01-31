@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.lang.reflect.Array;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -32,23 +29,38 @@ public class IntakeVision extends SubsystemBase {
   public enum LimelightPipeline {
     kNoZoom, kZoom
   }
+  public class LimelightReadings {
+    public double xDegreesOffset;
+    public double yDegreesOffset;
+    private double targetValid;
+
+    public LimelightReadings(double xDegreesOffset, double yDegreesOffset, double targetValid) {
+      this.xDegreesOffset = xDegreesOffset;
+      this.yDegreesOffset = yDegreesOffset;
+      this.targetValid = targetValid;
+    }
+
+    public boolean isTargetValid() {
+      if (targetValid>=1) {
+        return true;
+      }
+      return false;
+    }
+  }
 
   NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
   
-  NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose; may or may not change; currently gets bp relative to the target
-  private SwerveDrivePoseEstimator poseEstimator;
-  //is there a way we can cross check the two bot poses????
-
+  NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose
   public double bpDefault [] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  public Rotation2d rot = new Rotation2d(0,0);
-  public double verticalOffset = 0.0;
-  public double llTargetValid = 0.0;
+  public Pose2d botPose;
+  public Rotation2d rot;
+  Field2d field = new Field2d();
+  public LimelightReadings limelightReadings;
+  private SwerveDrivePoseEstimator poseEstimator;
+
   public double targetHeight = 48.0;
   public double camHeight = 6.0;
   public double camAngle = 80.0; //degrees
-  private double horizontalOffset = 0.0;
-  public Pose2d botPose = new Pose2d(0, 0, new Rotation2d(0));
-  Field2d field = new Field2d();
 
   public IntakeVision(AHRS gyro, SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
     this.gyro = gyro;
@@ -60,20 +72,18 @@ public class IntakeVision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double tv = camera.getEntry("tv").getDouble(0.0);
-    var valid = tv >=1;
-    if (!valid) {return;}
-    double[] bp = bpTable.getDoubleArray(bpDefault);
+    limelightReadings = new LimelightReadings(
+      camera.getEntry("tx").getDouble(0.0),
+      camera.getEntry("ty").getDouble(0.0), 
+      camera.getEntry("tv").getDouble(0.0)
+    );
     
-    // var target = getDistanceAprilTag();
-    // if(target.isEmpty()){return;}
-    // SmartDashboard.putNumber("distance", target.get());
-    // SmartDashboard.putNumber("verticalOffset", verticalOffset);
-    var distance = getDistanceAprilTag(); //meters
-    SmartDashboard.putNumber("limelight/translation2d", -distance.get()); //distance is a negative for some reason
+    if (!limelightReadings.isTargetValid()) {return;}
 
+    double[] bp = bpTable.getDoubleArray(bpDefault);
     ifZoom();
-    rot = new Rotation2d( Math.toRadians(bp[5]) );
+
+    rot = new Rotation2d(Math.toRadians(bp[5]));
     botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
 
@@ -85,35 +95,12 @@ public class IntakeVision extends SubsystemBase {
     SmartDashboard.putData("visionfield", field);
   }
 
-  public Optional<Double> getDistanceAprilTag() {
+  public Optional<Double> getDistance() {
     double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(bpDefault);
-    if (Array.getLength(bp)<6) {return Optional.empty();} //should work?
+    if (limelightReadings.isTargetValid()) {return Optional.empty();}
 
     Double distance = bp[2]; //meters
-    return Optional.of(distance); //negative (idk why)
-  }
-
-  public Optional<Double> getDistanceOdometry(Pose3d target) {
-    return Optional.empty();
-  }
-  
-  public Optional<Double> getAngleToNote() {
-    //TODO: if has value return non-empty but no values rn :( (angle to note)
-    return Optional.empty();
-  }
-
-  public Pose2d getBotPose() { 
-    return botPose;
-  }
-
-  public void setPipeline(LimelightPipeline pipeline) {
-    switch(pipeline) {
-      case kNoZoom:
-      camera.getEntry("pipeline").setNumber(0);
-      break;
-      case kZoom:
-      camera.getEntry("pipeline").setNumber(1);
-    }
+    return Optional.of(distance); //negative on test bench
   }
 
   public double getAngleToTargetPose(Pose3d pose) {
@@ -131,27 +118,33 @@ public class IntakeVision extends SubsystemBase {
   }
 
   public double getTargetHeading() {
-    return gyro.getAngle() + horizontalOffset;
+    return gyro.getAngle() + limelightReadings.xDegreesOffset;
   }
 
   public Optional<double[]> getCrosshairOffset() {
-    double[] bp = bpTable.getDoubleArray(bpDefault);
-    if (Array.getLength(bp)<6) {return Optional.empty();} //should work?
-    horizontalOffset = camera.getEntry("tx").getDouble(0.0);
-    verticalOffset = camera.getEntry("ty").getDouble(0.0);
-    double[] offset = {horizontalOffset, verticalOffset};
+    if (!limelightReadings.isTargetValid()) {return Optional.empty();} //should work?
+    double[] offset = {limelightReadings.xDegreesOffset, limelightReadings.yDegreesOffset};
     return Optional.of(offset);
   }
+
   public void ifZoom() {
-    double tx = camera.getEntry("tx").getDouble(0.0);
-    double ty = camera.getEntry("ty").getDouble(0.0);
-    if ((tx<=11.0&&tx>=-11.0) && (ty<=10.0&&tx>=-10.0)) {
+    double xDegreesOffset = limelightReadings.xDegreesOffset;
+    double yDegreesOffset = limelightReadings.yDegreesOffset;
+    if ((xDegreesOffset<=11.0&&xDegreesOffset>=-11.0) && (yDegreesOffset<=10.0&&yDegreesOffset>=-10.0)) {
       setPipeline(IntakeVision.LimelightPipeline.kZoom);
     }
     else {
       setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
     }
-
-    //TODO: average bot pose between zooms (because the position shifts about a meter up)
   }
+
+  public void setPipeline(LimelightPipeline pipeline) {
+    switch(pipeline) {
+      case kNoZoom:
+      camera.getEntry("pipeline").setNumber(0);
+      break;
+      case kZoom:
+      camera.getEntry("pipeline").setNumber(1);
+    }
+}
 }

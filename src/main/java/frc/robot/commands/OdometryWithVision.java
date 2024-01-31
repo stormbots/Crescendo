@@ -38,11 +38,11 @@ public class OdometryWithVision extends Command {
   @Override
   public void execute() {
 
-    if (shooterVision.getDistanceAprilTag().isPresent()) {
-        poseEstimator.addVisionMeasurement(shooterVision.getBotPose(), Timer.getFPGATimestamp());
+    if (shooterVision.getDistance().isPresent()) {
+        poseEstimator.addVisionMeasurement(shooterVision.botPose, Timer.getFPGATimestamp());
     }
-    if (intakeVision.getDistanceAprilTag().isPresent()) {
-        poseEstimator.addVisionMeasurement(intakeVision.getBotPose(), Timer.getFPGATimestamp());
+    if (intakeVision.getDistance().isPresent()) {
+        poseEstimator.addVisionMeasurement(intakeVision.botPose, Timer.getFPGATimestamp());
     }
   }
 

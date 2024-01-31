@@ -7,12 +7,7 @@ package frc.robot.commands;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.ShooterVision;
-
 import java.util.Optional;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
@@ -21,7 +16,6 @@ public class VisionTurnToTargetAprilTag extends Command {
   private ShooterVision shooterVision;
   private IntakeVision intakeVision;
   private Chassis chassis;
-  private AHRS navx;
   
 
   /**
@@ -29,12 +23,10 @@ public class VisionTurnToTargetAprilTag extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToTargetAprilTag(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis, AHRS navx) {
+  public VisionTurnToTargetAprilTag(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis) {
     this.shooterVision = shooterVision;
     this.intakeVision = intakeVision;
     this.chassis = chassis;
-    this.navx = navx;
-    //TODO: get turn power/pid/field stuff
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooterVision);
@@ -54,12 +46,13 @@ public class VisionTurnToTargetAprilTag extends Command {
   public void execute() {
     Optional<double[]> shooterOffset = shooterVision.getCrosshairOffset();
     Optional<double[]> intakeOffset = intakeVision.getCrosshairOffset();
+
     if (shooterOffset.isPresent()) {
       double x = -shooterOffset.get()[0];
       var rotation = 0.5/60.0 * x;
       chassis.drive(0, 0, rotation, true, true);
     }
-    //do same thing for intake vision
+
     if (intakeOffset.isPresent()) {
       double x = intakeOffset.get()[0];
       var rotation = 0.5/60.0 * x;
