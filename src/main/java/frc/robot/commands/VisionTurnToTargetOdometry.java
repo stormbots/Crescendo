@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.FieldPosition;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Shooter;
@@ -22,13 +23,14 @@ public class VisionTurnToTargetOdometry extends Command {
   private IntakeVision intakeVision;
   private Chassis chassis;
   private AHRS navx;
+  private FieldPosition.TargetType speaker = FieldPosition.TargetType.Speaker;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToTargetOdometry(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis, AHRS navx) {  //not accounted for multiple cameras yet!!
+  public VisionTurnToTargetOdometry(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis, AHRS Navx) {  //not accounted for multiple cameras yet!!
     this.shooterVision = shooterVision;
     this.intakeVision = intakeVision;
     this.chassis = chassis;
@@ -52,10 +54,9 @@ public class VisionTurnToTargetOdometry extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<Double> distanceVision;
-    Optional<Double> intakeVision;
-    Optional<Double> angle;
-    //TODO: actually turning!!
+    double x = FieldPosition.GetChassisRotationToPoint(intakeVision.botPose, FieldPosition.GetTargetList(speaker), navx);
+    var rotation = 0.5/60.0 * x;
+    chassis.drive(0, 0, rotation, true, true);
   }
 
   // Called once the command ends or is interrupted.

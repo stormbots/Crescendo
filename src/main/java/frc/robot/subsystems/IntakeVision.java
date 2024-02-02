@@ -14,6 +14,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -58,8 +59,8 @@ public class IntakeVision extends SubsystemBase {
   public LimelightReadings limelightReadings;
   private SwerveDrivePoseEstimator poseEstimator;
 
-  public double targetHeight = 48.0;
-  public double camHeight = 6.0;
+  public double targetHeight = Units.inchesToMeters(48.0);
+  public double camHeight = Units.inchesToMeters(6);
   public double camAngle = 80.0; //degrees
 
   public IntakeVision(AHRS gyro, SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
@@ -146,5 +147,5 @@ public class IntakeVision extends SubsystemBase {
       case kZoom:
       camera.getEntry("pipeline").setNumber(1);
     }
-}
+  }
 }
