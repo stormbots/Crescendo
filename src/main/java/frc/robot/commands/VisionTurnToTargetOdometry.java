@@ -54,7 +54,7 @@ public class VisionTurnToTargetOdometry extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double x = FieldPosition.GetChassisRotationToPoint(intakeVision.botPose, FieldPosition.GetTargetList(speaker), navx);
+    double x = FieldPosition.GetChassisRotationToPoint(intakeVision.botPose, FieldPosition.GetTargetList(speaker));
     var rotation = 0.5/60.0 * x;
     chassis.drive(0, 0, rotation, true, true);
   }

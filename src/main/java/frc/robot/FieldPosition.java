@@ -68,24 +68,12 @@ public class FieldPosition {
       return new Pose3d();
     }
 
-    public static double GetChassisRotationToPoint(Pose2d botPose, Pose3d targetObject, AHRS navx){
+    public static double GetChassisRotationToPoint(Pose2d botPose, Pose3d targetObject){
         //TODO
-        double angle =  navx.getRotation2d().getRadians(); // negative to account for navx rotation relative to chassis
-        angle = Math.toDegrees(MathUtil.angleModulus(angle));
-
-        double angleError = targetObject.getRotation().getAngle() - angle;
-
-        int continuousMin=-180;
-        int continuousMax=180;
-        if(continuousMin != continuousMax){
-          double continuousHalfRange = (continuousMax-continuousMin)/2.0;
-          angleError %= (continuousHalfRange*2);
-          if(angleError>continuousHalfRange) angleError-=2*continuousHalfRange;
-          if(angleError<-continuousHalfRange) angleError+=2*continuousHalfRange;
-        }
-
-        angleError= MathUtil.clamp(angleError, -25, 25);
-        return 0;
+        double botPoseAngle = botPose.getRotation().getRadians(); // negative to account for navx rotation relative to chassis
+        double targetAngle = targetObject.toPose2d().getRotation().getRadians();
+        double angleError = MathUtil.angleModulus(botPoseAngle-targetAngle);
+        return angleError;
     }
     
     public static void ShowOnGlassDashboard(Field2d field){
