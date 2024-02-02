@@ -110,8 +110,6 @@ public class RobotContainer {
     //default, but only runs once
     new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
 
-
-
   }
 
   /**
@@ -134,6 +132,12 @@ public class RobotContainer {
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+
+    driverController.x().onTrue(
+      new RunCommand(
+        ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
+        climber)
+    );
   }
 
   private void configureOperatorBindings(){
