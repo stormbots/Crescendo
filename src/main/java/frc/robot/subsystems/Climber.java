@@ -23,8 +23,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
 
-  private CANSparkFlex leftMotor = new CANSparkFlex(21, MotorType.kBrushless);
-  private CANSparkFlex rightMotor = new CANSparkFlex(22, MotorType.kBrushless);
+  private CANSparkFlex leftMotor = new CANSparkFlex(16, MotorType.kBrushless);
+  private CANSparkFlex rightMotor = new CANSparkFlex(17, MotorType.kBrushless);
+  
   public boolean isHomed=false;
   public final double kHomeCurrentThreshold=1;
   public final double kClimbingCurrentThreshold=10;
