@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
@@ -16,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Passthrough extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax passthroughMotor = new CANSparkMax(10, MotorType.kBrushless);;
+  public CANSparkMax passthroughMotor = new CANSparkMax(14, MotorType.kBrushless);;
   //Define motor speed, adjust
 
   double kPassthroughSpeed = 0.1;
@@ -31,8 +33,6 @@ public class Passthrough extends SubsystemBase {
   /** distance to the far side of passthrough when unobstructed, in mm */
   public final double kFarWallDistance = 400.0; //mm
   //LaserCan Measurements
-  LaserCan.Measurement sensorDistance = passthroughSensor.getMeasurement();
-  double reading = sensorDistance.distance_mm;
 
 
   /** Creates a new Passthrough. */
@@ -40,9 +40,14 @@ public class Passthrough extends SubsystemBase {
     //Safety inplace
     passthroughMotor.setSmartCurrentLimit(30);
 
-    // var dist = kIdealDistance.in(Units.Inches);
-    SmartDashboard.getBoolean("passthrough/isBlocked", isBlocked());
-    SmartDashboard.getNumber("passthrough/value", reading);
+  }
+
+  public Optional<Measure<Distance>> getSensorReading(){
+    var reading = passthroughSensor.getMeasurement();
+    // SmartDashboard.putNumber("passthrough/rawmeasurement", reading.distance_mm);
+    
+    if(reading == null){return Optional.empty();}
+    return Optional.of(Units.Millimeters.of(reading.distance_mm));
   }
 
   //This for manual option for driver
@@ -64,9 +69,19 @@ public class Passthrough extends SubsystemBase {
   public void eject() {
     passthroughMotor.set(-kPassthroughSpeed);
   }
+  // 
+  public Measure<Distance> sensorValues() {   
+    var measurement = getSensorReading(); 
+    var distance = measurement.orElseGet(()->Units.Millimeters.of(kFarWallDistance));
+    return distance;
+  }
+
   //This will be area for setup for sensor
   public boolean isBlocked() {
-    return reading < kBlockedDistance;
+    var distance = sensorValues();
+    
+
+    return distance.in(Units.Millimeters) < kBlockedDistance;
   }
   //PID setup for passthough
   public void setPassthroughPID(double p, double i, double d){
@@ -78,5 +93,7 @@ public class Passthrough extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("passthrough/isBlocked", isBlocked());
+    SmartDashboard.putNumber("passthrough/value", sensorValues().in(Units.Millimeters));
   }
 }
