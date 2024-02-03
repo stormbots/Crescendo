@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -22,15 +24,17 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.setShooterProfiled;
+import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.LightingProgressBar;
+import frc.robot.subsystems.Chassis;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
-import frc.robot.subsystems.Vision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -42,13 +46,13 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-    new Translation2d(DriveConstants.kTrackWidth / 2, DriveConstants.kTrackWidth / 2),
+    new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
     new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
   );
-
-  public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, new Rotation2d(), 
+  public AHRS navx = new AHRS();
+  public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, navx.getRotation2d(), 
     new SwerveModulePosition[] {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
@@ -58,8 +62,8 @@ public class RobotContainer {
     new Pose2d(0, 0 , new Rotation2d())
   );
 
-  public AHRS navx = new AHRS();
-  public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator);
+  public Field2d field = new Field2d();
+  public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
   public final Climber climber = new Climber(navx);
   public final Intake intake = new Intake();
   public final Passthrough passthrough = new Passthrough();
@@ -68,7 +72,6 @@ public class RobotContainer {
   public final LEDs leds = new LEDs();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
-  public final Vision vision = new Vision(navx, swerveDrivePoseEstimator);
   
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
@@ -77,6 +80,9 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
+
+  public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
+  //public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -103,10 +109,13 @@ public class RobotContainer {
     configureDefaultCommands();
     configureDriverBindings();
     configureOperatorBindings();
-    
+
   }
 
   private void configureDefaultCommands() {
+    //default, but only runs once
+    new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
+
   }
 
   /**
@@ -122,15 +131,25 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // driverController.x().whileTrue(
+    //   new VisionTurnToTargetAprilTag(shooterVision, intakeVision, chassis, navx)
+    // );
 
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+
+    driverController.x().onTrue(
+      new RunCommand(
+        ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
+        climber)
+    );
   }
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
     operatorJoystick.button(3).onTrue(new LightingProgressBar(leds, Color.kBlack, Color.kBlue, 5));
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

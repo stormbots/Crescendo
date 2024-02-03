@@ -1,4 +1,4 @@
-package frc.robot;
+package com.stormbots;
 
 public class Clamp{
 	public static double clamp(double x, double min, double max) {

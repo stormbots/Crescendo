@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -69,7 +70,7 @@ public class Chassis extends SubsystemBase {
   private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double prevTime = WPIUtilJNI.now() * 1e-6;
 
-  public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator) {
+  public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
     this.swerveDrivePoseEstimator = swerveDrivePoseEstimator;
@@ -79,7 +80,8 @@ public class Chassis extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   // Update the odometry in the periodic block
-    swerveDrivePoseEstimator.update(
+    swerveDrivePoseEstimator.updateWithTime(
+        Timer.getFPGATimestamp(),
         navx.getRotation2d(),
         new SwerveModulePosition[] {
             frontLeft.getPosition(),
@@ -87,15 +89,21 @@ public class Chassis extends SubsystemBase {
             rearLeft.getPosition(),
             rearRight.getPosition()
         });
-
-    field.setRobotPose(swerveDrivePoseEstimator.getEstimatedPosition());
+    
+    //i WILL cry if this doesn't work by next week
+    var pose = swerveDrivePoseEstimator.getEstimatedPosition();
+    SmartDashboard.putNumber("chassis/x",pose.getX());
+    SmartDashboard.putNumber("chassis/y",pose.getY());
+    field.setRobotPose(pose);
+    
+    SmartDashboard.putData("chassis", field);
+    SmartDashboard.putData("modules/fr", frontRight);
+    SmartDashboard.putData("modules/fl", frontLeft);
+    SmartDashboard.putData("modules/rr", rearRight);
+    SmartDashboard.putData("modules/rl", rearLeft);
+    
     SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
-    SmartDashboard.putNumber("/angle/frmotor", frontRight.getState().angle.getDegrees());
-    SmartDashboard.putNumber("/angle/flmotor", frontLeft.getState().angle.getDegrees());
-    SmartDashboard.putNumber("/angle/brmotor", rearRight.getState().angle.getDegrees());
-    SmartDashboard.putNumber("/angle/blmotor", rearLeft.getState().angle.getDegrees());
-
   }
   public Pose2d getPose() {
     return swerveDrivePoseEstimator.getEstimatedPosition();
@@ -239,8 +247,8 @@ public class Chassis extends SubsystemBase {
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
     frontLeft.resetEncoders();
-    rearLeft.resetEncoders();
     frontRight.resetEncoders();
+    rearLeft.resetEncoders();
     rearRight.resetEncoders();
   }
 
