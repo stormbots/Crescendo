@@ -7,16 +7,13 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -26,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.VisionTurnToTargetAprilTag;
+import frc.robot.commands.ClimberGoHome;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -35,7 +32,6 @@ import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
-import frc.robot.subsystems.ShooterVision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -111,6 +107,9 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
+    //default, but only runs once
+    new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
+
   }
 
   /**
@@ -136,6 +135,11 @@ public class RobotContainer {
 
     driverController.button(9).whileTrue(new InstantCommand()
     .andThen(new InstantCommand(()->passthrough.intake())));
+    driverController.x().onTrue(
+      new RunCommand(
+        ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
+        climber)
+    );
   }
 
   private void configureOperatorBindings(){

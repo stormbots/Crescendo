@@ -27,5 +27,6 @@
   ],
   "java.test.defaultConfig": "WPIlibUnitTests",
   "wpilib.autoStartRioLog": false,
-  "java.completion.guessMethodArguments": "insertParameterNames"
+  "java.completion.guessMethodArguments": "insertParameterNames",
+  "editor.pasteAs.enabled": false
 }

@@ -28,7 +28,7 @@ import frc.robot.subsystems.IntakeVision;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private RobotContainer m_robotContainer;
+  private RobotContainer robotContainer;
   
 
   /**
@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer();
   }
 
   /**
@@ -61,24 +61,28 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
 
-    //TODO: Remove this, temp
-    m_robotContainer.chassis.resetOdometry(new Pose2d());
-    m_robotContainer.chassis.resetEncoders();
+    robotContainer.climber.setPower(0); //Prevent surprise climber motion
+
+    robotContainer.chassis.resetOdometry(new Pose2d());
+    robotContainer.chassis.resetEncoders();
   }
 
   /** This function is called periodically during autonomous. */
@@ -95,19 +99,25 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    //TODO: Remove this, temp
-    m_robotContainer.chassis.resetOdometry(new Pose2d());
-    m_robotContainer.chassis.resetEncoders();
+
+    robotContainer.climber.setPower(0); //Prevent surprise climber motion
+
+    robotContainer.chassis.resetOdometry(new Pose2d());
+    robotContainer.chassis.resetEncoders();
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    
+  }
 
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    robotContainer.climber.setPower(0); //Prevent surprise climber motion
   }
 
   /** This function is called periodically during test mode. */

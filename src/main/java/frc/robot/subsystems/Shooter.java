@@ -7,11 +7,11 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
-import com.stormbots.Lerp;
+import com.stormbots.Clamp;
 
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -19,11 +19,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
-  public CANSparkMax shooterMotor = new CANSparkMax(14, MotorType.kBrushless);
+  public CANSparkMax shooterMotor = new CANSparkMax(13, MotorType.kBrushless);
   private SparkPIDController pidController = shooterMotor.getPIDController();
-  private DutyCycleEncoder shooterAbsEncoder = new DutyCycleEncoder(21);
+  private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double shooterSetPoint = 0.0;
-  private Lerp shooterAnalogLerp = new Lerp(0, 0, 0, 0);
 
   public Shooter() {
     shooterMotor.restoreFactoryDefaults();
@@ -68,13 +67,17 @@ public class Shooter extends SubsystemBase {
   }
 
   public double getShooterAngleAbsolute() {
-    return shooterAbsEncoder.get(); //in rotations, need to do limit
+    return shooterAbsEncoder.getPosition(); //in rotations, need to do limit
+  }
+
+  public double isOnTarget(){
+    //TODO figure out better tolerances that make sense
+    return Clamp.clamp(shooterAbsEncoder.getPosition(), shooterSetPoint-3, shooterSetPoint+3);
   }
 
   public void setShooterPID(double setPoint) {
     this.shooterSetPoint = setPoint;
-    var shooterFF = Lerp.lerp(0, 0, 0, 0, 0);
-    shooterFF*=Math.cos(Math.toRadians(getShooterAngle()));
+    var shooterFF = Math.cos(Math.toRadians(getShooterAngle()));
     pidController.setReference(setPoint, com.revrobotics.CANSparkBase.ControlType.kPosition, 0, shooterFF,ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 

@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Passthrough extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax passthroughMotor = new CANSparkMax(12, MotorType.kBrushless);
+  public CANSparkMax passthroughMotor = new CANSparkMax(10, MotorType.kBrushless);;
+  //Define motor speed, adjust
 
-  //Define motor speed, TODO: adjust
   double kPassthroughSpeed = 0.1;
   //LaserCAN Sensor Setup
   public LaserCan passthroughSensor = new LaserCan(20);
