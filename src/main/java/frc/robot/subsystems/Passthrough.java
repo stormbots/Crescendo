@@ -7,42 +7,72 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
+import au.grapplerobotics.LaserCan;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Passthrough extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax motor = new CANSparkMax(12, MotorType.kBrushless);;
-  //Define motor speed, adjust
+  public CANSparkMax passthroughMotor = new CANSparkMax(12, MotorType.kBrushless);
+
+  //Define motor speed, TODO: adjust
   double kPassthroughSpeed = 0.1;
-  //Additional Sensor (unknown currently ;( )
+  //LaserCAN Sensor Setup
+  public LaserCan passthroughSensor = new LaserCan(20);
+
+  /** where we want the game piece under ideal conditions, in mm */
+  // public final Measure<Distance> kIdealDistance = Units.Millimeters.of(800);
+  public final double kIdealDistance = 800.0;
+  /** distance where we're confident game piece is loaded, and loading can stop. In mm */
+  public final double kBlockedDistance = 100.0;
+  /** distance to the far side of passthrough when unobstructed, in mm */
+  public final double kFarWallDistance = 400.0; //mm
+  //LaserCan Measurements
+  LaserCan.Measurement sensorDistance = passthroughSensor.getMeasurement();
+  double reading = sensorDistance.distance_mm;
 
 
   /** Creates a new Passthrough. */
   public Passthrough() {
     //Safety inplace
-    motor.setSmartCurrentLimit(30);
+    passthroughMotor.setSmartCurrentLimit(30);
+
+    // var dist = kIdealDistance.in(Units.Inches);
+    SmartDashboard.getBoolean("passthrough/isBlocked", isBlocked());
+    SmartDashboard.getNumber("passthrough/value", reading);
   }
 
   //This for manual option for driver
   //Passthrough On
-  public void passthoughOn(){
-    motor.set(kPassthroughSpeed);
+  public void intake(){
+    if(isBlocked() == false) {
+      passthroughMotor.set(kPassthroughSpeed);
+    } else {
+      //This where we will do passthroughAlignNote
+      // passthroughMotor.set(0.0);
+    }
+
   }
   //Passthrough Off
-  public void passthoughOff() {
-    motor.set(0.0);
+  public void stop() {
+    passthroughMotor.set(0.0);
   }
   //Passthrough Out
-  public void passthroughOut() {
-    motor.set(-kPassthroughSpeed);
+  public void eject() {
+    passthroughMotor.set(-kPassthroughSpeed);
   }
   //This will be area for setup for sensor
-  public void sensorStop() {
-    //if someSensor == no note/orange not dected
-    // passthroughOn
-    //if someSensor == note/orange dected
-    // passthroughOff
-     
+  public boolean isBlocked() {
+    return reading < kBlockedDistance;
+  }
+  //PID setup for passthough
+  public void setPassthroughPID(double p, double i, double d){
+    passthroughMotor.getPIDController().setP(p);
+    passthroughMotor.getPIDController().setI(i);
+    passthroughMotor.getPIDController().setD(d);
   }
 
   @Override

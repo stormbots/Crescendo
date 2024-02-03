@@ -133,6 +133,9 @@ public class RobotContainer {
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+
+    driverController.button(9).whileTrue(new InstantCommand()
+    .andThen(new InstantCommand(()->passthrough.intake())));
   }
 
   private void configureOperatorBindings(){
