@@ -5,18 +5,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LEDs;
 
 public class LightingProgressBar extends Command {
   /** Creates a new LightingColor. */
-  final LEDs leds = new LEDs();
+  final LEDs leds;
   Color backGroundColor;
   Color progressColor;
   double timeLimt;
   double startTime;
-  public LightingProgressBar(Color backGroundColor, Color progressColor, double timeLimt) {
+  boolean finished;
+  public LightingProgressBar(LEDs leds, Color backGroundColor, Color progressColor, double timeLimt) {
+    this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = progressColor;
     this.timeLimt = timeLimt;
@@ -26,9 +29,9 @@ public class LightingProgressBar extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize(){
-    
-    leds.ledStrip.setData(leds.ledBuffer);
-    leds.ledStrip.start();
+    finished = false;
+    // leds.ledStrip.setData(leds.ledBuffer);
+    // leds.ledStrip.start();
     startTime = Timer.getFPGATimestamp();
     leds.setLedRGBLib(backGroundColor);
     
@@ -37,14 +40,21 @@ public class LightingProgressBar extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute(){
+    SmartDashboard.putNumber("StartTime", startTime);
+    
     var currentTime = Timer.getFPGATimestamp();
+    SmartDashboard.putNumber("CurrentTime", currentTime);
     var elapsedTime = currentTime-startTime;
     double timePerLED = (timeLimt / leds.ledBuffer.getLength());
     var channels = (int)(Math.round((elapsedTime / timePerLED)));
     if(channels > leds.ledBuffer.getLength()){
+      finished = true;
       channels = leds.ledBuffer.getLength();
     }
     leds.setLedRGBLib(progressColor, channels);
+    // if (channels + 1 > leds.ledBuffer.getLength()){
+    //   finished = true;
+    // }
     //do any time math
     //set color
 
@@ -53,12 +63,13 @@ public class LightingProgressBar extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    leds.setLedRGBLib(backGroundColor);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return finished;
   }
 
 }

@@ -130,7 +130,7 @@ public class RobotContainer {
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
-  }
+    operatorJoystick.button(3).onTrue(new LightingProgressBar(leds, Color.kBlack, Color.kBlue, 5));
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
