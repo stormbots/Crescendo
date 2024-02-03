@@ -11,14 +11,16 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
-
+import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.ChassisConstants.ModuleConstants;
 
-public class MAXSwerveModule {
+public class MAXSwerveModule implements Sendable{
   public final CANSparkFlex drivingSparkFlex;
   private final CANSparkMax turningSparkMax;
 
@@ -96,8 +98,8 @@ public class MAXSwerveModule {
     turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
         ModuleConstants.kTurningMaxOutput);
 
-    drivingSparkFlex.setIdleMode(ModuleConstants.kDrivingMotorIdleMode);
-    turningSparkMax.setIdleMode(ModuleConstants.kTurningMotorIdleMode);
+    drivingSparkFlex.setIdleMode(IdleMode.kCoast);
+    turningSparkMax.setIdleMode(IdleMode.kCoast);
     drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
@@ -163,5 +165,12 @@ public class MAXSwerveModule {
   /** Zeroes all the SwerveModule encoders. */
   public void resetEncoders() {
     drivingEncoder.setPosition(0);
+  }
+  
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("MaxSwerveModule");
+    builder.addDoubleProperty("Azimuth Angle", turningEncoder::getPosition, null);
+    builder.addDoubleProperty("Encoder Dist", drivingEncoder::getPosition, drivingEncoder::setPosition);
   }
 }
