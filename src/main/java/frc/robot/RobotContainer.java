@@ -23,6 +23,7 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.setShooterProfiled;
+import frc.robot.commands.LightingProgressBar;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LEDs;
