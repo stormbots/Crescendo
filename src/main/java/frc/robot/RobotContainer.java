@@ -104,6 +104,10 @@ public class RobotContainer {
     configureDriverBindings();
     configureOperatorBindings();
 
+    SmartDashboard.putData("shooter/set90", new SetShooterProfiled(90.0, shooter));
+    SmartDashboard.putData("shooter/set10", new SetShooterProfiled(10.0, shooter));
+    SmartDashboard.putData("shooter/moveto90", shooter.getDebugSetAngle(90.0));
+    SmartDashboard.putData("shooter/moveto10", shooter.getDebugSetAngle(10.0));
   }
 
   private void configureDefaultCommands() {
