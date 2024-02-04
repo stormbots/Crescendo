@@ -116,6 +116,8 @@ public class RobotContainer {
     //default, but only runs once
     new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
 
+    leds.setDefaultCommand(leds.showTeamColor());
+    
   }
 
   /**
@@ -144,6 +146,8 @@ public class RobotContainer {
         ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
         climber)
     );
+
+    new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
   }
 
   private void configureOperatorBindings(){
