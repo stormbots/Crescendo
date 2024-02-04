@@ -4,27 +4,20 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
-import org.opencv.core.TickMeter;
-
-import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 
 public class LEDs extends SubsystemBase {
-  private java.awt.Color javaColorLib;
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
   private int rainbowStart;
-  private int loadStart;
   double startTime;
   /** Creates a new LEDs. */
   public LEDs() {
@@ -35,21 +28,11 @@ public class LEDs extends SubsystemBase {
     ledStrip.start();
     startTime = 0;
     rainbowStart = 0;
-    loadStart = 0;
-    
-
   }
 
   @Override
   public void periodic() {
-    //SmartDashboard.putNumber("startTime", getStartTime());
-    
-    //rainbow(1);
-    // setLedRGBLib(Color.kCyan);
-    //flickerUniform();
     ledStrip.setData(ledBuffer);
-    
-    
     // This method will be called once per scheduler run
   }
 
@@ -61,26 +44,13 @@ public class LEDs extends SubsystemBase {
     startTime = Timer.getFPGATimestamp();
     return startTime;
   }
-  //DOES NOT WORK
-  // public int[] rgbToHsv(Color color){
-  //   int r = (int)color.red*255;
-  //   int g = (int)color.green*255;
-  //   int b = (int)color.blue;
-  //   float[] hsvFloat = new float[3];
-  //   java.awt.Color.RGBtoHSB(r,g,b,hsvFloat);
-  //   int[] hsv = new int[3];
-  //   hsv[0] = (int)hsvFloat[0]*180;
-  //   hsv[1] = (int)hsvFloat[1]*255;
-  //   hsv[2] = (int)hsvFloat[2]*255;
-  //   return hsv;
-  // }
 
   public void setLedHSV(int hue, int saturation, int value){
     for(var i = 0; i < ledBuffer.getLength(); i++){
       ledBuffer.setHSV(i, hue, saturation, value);
-      // ledBuffer.setHSV(i, 0, 100, 100);
     }
   }
+
   public void setLedRGB(int red, int green, int blue){
     for(var i = 0; i < ledBuffer.getLength(); i++){
       ledBuffer.setRGB(i, red, green, blue);
@@ -113,28 +83,30 @@ public class LEDs extends SubsystemBase {
     rainbowStart += speed;
     rainbowStart %= 180;
     }
-  //load doesn't work
-  public void load(double timeLimt, Color color){
-    var currentTime = Timer.getFPGATimestamp();
-    var elapsedTime = currentTime-startTime;
-    double maxTime = timeLimt;
-    double timePerChannel = (maxTime / ledBuffer.getLength());  
-    var chs = (int)(Math.round((elapsedTime / timePerChannel)));
-    if(chs > ledBuffer.getLength()){
-      chs = ledBuffer.getLength();
+
+    public Command showTeamColor(){
+      return new RunCommand(()->{
+        var color = DriverStation.getAlliance();
+        if (color.isPresent()){
+          if (color.get() == DriverStation.Alliance.Red){
+            this.setLedRGBLib(Color.kRed);
+          }
+          if (color.get() == DriverStation.Alliance.Blue){
+            this.setLedRGBLib(Color.kBlue);
+          }
+          return;
+        }
+        this.setLedRGBLib(Color.kPurple);
+      },this)
+      .ignoringDisable(true)
+      ;
     }
-    for(var i =0; i < chs; i++){
-      int value = 50;
-      ledBuffer.setHSV(i, 0, 255, value); 
-      }
-    } 
+
+    public Command showNoteIntake(){
+      return new RunCommand(()->this.setLedRGBLib(Color.kOrangeRed),this)
+      .withTimeout(2)
+      ;
+    }
+
   }
-
-
-  // public void flickerUniform(){
-  //   int value = 
-  //   setLedHSV(0, 255, value);
-  // }
-
-  
 
