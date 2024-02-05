@@ -37,12 +37,12 @@ public class Passthrough extends SubsystemBase {
     motor.set(-kPassthroughSpeed);
   }
   //This will be area for setup for sensor
-  public void sensorStop() {
+  public boolean isBlocked() {
     //if someSensor == no note/orange not dected
     // passthroughOn
     //if someSensor == note/orange dected
     // passthroughOff
-     
+    return false;
   }
 
   @Override
