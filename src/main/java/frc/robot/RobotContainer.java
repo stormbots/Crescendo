@@ -114,7 +114,7 @@ public class RobotContainer {
 
   private void configureDefaultCommands() {
     //default, but only runs once
-    new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
+    // new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));  //TODO: disallowed until climber is configured
 
     leds.setDefaultCommand(leds.showTeamColor());
     
@@ -141,11 +141,12 @@ public class RobotContainer {
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-    driverController.x().onTrue(
-      new RunCommand(
-        ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
-        climber)
-    );
+    //TODO: disallowed until climber is configured
+    // driverController.x().onTrue(
+    //   new RunCommand(
+    //     ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
+    //     climber)
+    // );
 
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
   }
