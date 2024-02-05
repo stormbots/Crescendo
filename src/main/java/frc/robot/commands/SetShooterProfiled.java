@@ -4,14 +4,14 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.Shooter;
-
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Shooter;
 
 /** An example command that uses an example subsystem. */
-public class setShooterProfiled extends Command {
+public class SetShooterProfiled extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Shooter shooter;
   private double shooterAngle;
@@ -20,13 +20,13 @@ public class setShooterProfiled extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(0, 0);
+  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(360, 180);
   TrapezoidProfile.State goal = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile.State initial = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile shooterProfile = new TrapezoidProfile(constraints);
   double startTimer = 0;
 
-  public setShooterProfiled(double shooterAngle, Shooter shooter) {
+  public SetShooterProfiled(double shooterAngle, Shooter shooter) {
     this.shooterAngle = shooterAngle;
     this.shooter = shooter;
     addRequirements(shooter);
@@ -37,15 +37,18 @@ public class setShooterProfiled extends Command {
   @Override
   public void initialize() {
     startTimer = Timer.getFPGATimestamp();
-    initial = new TrapezoidProfile.State(shooter.getShooterAngle(), shooter.shooterMotor.getEncoder().getVelocity());
+    initial = shooter.getState();
     shooterProfile = new TrapezoidProfile(constraints);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var targetPosition = shooterProfile.calculate(Timer.getFPGATimestamp()-startTimer, initial, goal).position;
-    shooter.setShooterPID(targetPosition);
+    var currentState =shooter.getState();
+
+    var targetPosition = shooterProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal).position;
+    shooter.setAngle(targetPosition);
+    SmartDashboard.putNumber("profile/target", targetPosition);
   }
 
   // Called once the command ends or is interrupted.
