@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -24,6 +25,7 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
+import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -104,10 +106,12 @@ public class RobotContainer {
     configureDriverBindings();
     configureOperatorBindings();
 
-    SmartDashboard.putData("shooter/set90", new SetShooterProfiled(90.0, shooter));
-    SmartDashboard.putData("shooter/set10", new SetShooterProfiled(10.0, shooter));
-    SmartDashboard.putData("shooter/moveto90", shooter.getDebugSetAngle(90.0));
-    SmartDashboard.putData("shooter/moveto10", shooter.getDebugSetAngle(10.0));
+    SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
+    SmartDashboard.putData("shooter/profile30", new SetShooterProfiled(30, shooter));
+    SmartDashboard.putData("shooter/profile60", new SetShooterProfiled(60.0, shooter));
+    SmartDashboard.putData("shooter/pidset0", shooter.getDebugSetAngle(0.0));
+    SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
+    SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
   }
 
   private void configureDefaultCommands() {

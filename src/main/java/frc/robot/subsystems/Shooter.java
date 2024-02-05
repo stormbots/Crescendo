@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -29,21 +30,24 @@ public class Shooter extends SubsystemBase {
   public Shooter() {
     shooterMotor.restoreFactoryDefaults();
 
-    //TODO: REMOVE THIS
-    shooterMotor.getEncoder().setPosition(0);
+    shooterMotor.setClosedLoopRampRate(0.05);
 
-    pidController = shooterMotor.getPIDController();
-    // pidController.setFeedbackDevice(shooterAbsEncoder);
+    // pidController.setFeedbackDevice(shooterAbsEncoder);  //WARNING: This is potentially unsafe due to controlling through the discontinuity at 0; do not use. 
+    pidController.setFeedbackDevice(shooterMotor.getEncoder()); //Make sure we revert to native encoder for PID
 
-    // Measure<Angle> deg = Units.Degrees.of(360);
-    // shooterAbsEncoder.setPositionConversionFactor(360.0);
-    // shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()/60.0);
-    shooterMotor.getEncoder().setPositionConversionFactor(360);
-    shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0);
-    // shooterMotor.getEncoder().setPosition(shooterAbsEncoder.getPosition()); //when syncing encoders at start, if abs is below 0 (360-350 and such), the relative encoder will sync and not move due to soft limits
-    
+    //Configure Absolute encoder to accurate values
+    shooterAbsEncoder.setPositionConversionFactor(360.0);
+    shooterAbsEncoder.setInverted(false);
+    shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()); //native unit is RPS
+
+    //Configure relative encoder
+    var gearing = 20.0;
+    shooterMotor.getEncoder().setPositionConversionFactor(360/gearing);
+    shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
+    syncEncoders();
+
     shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
-    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,180);
+    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,45);//TODO: Set this properly
 
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
@@ -51,10 +55,7 @@ public class Shooter extends SubsystemBase {
     shooterMotor.setSmartCurrentLimit(30);
 
     //closed-loop control
-    pidController.setP(0.0001);
-
-    //current limits?
-    //soft limits
+    pidController.setP(0.6/360.0);//TODO: Set proper value
 
     shooterMotor.setIdleMode(IdleMode.kCoast);
   }
@@ -62,14 +63,22 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
 
-    // shooterMotor.set(0.1);
-    // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
-
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("shooter/rotations", shooterMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
     SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
     SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
+  }
+
+  /** Align the absolute and relative encoders, should the need arise */
+  public void syncEncoders(){
+    var position = shooterAbsEncoder.getPosition();
+    if(position > 330){
+      //Account for discontinuity, set relative to negative position
+      shooterMotor.getEncoder().setPosition(360-position);
+    }else{
+      shooterMotor.getEncoder().setPosition(position);
+    }
   }
 
   public void moveShooter(double speed) {
@@ -86,13 +95,15 @@ public class Shooter extends SubsystemBase {
 
   public double isOnTarget(){
     //TODO figure out better tolerances that make sense
-    return Clamp.clamp(shooterAbsEncoder.getPosition(), shooterSetPoint-3, shooterSetPoint+3);
+    return Clamp.clamp(shooterMotor.getEncoder().getPosition(), shooterSetPoint-3, shooterSetPoint+3);
   }
 
   public void setAngle(double degrees) {
     this.shooterSetPoint = degrees;
-    var shooterFF = Math.cos(Math.toRadians(getShooterAngle()));
-    pidController.setReference(degrees, com.revrobotics.CANSparkBase.ControlType.kPosition, 0, shooterFF,ArbFFUnits.kPercentOut); //TODO: voltage control
+    Clamp.clamp(degrees, shooterMotor.getSoftLimit(SoftLimitDirection.kReverse), shooterMotor.getSoftLimit(SoftLimitDirection.kForward));
+    var  kCosFFGain = 0; //TODO: Find kCosFFGain
+    var shooterFF = kCosFFGain*Math.cos(Math.toRadians(getShooterAngle())); //TODO: Find proper gain value on bot
+    pidController.setReference(degrees, ControlType.kPosition, 0, shooterFF,ArbFFUnits.kPercentOut);
   }
 
   public Command getDebugSetAngle(double degrees) {

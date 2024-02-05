@@ -4,12 +4,11 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.Shooter;
-
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Shooter;
 
 /** An example command that uses an example subsystem. */
 public class SetShooterProfiled extends Command {
@@ -21,7 +20,7 @@ public class SetShooterProfiled extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(20, 10);
+  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(360, 180);
   TrapezoidProfile.State goal = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile.State initial = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile shooterProfile = new TrapezoidProfile(constraints);
