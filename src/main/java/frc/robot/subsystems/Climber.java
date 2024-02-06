@@ -27,11 +27,11 @@ public class Climber extends SubsystemBase {
   private CANSparkFlex rightMotor = new CANSparkFlex(17, MotorType.kBrushless);
   
   public boolean isHomed=false;
-  public final double kHomeCurrentThreshold=1;
+  public final double kHomeCurrentThreshold=5;
   public final double kClimbingCurrentThreshold=10;
-  public final double kHomePower=-0.05;
-  public final  Measure<Distance> kMaxHeight=Units.Inches.of(24);;
-  public final  Measure<Distance> kClimbReadyPosition=Units.Inches.of(24);
+  public final double kHomePower=-0.1;
+  public final  Measure<Distance> kMaxHeight=Units.Inches.of(23.25);;
+  public final  Measure<Distance> kClimbReadyPosition=Units.Inches.of(23.25-6);
   private double positionSetpoint=0;
 
   public Climber(AHRS navx) {
@@ -40,14 +40,18 @@ public class Climber extends SubsystemBase {
     setIdleMode(IdleMode.kCoast);    
 
     //set soft limits
+
+    leftMotor.setInverted(false);
+    rightMotor.setInverted(true);
+
     for(CANSparkBase motor : new CANSparkBase[]{leftMotor,rightMotor} ){
       motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.5);
       motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
-      motor.setSoftLimit(SoftLimitDirection.kForward, (float)kMaxHeight.in(Units.Inches));
+      motor.setSoftLimit(SoftLimitDirection.kForward, (float)(kMaxHeight.in(Units.Inches)-0.2));
       motor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
-      motor.getEncoder().setPositionConversionFactor(1.0);
+      motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/71.69);
       motor.setSmartCurrentLimit(5);
     }
   }
@@ -74,6 +78,7 @@ public class Climber extends SubsystemBase {
       motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
       motor.getEncoder().setPosition(0);
       motor.setSmartCurrentLimit(30);
+      setIdleMode(IdleMode.kBrake);
     }
   }
 
@@ -113,5 +118,9 @@ public class Climber extends SubsystemBase {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
     SmartDashboard.putNumber("/climber/rightCurrent", rightMotor.getOutputCurrent());
+    SmartDashboard.putNumber("/climber/leftPosition", leftMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("/climber/rightPosition", rightMotor.getEncoder().getPosition());
+    SmartDashboard.putBoolean("/climber/isHomed", isHomed);
+
   }
 }

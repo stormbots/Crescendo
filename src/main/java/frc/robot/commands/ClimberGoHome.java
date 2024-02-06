@@ -14,6 +14,7 @@ public class ClimberGoHome extends Command {
   public ClimberGoHome(Climber climber) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.climber = climber;
+    addRequirements(climber);
   }
 
   // Called when the command is initially scheduled.
@@ -30,6 +31,7 @@ public class ClimberGoHome extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted){
+    if(interrupted) return; //not homed!!
     climber.setHomed();
     climber.setPower(0);
   }
@@ -38,7 +40,6 @@ public class ClimberGoHome extends Command {
   @Override
   public boolean isFinished() {
     //what we care about: Current home threshhold;
-    climber.isAtHomePosition();
-    return false;
+    return climber.isAtHomePosition();
   }
 }

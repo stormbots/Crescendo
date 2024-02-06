@@ -251,7 +251,7 @@ public class Chassis extends SubsystemBase {
     rearLeft.resetEncoders();
     rearRight.resetEncoders();
   }
-
+  
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     navx.reset();

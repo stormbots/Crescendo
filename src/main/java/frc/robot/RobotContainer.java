@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.time.Instant;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
@@ -14,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -108,7 +111,15 @@ public class RobotContainer {
 
   private void configureDefaultCommands() {
     //default, but only runs once
-    new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
+    //TODO: Only enable when robot is tested 
+    // new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
+    driverController.a().onTrue(new ClimberGoHome(climber));
+
+    // climber.setDefaultCommand(
+    //   new RunCommand(
+    //     ()->climber.setPower(driverController.getRawAxis(0)*0.1), 
+    //     climber)
+    // );
 
   }
 
@@ -133,11 +144,17 @@ public class RobotContainer {
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-    driverController.x().onTrue(
+    operatorJoystick.button(1)
+    .whileTrue(
       new RunCommand(
-        ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
+        ()->climber.setPower(-0.25 * operatorJoystick.getRawAxis(1)), 
         climber)
-    );
+        .finallyDo(()->climber.setPower(0))
+    )
+    ;
+    
+
+
   }
 
   private void configureOperatorBindings(){

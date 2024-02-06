@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax motor = new CANSparkMax(9, MotorType.kBrushless);
+  private CANSparkMax motor = new CANSparkMax(9, MotorType.kBrushless);
   //Define motor speed, adjust
   double kIntakeSpeed = 0.1;
 
