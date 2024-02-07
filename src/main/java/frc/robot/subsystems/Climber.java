@@ -79,7 +79,10 @@ public class Climber extends SubsystemBase {
       motor.getEncoder().setPosition(0);
       motor.setSmartCurrentLimit(30);
       setIdleMode(IdleMode.kBrake);
+      //TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for drive team
+      motor.setSoftLimit(SoftLimitDirection.kReverse, 13);
     }
+
   }
 
   public void setPosition(double target){
@@ -121,6 +124,19 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("/climber/leftPosition", leftMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("/climber/rightPosition", rightMotor.getEncoder().getPosition());
     SmartDashboard.putBoolean("/climber/isHomed", isHomed);
+    SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
+    SmartDashboard.putNumber("/climber/rightCurrent", leftMotor.getOutputCurrent());
+    double max =  kMaxHeight.in(Units.Inches) - 2.0;
+    double min =  2.0; //temp value
+    if(Clamp.bounded(getPosition().in(Units.Inches), min, max)){
+      leftMotor.setSmartCurrentLimit(30);
+      rightMotor.setSmartCurrentLimit(30);
+    } else{
+      leftMotor.setSmartCurrentLimit(4);
+      rightMotor.setSmartCurrentLimit(4);
+    }
+
+
 
   }
 }

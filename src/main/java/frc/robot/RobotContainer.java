@@ -126,8 +126,8 @@ public class RobotContainer {
     //default, but only runs once
     //TODO: Only enable when robot is tested 
     // new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
-    driverController.a().onTrue(new ClimberGoHome(climber));
-
+    driverController.button(2).onTrue(new ClimberGoHome(climber));
+    
     // climber.setDefaultCommand(
     //   new RunCommand(
     //     ()->climber.setPower(driverController.getRawAxis(0)*0.1), 
@@ -158,6 +158,14 @@ public class RobotContainer {
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+
+    driverController.button(4).
+    whileTrue(
+      new RunCommand(
+        ()->shooter.moveShooter(-0.25 * driverController.getRawAxis(1)), 
+        shooter).
+        finallyDo(()->shooter.moveShooter(0))
+    );
 
     operatorJoystick.button(1)
     .whileTrue(

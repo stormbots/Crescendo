@@ -30,8 +30,6 @@ public class Shooter extends SubsystemBase {
 
   public Shooter() {
     shooterMotor.restoreFactoryDefaults();
-    shooterMotor.setSoftLimit(SoftLimitDirection.kForward, 45);
-    shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
 
     shooterMotor.setClosedLoopRampRate(0.05);
 
@@ -44,23 +42,22 @@ public class Shooter extends SubsystemBase {
     shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()); //native unit is RPS
 
     //Configure relative encoder
-    var gearing = 20.0;
-    shooterMotor.getEncoder().setPositionConversionFactor(360/gearing);
+    shooterMotor.getEncoder().setPositionConversionFactor(56.8/15.1);
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
 
-    shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
-    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,45);//TODO: Set this properly
+    shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 5);
+    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,40);//TODO: Set this properly
 
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
-    shooterMotor.setSmartCurrentLimit(30);
+    shooterMotor.setSmartCurrentLimit(20);
 
     //closed-loop control
     pidController.setP(0.6/360.0);//TODO: Set proper value
 
-    shooterMotor.setIdleMode(IdleMode.kCoast);
+    shooterMotor.setIdleMode(IdleMode.kBrake);
   }
 
   @Override
@@ -71,14 +68,15 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
     SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
     SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
   }
 
   /** Align the absolute and relative encoders, should the need arise */
   public void syncEncoders(){
     var position = shooterAbsEncoder.getPosition();
-    if(position > 330){
+    if(position > 225){
       //Account for discontinuity, set relative to negative position
-      shooterMotor.getEncoder().setPosition(360-position);
+      shooterMotor.getEncoder().setPosition(position-360);
     }else{
       shooterMotor.getEncoder().setPosition(position);
     }
