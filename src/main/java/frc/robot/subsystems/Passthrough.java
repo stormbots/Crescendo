@@ -9,7 +9,9 @@ import java.util.Optional;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
+import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.LaserCan.RangingMode;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
@@ -18,12 +20,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Passthrough extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax passthroughMotor = new CANSparkMax(14, MotorType.kBrushless);;
+  public CANSparkMax motor = new CANSparkMax(14, MotorType.kBrushless); //
   //Define motor speed, adjust
 
   double kPassthroughSpeed = 0.1;
   //LaserCAN Sensor Setup
-  public LaserCan passthroughSensor = new LaserCan(20);
+  public LaserCan lasercan = new LaserCan(20);
 
   /** where we want the game piece under ideal conditions, in mm */
   // public final Measure<Distance> kIdealDistance = Units.Millimeters.of(800);
@@ -37,40 +39,41 @@ public class Passthrough extends SubsystemBase {
 
   /** Creates a new Passthrough. */
   public Passthrough() {
+    motor.restoreFactoryDefaults();
+    motor.clearFaults();
     //Safety inplace
-    passthroughMotor.setSmartCurrentLimit(30);
+    motor.setSmartCurrentLimit(30);
 
+    motor.getPIDController().setP(0.1);
+
+    try {
+      lasercan.setRangingMode(RangingMode.SHORT);
+      SmartDashboard.putBoolean("passthrough/LaserConfig'd", true);
+    } catch (ConfigurationFailedException e) {
+      SmartDashboard.putBoolean("passthrough/LaserConfig'd", false);
+    }
   }
 
   public Optional<Measure<Distance>> getSensorReading(){
-    var reading = passthroughSensor.getMeasurement();
-    // SmartDashboard.putNumber("passthrough/rawmeasurement", reading.distance_mm);
-    
+    var reading = lasercan.getMeasurement();    
     if(reading == null){return Optional.empty();}
     return Optional.of(Units.Millimeters.of(reading.distance_mm));
   }
 
   //This for manual option for driver
-  //Passthrough On
   public void intake(){
-    if(isBlocked() == false) {
-      passthroughMotor.set(kPassthroughSpeed);
-    } else {
-      //This where we will do passthroughAlignNote
-      // passthroughMotor.set(0.0);
-    }
+    motor.set(kPassthroughSpeed);
+  }
 
-  }
-  //Passthrough Off
   public void stop() {
-    passthroughMotor.set(0.0);
+    motor.set(0.0);
   }
-  //Passthrough Out
+
   public void eject() {
-    passthroughMotor.set(-kPassthroughSpeed);
+    motor.set(-kPassthroughSpeed);
   }
   // 
-  public Measure<Distance> sensorValues() {   
+  public Measure<Distance> getSensorDistance() {   
     var measurement = getSensorReading(); 
     var distance = measurement.orElseGet(()->Units.Millimeters.of(kFarWallDistance));
     return distance;
@@ -78,22 +81,14 @@ public class Passthrough extends SubsystemBase {
 
   //This will be area for setup for sensor
   public boolean isBlocked() {
-    var distance = sensorValues();
-    
-
+    var distance = getSensorDistance();
     return distance.in(Units.Millimeters) < kBlockedDistance;
-  }
-  //PID setup for passthough
-  public void setPassthroughPID(double p, double i, double d){
-    passthroughMotor.getPIDController().setP(p);
-    passthroughMotor.getPIDController().setI(i);
-    passthroughMotor.getPIDController().setD(d);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("passthrough/isBlocked", isBlocked());
-    SmartDashboard.putNumber("passthrough/value", sensorValues().in(Units.Millimeters));
+    SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Millimeters));
   }
 }

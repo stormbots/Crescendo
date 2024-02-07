@@ -18,20 +18,20 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   public Intake() {
     //Safety
-    motor.setSmartCurrentLimit(30);
+    motor.setSmartCurrentLimit(5);
   }
 
 
   //Intake On
-  public void intakeOn(){
+  public void intake(){
     motor.set(kIntakeSpeed);
   }
   //Intake Off
-  public void intakeOff(){
+  public void stop(){
     motor.set(0.0);
   }
   //Intake Eject (use when object stuck)
-  public void intakeEject(){
+  public void eject(){
     motor.set(-kIntakeSpeed);
   }
 

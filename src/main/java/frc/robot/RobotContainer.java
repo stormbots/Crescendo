@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,6 +25,7 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
+import frc.robot.commands.IntakeNote;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -132,9 +134,7 @@ public class RobotContainer {
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
-
-    driverController.button(9).whileTrue(new InstantCommand()
-    .andThen(new InstantCommand(()->passthrough.intake())));
+    
     driverController.x().onTrue(
       new RunCommand(
         ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
@@ -144,6 +144,9 @@ public class RobotContainer {
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
+
+    operatorJoystick.button(2)
+    .whileTrue(new IntakeNote(intake, passthrough));
   }
 
   /**

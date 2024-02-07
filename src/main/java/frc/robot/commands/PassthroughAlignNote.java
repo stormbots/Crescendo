@@ -37,7 +37,6 @@ public class PassthroughAlignNote extends Command {
   @Override
   public void execute() {
     //Setup PID for the passthroughMotor
-    m_passthrough.setPassthroughPID(0.01,0,0); //TODO: Tune PIDs
     //Have it adjusting within the ideal range for passthrough
     m_passthrough.isBlocked();
   }
