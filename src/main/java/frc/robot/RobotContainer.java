@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -27,11 +28,14 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
+import frc.robot.commands.LightingProgressBar;
+import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
+import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
@@ -69,6 +73,9 @@ public class RobotContainer {
   public final Passthrough passthrough = new Passthrough();
   public final Shooter shooter = new Shooter();
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
+  public final LEDs leds = new LEDs();
+  //TODO: Vision Needs access to pose estimator: Either by objects in 
+  // Robotcontainer or via a method in Chassis
   
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
@@ -107,6 +114,12 @@ public class RobotContainer {
     configureDriverBindings();
     configureOperatorBindings();
 
+    SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
+    SmartDashboard.putData("shooter/profile30", new SetShooterProfiled(30, shooter));
+    SmartDashboard.putData("shooter/profile60", new SetShooterProfiled(60.0, shooter));
+    SmartDashboard.putData("shooter/pidset0", shooter.getDebugSetAngle(0.0));
+    SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
+    SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
   }
 
   private void configureDefaultCommands() {
@@ -120,7 +133,9 @@ public class RobotContainer {
     //     ()->climber.setPower(driverController.getRawAxis(0)*0.1), 
     //     climber)
     // );
+    // new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));  //TODO: disallowed until climber is configured
 
+    leds.setDefaultCommand(leds.showTeamColor());
   }
 
   /**
@@ -152,13 +167,13 @@ public class RobotContainer {
         .finallyDo(()->climber.setPower(0))
     )
     ;
-    
 
-
+    new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
   }
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
+    operatorJoystick.button(3).onTrue(new LightingProgressBar(leds, Color.kBlack, Color.kBlue, 5));
   }
 
   /**
