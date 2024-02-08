@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -133,7 +134,11 @@ public class RobotContainer {
     //     ()->climber.setPower(driverController.getRawAxis(0)*0.1), 
     //     climber)
     // );
-    // new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));  //TODO: disallowed until climber is configured
+
+    //TODO : Enable for driving but not testing
+    // new Trigger(DriverStation::isEnabled)
+    // .and(()->climber.isHomed==false)
+    // .whileTrue(new ClimberGoHome(climber));  //TODO: disallowed until climber is configured
 
     leds.setDefaultCommand(leds.showTeamColor());
   }
@@ -156,16 +161,19 @@ public class RobotContainer {
     // );
 
     //Reset Gyro
-    driverController.button(10).onTrue(new InstantCommand()
+    driverController.b().onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-    driverController.button(4).
+    operatorJoystick.button(2). //press down button 2 while moving joystick to move
     whileTrue(
       new RunCommand(
-        ()->shooter.moveShooter(-0.25 * driverController.getRawAxis(1)), 
+        ()->shooter.moveShooter(-0.25 * operatorJoystick.getRawAxis(1)), 
         shooter).
-        finallyDo(()->shooter.moveShooter(0))
+        finallyDo(shooter::stopShooter)
     );
+    // driverController.a().onTrue(new InstantCommand()
+    //   .andThen(new SetShooterProfiled(20, shooter)) //once we get the setAngle working
+    // );
 
     operatorJoystick.button(1)
     .whileTrue(

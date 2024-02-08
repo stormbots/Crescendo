@@ -29,6 +29,7 @@ public class Shooter extends SubsystemBase {
 
 
   public Shooter() {
+    shooterMotor.clearFaults();
     shooterMotor.restoreFactoryDefaults();
 
     shooterMotor.setClosedLoopRampRate(0.05);
@@ -82,8 +83,12 @@ public class Shooter extends SubsystemBase {
     }
   }
 
+  public void stopShooter(){
+    shooterMotor.set(0);
+  }
+  
   public void moveShooter(double speed) {
-    shooterMotor.set(speed);
+    shooterMotor.set(speed + getShooterFFPercent());
   }
 
   public double getShooterAngle() {
@@ -99,12 +104,15 @@ public class Shooter extends SubsystemBase {
     return Clamp.clamp(shooterMotor.getEncoder().getPosition(), shooterSetPoint-3, shooterSetPoint+3);
   }
 
+  public double getShooterFFPercent(){
+    var  kCosFFGain = 0.06;
+    return kCosFFGain*Math.cos(Math.toRadians(getShooterAngle()));
+  }
+
   public void setAngle(double degrees) {
     this.shooterSetPoint = degrees;
-    Clamp.clamp(degrees, shooterMotor.getSoftLimit(SoftLimitDirection.kReverse), shooterMotor.getSoftLimit(SoftLimitDirection.kForward));
-    var  kCosFFGain = 0; //TODO: Find kCosFFGain
-    var shooterFF = kCosFFGain*Math.cos(Math.toRadians(getShooterAngle())); //TODO: Find proper gain value on bot
-    pidController.setReference(degrees, ControlType.kPosition, 0, shooterFF,ArbFFUnits.kPercentOut);
+    Clamp.clamp(degrees, shooterMotor.getSoftLimit(SoftLimitDirection.kReverse), shooterMotor.getSoftLimit(SoftLimitDirection.kForward)); 
+    pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
   public Command getDebugSetAngle(double degrees) {

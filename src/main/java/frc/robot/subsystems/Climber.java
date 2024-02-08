@@ -128,7 +128,8 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("/climber/rightCurrent", leftMotor.getOutputCurrent());
     double max =  kMaxHeight.in(Units.Inches) - 2.0;
     double min =  2.0; //temp value
-    if(Clamp.bounded(getPosition().in(Units.Inches), min, max)){
+
+    if(isHomed && Clamp.bounded(getPosition().in(Units.Inches), min, max)){
       leftMotor.setSmartCurrentLimit(30);
       rightMotor.setSmartCurrentLimit(30);
     } else{

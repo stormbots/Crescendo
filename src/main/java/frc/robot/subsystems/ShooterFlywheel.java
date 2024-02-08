@@ -29,6 +29,7 @@ public class ShooterFlywheel extends SubsystemBase {
 
     for(CANSparkMax motor : new CANSparkMax[]{topMotor,botMotor} ){
       motor.restoreFactoryDefaults();
+      motor.clearFaults();
 
       var pid = motor.getPIDController();
       pid.setP(0);
@@ -38,6 +39,7 @@ public class ShooterFlywheel extends SubsystemBase {
       pid.setSmartMotionMaxAccel(kMaxRPM/1.0, 0);
     }
     topMotor.setInverted(false);
+    botMotor.setInverted(true);
   }
 
   @Override

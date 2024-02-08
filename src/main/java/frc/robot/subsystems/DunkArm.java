@@ -23,6 +23,7 @@ public class DunkArm extends SubsystemBase {
   private double armSetpoint = 0.0;
 
   public DunkArm() {
+    armMotor.clearFaults();
     armMotor.restoreFactoryDefaults();
     armMotor.setIdleMode(IdleMode.kBrake);
 
@@ -66,7 +67,8 @@ public class DunkArm extends SubsystemBase {
 
   public void setArmAngle(double setPoint) {
     this.armSetpoint = setPoint;
-    var armFF = Math.cos(Math.toRadians(getInternalEncoderAngle()));
+    var kCosFFGain = 0; //TODO: arm ff gain
+    var armFF = kCosFFGain*Math.cos(Math.toRadians(getInternalEncoderAngle()));
     armpid.setReference(setPoint, com.revrobotics.CANSparkBase.ControlType.kPosition, 0, armFF,ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 

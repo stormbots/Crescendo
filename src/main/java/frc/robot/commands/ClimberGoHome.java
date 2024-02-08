@@ -31,9 +31,9 @@ public class ClimberGoHome extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted){
+    climber.setPower(0);
     if(interrupted) return; //not homed!!
     climber.setHomed();
-    climber.setPower(0);
   }
 
   // Returns true when the command should end.
