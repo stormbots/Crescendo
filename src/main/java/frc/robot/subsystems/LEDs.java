@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -20,6 +19,7 @@ public class LEDs extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
   private int rainbowStart;
+  boolean hasRun;
   /** Creates a new LEDs. */
   public LEDs() {
     ledStrip = new AddressableLED(9);
@@ -28,24 +28,21 @@ public class LEDs extends SubsystemBase {
     ledStrip.setData(ledBuffer);
     ledStrip.start();
     rainbowStart = 0;
+    hasRun = false;
   }
 
   @Override
   public void periodic() {
     // setLedHsvManual(206/2, 156, 180);
     ledStrip.setData(ledBuffer);
+
     // This method will be called once per scheduler run
   }
 
   
-  public double getStartTime(){
-    double startTime = Timer.getFPGATimestamp();
-    return startTime;
-  }
-
-  public double getCurrentTime(){
-    double currentTime = Timer.getFPGATimestamp();
-    return currentTime;
+  public double getTime(){
+    double time = Timer.getFPGATimestamp();
+    return time;
   }
 
  public int[] rgbToHsv(Color color){
@@ -109,9 +106,6 @@ public class LEDs extends SubsystemBase {
     int red = (int)(color.red*255);
     int green = (int)(color.green*255);
     int blue = (int)(color.blue*255);
-    SmartDashboard.putNumber("led/Red", red);
-    SmartDashboard.putNumber("led/Green", green);
-    SmartDashboard.putNumber("led/Blue", blue);
     for(var i = 0; i < ledBuffer.getLength(); i++){
       ledBuffer.setRGB(i, red, green, blue);
     }
@@ -155,6 +149,19 @@ public class LEDs extends SubsystemBase {
     rainbowStart %= 180;
     }
 
+    private void runOnce(){
+      setLedHSV(Color.kGreen, 100);
+      hasRun = true;
+    }
+
+    public boolean hasRun(){
+      if (DriverStation.isEnabled()&& hasRun == false){
+        return true;
+      }
+      return false;
+      
+    }
+
     public Command showTeamColor(){
       return new RunCommand(()->{
         var color = DriverStation.getAlliance();
@@ -174,9 +181,11 @@ public class LEDs extends SubsystemBase {
     }
 
     public Command showNoteIntake(){
-      return new RunCommand(()->this.setLedRGB(Color.kOrangeRed),this)
-      .withTimeout(2)
-      ;
+      return new RunCommand(()->this.setLedRGB(Color.kOrangeRed),this).withTimeout(2);
+    }
+
+    public Command runFirstTime(){
+      return new RunCommand(()->this.runOnce(),this).withTimeout(2);
     }
     
   }

@@ -35,7 +35,7 @@ public class LightingProgressBar extends Command {
     finished = false;
     // leds.ledStrip.setData(leds.ledBuffer);
     // leds.ledStrip.start();
-    startTime = leds.getStartTime();
+    startTime = leds.getTime();
     leds.setLedRGB(backGroundColor);
     
   }
@@ -43,7 +43,7 @@ public class LightingProgressBar extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute(){
-    var currentTime = leds.getCurrentTime();
+    var currentTime = leds.getTime();
     var elapsedTime = currentTime-startTime;
     double timePerLED = (timeLimt / leds.ledBuffer.getLength());
     var channels = (int)(Math.round((elapsedTime / timePerLED)));
