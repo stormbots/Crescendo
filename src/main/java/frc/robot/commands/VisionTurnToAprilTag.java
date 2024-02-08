@@ -4,38 +4,32 @@
 
 package frc.robot.commands;
 
-import frc.robot.FieldPosition;
-import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.IntakeVision;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Chassis;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.IntakeVision.LimelightReadings;
 
 import java.util.Optional;
-
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class VisionTurnToTargetOdometry extends Command {
+public class VisionTurnToAprilTag extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
   private IntakeVision intakeVision;
   private Chassis chassis;
-  private AHRS navx;
-  private FieldPosition.TargetType speaker = FieldPosition.TargetType.Speaker;
+  
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToTargetOdometry(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis, AHRS Navx) {  //not accounted for multiple cameras yet!!
+  public VisionTurnToAprilTag(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis) {
     this.shooterVision = shooterVision;
     this.intakeVision = intakeVision;
     this.chassis = chassis;
-    this.navx = navx;
-    //TODO: get turn power/pid/field stuff
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooterVision);
@@ -48,15 +42,25 @@ public class VisionTurnToTargetOdometry extends Command {
   public void initialize() {
     shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
     intakeVision.setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
-    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double x = FieldPosition.GetChassisRotationToPoint(intakeVision.botPose, FieldPosition.GetTargetList(speaker));
-    var rotation = 0.5/60.0 * x;
-    chassis.drive(0, 0, rotation, true, true);
+    Optional<ShooterVision.LimelightReadings> shooterOffset = shooterVision.getVisibleTarget();
+    Optional<IntakeVision.LimelightReadings> intakeOffset = intakeVision.getVisibleTarget();
+
+    if (shooterVision.hasValidTarget()) {
+      double x = -shooterOffset.get().angleHorizontal;
+      var rotation = 0.5/60.0 * x;
+      chassis.drive(0, 0, rotation, true, true);
+    }
+
+    if (intakeVision.hasValidTarget()) {
+      double x = intakeOffset.get().angleHorizontal;
+      var rotation = 0.5/60.0 * x;
+      chassis.drive(0, 0, rotation, true, true);
+    }
   }
 
   // Called once the command ends or is interrupted.

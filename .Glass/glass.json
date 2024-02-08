@@ -1,6 +1,12 @@
 {
   "NetworkTables": {
     "retained": {
+      "CameraPublisher": {
+        "open": true
+      },
+      "SmartDashboard": {
+        "open": true
+      },
       "limelight": {
         "open": true
       }
@@ -16,7 +22,13 @@
         "open": true
       },
       "SmartDashboard": {
-        "open": true
+        "angle": {
+          "open": true
+        },
+        "open": true,
+        "vision": {
+          "open": true
+        }
       }
     },
     "types": {
@@ -26,11 +38,6 @@
       "/SmartDashboard/visionfield": "Field2d"
     },
     "windows": {
-      "/FMSInfo": {
-        "window": {
-          "visible": true
-        }
-      },
       "/SmartDashboard/chassis": {
         "bottom": 544,
         "builtin": "2024 Crescendo",
@@ -64,8 +71,5 @@
   "NetworkTables Settings": {
     "mode": "Client (NT4)",
     "serverTeam": "2811"
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

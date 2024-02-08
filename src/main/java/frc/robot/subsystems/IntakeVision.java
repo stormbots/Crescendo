@@ -12,16 +12,14 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Clamp;
 
 public class IntakeVision extends SubsystemBase {
   /** Creates a new Vision. */
@@ -31,37 +29,26 @@ public class IntakeVision extends SubsystemBase {
     kNoZoom, kZoom
   }
   public class LimelightReadings {
-    public double xDegreesOffset;
-    public double yDegreesOffset;
-    private double targetValid;
-
-    public LimelightReadings(double xDegreesOffset, double yDegreesOffset, double targetValid) {
-      this.xDegreesOffset = xDegreesOffset;
-      this.yDegreesOffset = yDegreesOffset;
-      this.targetValid = targetValid;
-    }
-
-    public boolean isTargetValid() {
-      if (targetValid>=1) {
-        return true;
-      }
-      return false;
-    }
+    public double targetID;
+    public double distance; //meters
+    public double angleHorizontal; //degrees
+    public double angleVertical; //degrees
+    public Double time;
   }
 
   NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
   
-  NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose
-  public double bpDefault [] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  public Pose2d botPose;
-  public Rotation2d rot;
+  //NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose
+  //public double bpDefault [] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  //public Pose2d botPose;
+  //public Rotation2d rot;
   Field2d field = new Field2d();
-  public LimelightReadings limelightReadings;
-  private SwerveDrivePoseEstimator poseEstimator;
+  //public LimelightReadings limelightReadings;
+  public SwerveDrivePoseEstimator poseEstimator;
 
-  public double targetHeight = Units.inchesToMeters(48.0);
-  public double camHeight = Units.inchesToMeters(6);
-  public double camAngle = 80.0; //degrees
+  //public double targetHeight = Units.inchesToMeters(48.0);
+  //public double camHeight = Units.inchesToMeters(6);
+  //public double camAngle = 80.0; //degrees
 
   public IntakeVision(AHRS gyro, SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
     this.gyro = gyro;
@@ -73,69 +60,64 @@ public class IntakeVision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    limelightReadings = new LimelightReadings(
-      camera.getEntry("tx").getDouble(0.0),
-      camera.getEntry("ty").getDouble(0.0), 
-      camera.getEntry("tv").getDouble(0.0)
-    );
-    
-    if (!limelightReadings.isTargetValid()) {return;}
+    // SmartDashboard.putNumber("vision/rotations in radians", poseEstimator.getEstimatedPosition().getRotation().getRadians());
+    // SmartDashboard.putNumber("vision/x", poseEstimator.getEstimatedPosition().getX());
+    // SmartDashboard.putNumber("vision/y", poseEstimator.getEstimatedPosition().getY());
+    if (hasValidTarget()==false) {return;}
 
-    double[] bp = bpTable.getDoubleArray(bpDefault);
-    ifZoom();
+    zoomIfPossible();
+    updateOdometry();
 
-    rot = new Rotation2d(Math.toRadians(bp[5]));
-    botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
+    SmartDashboard.putData("visionfield", field);
+  }
+
+  public boolean hasValidTarget() {
+    double tv = camera.getEntry("tv").getDouble(0.0);
+    return tv >= 1;
+  }
+
+  public Optional<LimelightReadings> getVisibleTarget() {
+    if (hasValidTarget()==false) {return Optional.empty();}
+
+    double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(new double[]{0,0,0,0,0,0});
+
+    var target = new LimelightReadings();
+    target.targetID = camera.getEntry("tid").getDouble(0.0);
+    target.distance = bp[2]; //meters TODO: negative for some reason :(
+    target.angleHorizontal = camera.getEntry("tx").getDouble(0.0);
+    target.angleVertical = camera.getEntry("ty").getDouble(0.0);
+    target.time = Timer.getFPGATimestamp();
+
+    return Optional.of(target);
+  }
+
+  private void updateOdometry() {
+    if (getVisibleTarget().isEmpty()) {return;}
+
+    double[] bp = camera.getEntry("botpose").getDoubleArray(new double[]{0,0,0,0,0,0});
+
+    Rotation2d rot = new Rotation2d(Math.toRadians(bp[5]));
+    Pose2d botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
 
-    var stdevs = new Matrix<>(Nat.N3(), Nat.N1(), new double[]{1,1,1});
+    var stdevs = new Matrix<>(Nat.N3(), Nat.N1(), new double[]{1,1,1}); //confidence checker
     poseEstimator.setVisionMeasurementStdDevs(stdevs);
 
     field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
     field.getObject("visionpose").setPose(botPose);
-    SmartDashboard.putData("visionfield", field);
   }
 
-  public Optional<Double> getDistance() {
-    double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(bpDefault);
-    if (limelightReadings.isTargetValid()) {return Optional.empty();}
+  public void zoomIfPossible() {
+    var target = getVisibleTarget();
+    if (hasValidTarget()==false) {return;}
 
-    Double distance = bp[2]; //meters
-    return Optional.of(distance); //negative on test bench
-  }
-
-  public double getAngleToTargetPose(Pose3d pose) {
-    Pose2d botPose = poseEstimator.getEstimatedPosition();
-    var targetPose = pose.toPose2d();
-
-    double dx = targetPose.getX() - botPose.getX();
-    double dy = targetPose.getY() - botPose.getY();
-
-    double angle = Math.toDegrees(Math.atan2(dy,dx));
-
-    double botPoseAngle = (botPose.getRotation().getDegrees() % 360);
-    angle = botPoseAngle - angle;
-    return angle;
-  }
-
-  public double getTargetHeading() {
-    return gyro.getAngle() + limelightReadings.xDegreesOffset;
-  }
-
-  public Optional<double[]> getCrosshairOffset() {
-    if (!limelightReadings.isTargetValid()) {return Optional.empty();} //should work?
-    double[] offset = {limelightReadings.xDegreesOffset, limelightReadings.yDegreesOffset};
-    return Optional.of(offset);
-  }
-
-  public void ifZoom() {
-    double xDegreesOffset = limelightReadings.xDegreesOffset;
-    double yDegreesOffset = limelightReadings.yDegreesOffset;
-    if ((xDegreesOffset<=11.0&&xDegreesOffset>=-11.0) && (yDegreesOffset<=10.0&&yDegreesOffset>=-10.0)) {
-      setPipeline(IntakeVision.LimelightPipeline.kZoom);
+    double tx = target.get().angleHorizontal;
+    double ty = target.get().angleVertical;
+    if (Clamp.bounded(tx, -11, 11) && Clamp.bounded(ty, -10, 10)) {
+      setPipeline(LimelightPipeline.kZoom);
     }
     else {
-      setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
+      setPipeline(LimelightPipeline.kNoZoom);
     }
   }
 

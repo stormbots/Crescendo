@@ -1,17 +1,17 @@
 package frc.robot;
 
 import java.util.ArrayList;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import frc.robot.subsystems.IntakeVision;
+import frc.robot.subsystems.IntakeVision.LimelightReadings;
 
 public class FieldPosition {
     public final static double kOriginOffsetX=15.98/2.0;
@@ -68,13 +68,28 @@ public class FieldPosition {
       return new Pose3d();
     }
 
-    public static double GetChassisRotationToPoint(Pose2d botPose, Pose3d targetObject){
-        //TODO
-        double botPoseAngle = botPose.getRotation().getRadians(); // negative to account for navx rotation relative to chassis
-        double targetAngle = targetObject.toPose2d().getRotation().getRadians();
-        double angleError = MathUtil.angleModulus(botPoseAngle-targetAngle);
-        return angleError;
-    }
+    public LimelightReadings getTargetDataOdometry(IntakeVision intakeVision, Pose3d target, SwerveDrivePoseEstimator poseEstimator) {
+    LimelightReadings targetData = intakeVision.new LimelightReadings();
+
+    Pose2d botPose = poseEstimator.getEstimatedPosition();
+    Pose2d targetPose = target.toPose2d();
+
+    //data from field positions
+    double dx = targetPose.getX() - botPose.getX();
+    double dy = targetPose.getY() - botPose.getY();
+    double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+    //bot rotations at current pose
+    double botPoseAngle = botPose.getRotation().getDegrees()%360;
+    double angleOffset = botPoseAngle - orthogonalAngle;
+
+    targetData.angleHorizontal = angleOffset; //degrees
+    targetData.distance = Math.hypot(dx, dy); //meters
+    targetData.targetID = 0;
+    targetData.angleVertical = 0;
+    targetData.time = Timer.getFPGATimestamp();
+
+    return targetData;
+  }
     
     public static void ShowOnGlassDashboard(Field2d field){
         field.getObject("Red Speaker").setPoses(RedSpeaker.toPose2d());
