@@ -33,6 +33,7 @@ import frc.robot.commands.LightingProgressBar;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
@@ -75,6 +76,7 @@ public class RobotContainer {
   public final Shooter shooter = new Shooter();
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
   public final LEDs leds = new LEDs();
+  public final DunkArm dunkArm = new DunkArm();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
   
@@ -115,13 +117,13 @@ public class RobotContainer {
     configureDriverBindings();
     configureOperatorBindings();
 
-    SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
-    SmartDashboard.putData("shooter/profile30", new SetShooterProfiled(30, shooter));
-    SmartDashboard.putData("shooter/profile45", new SetShooterProfiled(45.0, shooter));
-    SmartDashboard.putData("shooter/profile60", new SetShooterProfiled(60.0, shooter));
-    SmartDashboard.putData("shooter/pidset0", shooter.getDebugSetAngle(0.0));
-    SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
-    SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
+    // SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
+    // SmartDashboard.putData("shooter/profile30", new SetShooterProfiled(30, shooter));
+    // SmartDashboard.putData("shooter/profile45", new SetShooterProfiled(45.0, shooter));
+    // SmartDashboard.putData("shooter/profile60", new SetShooterProfiled(60.0, shooter));
+    // SmartDashboard.putData("shooter/pidset0", shooter.getDebugSetAngle(0.0));
+    // SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
+    // SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
   }
 
   private void configureDefaultCommands() {
@@ -167,10 +169,7 @@ public class RobotContainer {
 
     operatorJoystick.button(2). //press down button 2 while moving joystick to move
     whileTrue(
-      new RunCommand(
-        ()->shooter.moveShooter(-0.25 * operatorJoystick.getRawAxis(1)), 
-        shooter).
-        finallyDo(shooter::stopShooter)
+      dunkArm.getCommandMoveArmManually(-0.25* operatorJoystick.getRawAxis(1))
     );
     // driverController.a().onTrue(new InstantCommand()
     //   .andThen(new SetShooterProfiled(20, shooter)) //once we get the setAngle working

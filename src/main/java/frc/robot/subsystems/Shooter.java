@@ -64,12 +64,12 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
 
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("shooter/rotations", shooterMotor.getEncoder().getPosition());
-    SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
-    SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
-    SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
-    SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
-    SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
+    // SmartDashboard.putNumber("shooter/rotations", shooterMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
+    // SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
+    // SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
   }
 
   /** Align the absolute and relative encoders, should the need arise */
