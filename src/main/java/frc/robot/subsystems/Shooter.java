@@ -48,15 +48,14 @@ public class Shooter extends SubsystemBase {
     syncEncoders();
 
     shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 5);
-    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,40);//TODO: Set this properly
-
+    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,45);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
     shooterMotor.setSmartCurrentLimit(20);
 
     //closed-loop control
-    pidController.setP(0.6/360.0);//TODO: Set proper value
+    pidController.setP(6.0/1.2/360.0);
 
     shooterMotor.setIdleMode(IdleMode.kBrake);
   }
@@ -70,6 +69,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
     SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
+    SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
   }
 
   /** Align the absolute and relative encoders, should the need arise */

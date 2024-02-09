@@ -117,6 +117,7 @@ public class RobotContainer {
 
     SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
     SmartDashboard.putData("shooter/profile30", new SetShooterProfiled(30, shooter));
+    SmartDashboard.putData("shooter/profile45", new SetShooterProfiled(45.0, shooter));
     SmartDashboard.putData("shooter/profile60", new SetShooterProfiled(60.0, shooter));
     SmartDashboard.putData("shooter/pidset0", shooter.getDebugSetAngle(0.0));
     SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));

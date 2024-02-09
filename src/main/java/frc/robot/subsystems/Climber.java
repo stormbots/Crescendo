@@ -119,13 +119,13 @@ public class Climber extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
-    SmartDashboard.putNumber("/climber/rightCurrent", rightMotor.getOutputCurrent());
-    SmartDashboard.putNumber("/climber/leftPosition", leftMotor.getEncoder().getPosition());
-    SmartDashboard.putNumber("/climber/rightPosition", rightMotor.getEncoder().getPosition());
-    SmartDashboard.putBoolean("/climber/isHomed", isHomed);
-    SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
-    SmartDashboard.putNumber("/climber/rightCurrent", leftMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("/climber/rightCurrent", rightMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("/climber/leftPosition", leftMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("/climber/rightPosition", rightMotor.getEncoder().getPosition());
+    // SmartDashboard.putBoolean("/climber/isHomed", isHomed);
+    // SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("/climber/rightCurrent", leftMotor.getOutputCurrent());
     double max =  kMaxHeight.in(Units.Inches) - 2.0;
     double min =  2.0; //temp value
 
