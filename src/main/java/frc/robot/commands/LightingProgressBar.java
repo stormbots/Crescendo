@@ -16,13 +16,17 @@ public class LightingProgressBar extends Command {
   double timeLimt;
   double startTime;
   boolean finished;
+  double percentOutput;
+  int value;
 
 
-  public LightingProgressBar(LEDs leds, Color backGroundColor, Color progressColor, double timeLimt) {
+  public LightingProgressBar(LEDs leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = progressColor;
     this.timeLimt = timeLimt;
+    this.percentOutput = percentOutput;
+    value = (int)Math.round((255*(percentOutput/100)));
 
     addRequirements(leds);
   }
@@ -46,12 +50,12 @@ public class LightingProgressBar extends Command {
     var currentTime = leds.getTime();
     var elapsedTime = currentTime-startTime;
     double timePerLED = (timeLimt / leds.ledBuffer.getLength());
-    var channels = (int)(Math.round((elapsedTime / timePerLED)));
+    var channels = (double)(Math.round((elapsedTime / timePerLED)));
     if(channels > leds.ledBuffer.getLength()){
       finished = true;
       channels = leds.ledBuffer.getLength();
     }
-    leds.setLedRGB(progressColor, channels);
+    leds.setLedHSV(progressColor, value, channels);
     // if (channels + 1 > leds.ledBuffer.getLength()){
     //   finished = true;
     // }

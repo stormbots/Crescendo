@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class LEDs extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
-  private int rainbowStart;
   boolean hasRun;
   /** Creates a new LEDs. */
   public LEDs() {
@@ -27,13 +26,11 @@ public class LEDs extends SubsystemBase {
     ledStrip.setLength(ledBuffer.getLength());
     ledStrip.setData(ledBuffer);
     ledStrip.start();
-    rainbowStart = 0;
     hasRun = false;
   }
 
   @Override
   public void periodic() {
-    // setLedHsvManual(206/2, 156, 180);
     ledStrip.setData(ledBuffer);
 
     // This method will be called once per scheduler run
@@ -55,33 +52,23 @@ public class LEDs extends SubsystemBase {
   double h = -1, s = -1; 
   if (max == min) 
     h = 0; 
-
-  // if cmax equal r then compute h 
   else if (max == r) 
     h = ((60 * ((g - b) / range) + 360) % 360)/2; 
-
-  // if cmax equal g then compute h 
   else if (max == g) 
     h = ((60 * ((b - r) / range) + 120) % 360)/2; 
-
-  // if cmax equal b then compute h 
   else if (max == b) 
     h = ((60 * ((r - g) / range) + 240) % 360)/2; 
-
-  // if cmax equal zero 
   if (max == 0) 
     s = 0; 
   else
     s = (range / max) * 255; 
-
-  // compute v 
   double v = max * 255; 
   int[] hsv = new int[3];
   hsv[0] = (int)Math.round(h);
   hsv[1] = (int)Math.round(s);
   hsv[2] = (int)Math.round(v);
   return hsv;
- } 
+ }
 
   private void setLedHsvManual(int hue, int saturation, int value){
     for(var i = 0; i < ledBuffer.getLength(); i++){
@@ -140,15 +127,6 @@ public class LEDs extends SubsystemBase {
     }
   }
 
-  public void rainbow(double speed){
-    for(var i = 0;  i < ledBuffer.getLength();i++){
-      final var hue = (rainbowStart + (i*180/ledBuffer.getLength())) %180;
-      ledBuffer.setHSV(i, hue, 255, 25);
-    }
-    rainbowStart += speed;
-    rainbowStart %= 180;
-    }
-
     private void runOnce(){
       setLedHSV(Color.kGreen, 100);
       hasRun = true;
@@ -185,7 +163,7 @@ public class LEDs extends SubsystemBase {
     }
 
     public Command runFirstTime(){
-      return new RunCommand(()->this.runOnce(),this).withTimeout(2);
+      return new RunCommand(()->this.runOnce(),this).withTimeout(1);
     }
     
   }
