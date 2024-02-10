@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.time.Instant;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
@@ -15,9 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -29,9 +25,6 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
-import frc.robot.commands.LightingProgressBar;
-import frc.robot.commands.SetDunkArmProfiled;
-import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
@@ -127,6 +120,11 @@ public class RobotContainer {
     // SmartDashboard.putData("shooter/pidset0", shooter.getDebugSetAngle(0.0));
     // SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
     // SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
+
+    SmartDashboard.putData("flywheel/set0",flywheel.getShooterSetRPMCommand(0));
+    SmartDashboard.putData("flywheel/set1000",flywheel.getShooterSetRPMCommand(1000));
+    SmartDashboard.putData("flywheel/set2500",flywheel.getShooterSetRPMCommand(2500));
+    SmartDashboard.putData("flywheel/set5000",flywheel.getShooterSetRPMCommand(5000));
   }
 
   private void configureDefaultCommands() {
@@ -147,6 +145,7 @@ public class RobotContainer {
     // .whileTrue(new ClimberGoHome(climber));  //TODO: disallowed until climber is configured
 
     leds.setDefaultCommand(leds.showTeamColor());
+    flywheel.setDefaultCommand(flywheel.getShooterSetRPMCommand(0));
   }
 
   /**
@@ -206,9 +205,10 @@ public class RobotContainer {
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
-    operatorJoystick.button(3).onTrue(new LightingProgressBar(leds, Color.kBlack, Color.kBlue, 5));
+    // operatorJoystick.button(3)
+    // .whileTrue(flywheel.getShooterSetRPMCommand(2500));
   }
-
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
