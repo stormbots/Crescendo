@@ -30,10 +30,12 @@ import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.LightingProgressBar;
+import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
+import frc.robot.subsystems.DunkArmRoller;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
@@ -77,6 +79,7 @@ public class RobotContainer {
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
   public final LEDs leds = new LEDs();
   public final DunkArm dunkArm = new DunkArm();
+  public final DunkArmRoller dunkArmRoller = new DunkArmRoller();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
   
@@ -167,12 +170,26 @@ public class RobotContainer {
     driverController.b().onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-    operatorJoystick.button(2). //press down button 2 while moving joystick to move
-    whileTrue(
-      dunkArm.getCommandMoveArmManually(-0.25* operatorJoystick.getRawAxis(1))
-    );
+    // operatorJoystick.button(2). //press down button 2 while moving joystick to move
+    // whileTrue(
+    //   new RunCommand(
+    //     ()->dunkArm.setArm(-0.25 * operatorJoystick.getRawAxis(1)), dunkArm)
+    //     .finallyDo(()->dunkArm.setArm(0))
+    // );
+
+    // operatorJoystick.button(3).
+    // whileTrue(
+    //   new RunCommand(
+    //     ()->dunkArmRoller.setSpeed(-0.25 * operatorJoystick.getRawAxis(1)), dunkArmRoller)
+    //     .finallyDo(()->dunkArmRoller.stop())
+    // );
+
+    // operatorJoystick.button(4).onTrue(new InstantCommand()
+    //     .andThen(new SetDunkArmProfiled(0, dunkArm))
+    // );
+  
     // driverController.a().onTrue(new InstantCommand()
-    //   .andThen(new SetShooterProfiled(20, shooter)) //once we get the setAngle working
+    //   .andThen(new SetShooterProfiled(20, shooter))
     // );
 
     operatorJoystick.button(1)

@@ -21,7 +21,9 @@
     },
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/chassis": "Field2d",
+      "/SmartDashboard/passthroughAlignNote/testerButton": "Command",
       "/SmartDashboard/visionfield": "Field2d"
     },
     "windows": {
