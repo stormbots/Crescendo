@@ -1,6 +1,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -10,7 +11,11 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -21,19 +26,25 @@ public class DunkArm extends SubsystemBase {
   private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double armSetpoint = 0.0;
 
+  ArmFeedforward armff = new ArmFeedforward(.015, .035, 0.13/45);  // (0.025+0.055)/2.0;
+
+
   public DunkArm() {
     armMotor.clearFaults();
     armMotor.restoreFactoryDefaults();
     armMotor.setIdleMode(IdleMode.kBrake);
-    armAbsEncoder.setPositionConversionFactor(360.0);
-    armMotor.getPIDController().setFeedbackDevice(armMotor.getEncoder()); //Make sure we revert to native encoder for PID
-    armPID.setP(1/100.0);
-    armMotor.getEncoder().setPositionConversionFactor(21.8/3.0);
-    armAbsEncoder.setInverted(true);
-    armMotor.getEncoder().setVelocityConversionFactor(armMotor.getEncoder().getPositionConversionFactor()); //native unit is RPS
-    //current limits?
-    //soft limits
 
+    //Configure abs encoder
+    armAbsEncoder.setPositionConversionFactor(360.0);
+    armAbsEncoder.setInverted(true);
+    armAbsEncoder.setVelocityConversionFactor(armAbsEncoder.getPositionConversionFactor()/60.0); //native unit is RPS, degrees/second
+    
+    //configure relative encoder
+    armMotor.getPIDController().setFeedbackDevice(armMotor.getEncoder()); //Make sure we revert to native encoder for PID
+    armMotor.getEncoder().setPositionConversionFactor(21.8/3.0);
+    armMotor.getEncoder().setVelocityConversionFactor(armMotor.getEncoder().getPositionConversionFactor()/60.0); //native unit is RPS
+    
+    armPID.setP((1/100.0)*2*4/2);
     syncEncoders();
 
     armMotor.setSoftLimit(SoftLimitDirection.kReverse, -10);
@@ -54,7 +65,7 @@ public class DunkArm extends SubsystemBase {
     SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/output", armMotor.getAppliedOutput());
     SmartDashboard.putNumber("dunkArm/velocity", getArmState().velocity);
-
+    SmartDashboard.putNumber("dunkArm/position", getArmState().position);
   }
 
   public void syncEncoders(){
@@ -67,19 +78,19 @@ public class DunkArm extends SubsystemBase {
     }
   }
   
-  public void setArm(double speed) {
-    armMotor.set(speed + getArmFFPercent());
+  public void setPower(double power) {
+    armMotor.set(power + getArmFFPercent());
   }
 
   public void stopArm() {
     armMotor.set(0);
   }
 
-  public double getInternalEncoderAngle() {
+  public double getAngle() {
     return armMotor.getEncoder().getPosition();
   }
 
-  public double getShooterAngleAbsolute() {
+  public double getAngleAbs() {
     return armAbsEncoder.getPosition(); //in rotations, need to do limit
   }
 
@@ -90,17 +101,23 @@ public class DunkArm extends SubsystemBase {
   
   public double getArmFFPercent(){
     var  kCosFFGain = (0.025+0.055)/2.0;
-    return kCosFFGain*Math.cos(Math.toRadians(getInternalEncoderAngle()));
+    return kCosFFGain*Math.cos(Math.toRadians(getAngle()));
+  }
+
+  public double getArmFFProperly(double position, double velocity){
+    //TODO: Manage feed forward and implement in a new setArmAngle profiler
+    var pos = Math.toRadians(position);
+    var vel = Math.toRadians(velocity);
+    return armff.calculate(pos, vel); //NOTE: must be in rad + rad/s
   }
 
   public void setArmAngle(double degrees) {
     this.armSetpoint = degrees;
     Clamp.clamp(degrees, armMotor.getSoftLimit(SoftLimitDirection.kReverse), armMotor.getSoftLimit(SoftLimitDirection.kForward));
-    armPID.setReference(degrees, com.revrobotics.CANSparkBase.ControlType.kPosition, 0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
+    armPID.setReference(degrees, ControlType.kPosition, 0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 
   public TrapezoidProfile.State getArmState(){
-    // return new TrapezoidProfile.State(shooterAbsEncoder.getPosition(), shooterAbsEncoder.getVelocity());
     return new TrapezoidProfile.State(armMotor.getEncoder().getPosition(), armMotor.getEncoder().getVelocity());
   }
 }

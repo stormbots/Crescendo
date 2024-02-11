@@ -20,7 +20,7 @@ public class SetDunkArmProfiled extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(360, 180);
+  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(45, 45);
   TrapezoidProfile.State goal = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile.State initial = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile armProfile = new TrapezoidProfile(constraints);
@@ -47,12 +47,14 @@ public class SetDunkArmProfiled extends Command {
   public void execute() {
     var currentState = dunkArm.getArmState();
 
-    var targetPosition = armProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal).position;
+    var targetState = armProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal);
+    var targetPosition = targetState.position;
     dunkArm.setArmAngle(targetPosition);
     SmartDashboard.putNumber("dunkprofile/target", targetPosition);
+    SmartDashboard.putNumber("dunkprofile/targetVel", targetState.velocity);
+    
     SmartDashboard.putNumber("dunkprofile/current", currentState.position);
     SmartDashboard.putNumber("dunkprofile/velocity", currentState.velocity);
-
   }
 
   // Called once the command ends or is interrupted.
