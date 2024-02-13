@@ -25,6 +25,7 @@ public class SetDunkArmProfiled extends Command {
   TrapezoidProfile.State initial = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile armProfile = new TrapezoidProfile(constraints);
   double startTimer = 0;
+  
 
   public SetDunkArmProfiled(double armAngle, DunkArm dunkArm) {
     this.armAngle = armAngle;

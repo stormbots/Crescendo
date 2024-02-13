@@ -26,6 +26,7 @@ import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.SetDunkArmProfiled;
+import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
@@ -136,6 +137,11 @@ public class RobotContainer {
     SmartDashboard.putData("dunkArm/setPID0", new RunCommand(()->dunkArm.setArmAngle(0), dunkArm));
     SmartDashboard.putData("dunkArm/setPID20", new RunCommand(()->dunkArm.setArmAngle(20), dunkArm));
     SmartDashboard.putData("dunkArm/setPID85", new RunCommand(()->dunkArm.setArmAngle(85), dunkArm));
+
+    SmartDashboard.putData("dunkArm/setSlew-20", new SetDunkArmSlew(-20, dunkArm));
+    SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
+    SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
+    SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
   }
 
   private void configureDefaultCommands() {
@@ -182,9 +188,7 @@ public class RobotContainer {
 
     // operatorJoystick.button(2). //press down button 2 while moving joystick to move
     // whileTrue(
-    //   new RunCommand(
-    //     ()->dunkArm.setPower(-0.25 * operatorJoystick.getRawAxis(1)), dunkArm)
-    //     .finallyDo(()->dunkArm.setPower(0))
+    //   new SetDunkArmSlew(-0.25 * operatorJoystick.getRawAxis(1), dunkArm)
     // );
 
     // operatorJoystick.button(3).
@@ -215,6 +219,13 @@ public class RobotContainer {
   }
 
   private void configureOperatorBindings(){
+    operatorJoystick.button(2).onTrue(new InstantCommand()
+      .andThen( new SetDunkArmSlew(0, dunkArm))
+    );
+
+    operatorJoystick.button(3).onTrue(new InstantCommand()
+      .andThen(new SetDunkArmSlew(100, dunkArm))
+    );
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
     // operatorJoystick.button(3)
     // .whileTrue(flywheel.getShooterSetRPMCommand(2500));

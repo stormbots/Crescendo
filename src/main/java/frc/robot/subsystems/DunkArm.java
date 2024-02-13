@@ -82,7 +82,7 @@ public class DunkArm extends SubsystemBase {
     armMotor.set(power + getArmFFPercent());
   }
 
-  public void stopArm() {
+  public void stop() {
     armMotor.set(0);
   }
 

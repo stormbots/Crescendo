@@ -23,6 +23,10 @@
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/chassis": "Field2d",
+      "/SmartDashboard/flywheel/set0": "Command",
+      "/SmartDashboard/flywheel/set1000": "Command",
+      "/SmartDashboard/flywheel/set2500": "Command",
+      "/SmartDashboard/flywheel/set5000": "Command",
       "/SmartDashboard/passthroughAlignNote/testerButton": "Command",
       "/SmartDashboard/visionfield": "Field2d"
     },
@@ -57,9 +61,38 @@
   },
   "NetworkTables Settings": {
     "mode": "Client (NT4)",
-    "serverTeam": "2811"
-  },
-  "NetworkTables View": {
+    "serverTeam": "2811",
     "visible": false
+  },
+  "Plots": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 1052,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/topMotorCurrentRPM"
+            }
+          ]
+        }
+      ]
+    }
   }
 }
