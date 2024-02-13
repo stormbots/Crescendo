@@ -20,13 +20,14 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Clamp;
+import frc.robot.FieldPosition;
 
 public class IntakeVision extends SubsystemBase {
   /** Creates a new Vision. */
   private AHRS gyro;
 
   public enum LimelightPipeline {
-    kNoZoom, kZoom
+    kNoVision, kNoZoom, kZoom
   }
   public class LimelightReadings {
     public double targetID;
@@ -45,6 +46,7 @@ public class IntakeVision extends SubsystemBase {
   Field2d field = new Field2d();
   //public LimelightReadings limelightReadings;
   public SwerveDrivePoseEstimator poseEstimator;
+  private FieldPosition fieldPos = new FieldPosition();
 
   //public double targetHeight = Units.inchesToMeters(48.0);
   //public double camHeight = Units.inchesToMeters(6);
@@ -59,6 +61,9 @@ public class IntakeVision extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    SmartDashboard.putData("visionfield", field);
+
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("vision/rotations in radians", poseEstimator.getEstimatedPosition().getRotation().getRadians());
     // SmartDashboard.putNumber("vision/x", poseEstimator.getEstimatedPosition().getX());
@@ -73,7 +78,7 @@ public class IntakeVision extends SubsystemBase {
 
   public boolean hasValidTarget() {
     double tv = camera.getEntry("tv").getDouble(0.0);
-    return tv >= 1;
+    return tv >= 0.5;
   }
 
   public Optional<LimelightReadings> getVisibleTarget() {
@@ -123,11 +128,13 @@ public class IntakeVision extends SubsystemBase {
 
   public void setPipeline(LimelightPipeline pipeline) {
     switch(pipeline) {
-      case kNoZoom:
+      case kNoVision:
       camera.getEntry("pipeline").setNumber(0);
+      case kNoZoom:
+      camera.getEntry("pipeline").setNumber(1);
       break;
       case kZoom:
-      camera.getEntry("pipeline").setNumber(1);
+      camera.getEntry("pipeline").setNumber(2);
     }
   }
 }
