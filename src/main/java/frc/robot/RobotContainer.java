@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,7 +26,9 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
-import frc.robot.commands.LightingProgressBar;
+import frc.robot.commands.LightingProgressBarFlow;
+import frc.robot.commands.LightingProgressBarSnap;
+import frc.robot.commands.LightingRainbowSolid;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -120,6 +123,7 @@ public class RobotContainer {
     
   }
 
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -148,11 +152,15 @@ public class RobotContainer {
     );
 
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
+    new Trigger(DriverStation::isEnabled)
+    .and(leds::hasRun).onTrue(leds.runFirstTime());
   }
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
-    operatorJoystick.button(3).onTrue(new LightingProgressBar(leds, Color.kBlack, Color.kBlue, 5));
+    operatorJoystick.button(3).onTrue(new LightingProgressBarSnap(leds, Color.kBlack, Color.kBlue, 5, 100));
+    
+    operatorJoystick.button(1).onTrue(new LightingRainbowSolid(leds, 5, 100));
   }
 
   /**

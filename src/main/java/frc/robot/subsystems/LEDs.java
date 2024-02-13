@@ -122,7 +122,7 @@ public class LEDs extends SubsystemBase {
     int hue = hsv[0];
     int saturation = hsv[1];
     int value = (int) Math.round((hsv[2]*percentOutput/100));
-    for(var i = 0; i < ledBuffer.getLength(); i++){
+    for(var i = 0; i < channels; i++){
       ledBuffer.setHSV(i, hue, saturation, value);
     }
   }
