@@ -13,7 +13,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -26,6 +28,7 @@ import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.IntakeNote;
+import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -78,7 +81,7 @@ public class RobotContainer {
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
   public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
-  //public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
+  //public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);  
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -112,6 +115,13 @@ public class RobotContainer {
     //default, but only runs once
     new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
 
+    //align a note if nothing else is using passthrough
+    new Trigger(DriverStation::isEnabled)
+    .and(passthrough::isBlocked)
+    .and(()->passthrough.getCurrentCommand()==null)
+    .whileTrue(new PassthroughAlignNote(passthrough, intake))
+    ;
+
   }
 
   /**
@@ -144,9 +154,11 @@ public class RobotContainer {
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
-
-    operatorJoystick.button(2)
+    operatorJoystick.button(9)
     .whileTrue(new IntakeNote(intake, passthrough));
+
+    operatorJoystick.button(10)
+    .whileTrue(new RunCommand(intake::eject, intake));
   }
 
   /**

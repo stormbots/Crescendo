@@ -4,27 +4,22 @@
 
 package frc.robot.commands;
 
-import com.revrobotics.CANSparkMax;
-
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Passthrough;
-import frc.robot.subsystems.Shooter;
 
 public class PassthroughAlignNote extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final Shooter m_shooter;
-  private final Passthrough m_passthrough;
-  private final Intake m_intake;
+  private final Passthrough passthrough;
+  private final Intake intake;
 
   /** Creates a new PassthroughAlignNote. */
-  public PassthroughAlignNote(Shooter shooter, Passthrough passthrough, Intake intake) {
+  public PassthroughAlignNote(Passthrough passthrough, Intake intake) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.m_shooter = shooter;
-    this.m_passthrough = passthrough;
-    this.m_intake = intake;
+    this.passthrough = passthrough;
+    this.intake = intake;
 
-    addRequirements(shooter);
     addRequirements(passthrough);
     addRequirements(intake);
   }
@@ -38,16 +33,30 @@ public class PassthroughAlignNote extends Command {
   public void execute() {
     //Setup PID for the passthroughMotor
     //Have it adjusting within the ideal range for passthrough
-    m_passthrough.isBlocked();
+    var dist = passthrough.getSensorDistance().in(Units.Inches);
+    var nominal = 2;
+    //TODO: Adjust these values to more idea placement
+    var kpassthrough = 0.1;
+    var kintake = 0.1;
+
+    var kpassresponse = (dist-nominal) * kpassthrough;
+    var kintakeresponse = (dist-nominal) * kintake;
+
+    passthrough.setPower(kpassresponse);
+    intake.setPower(kintakeresponse);
+    
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intake.stop();
+    passthrough.stop();
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return passthrough.getSensorDistance().in(Units.Inches) > 6;
   }
 }

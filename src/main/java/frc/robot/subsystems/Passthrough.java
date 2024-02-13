@@ -20,27 +20,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Passthrough extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax motor = new CANSparkMax(14, MotorType.kBrushless); //
+  public CANSparkMax motor = new CANSparkMax(10, MotorType.kBrushless); //
   //Define motor speed, adjust
-
-  double kPassthroughSpeed = 0.1;
+  private double kPassthroughSpeed;
   //LaserCAN Sensor Setup
   public LaserCan lasercan = new LaserCan(20);
 
   /** where we want the game piece under ideal conditions, in mm */
-  // public final Measure<Distance> kIdealDistance = Units.Millimeters.of(800);
-  public final double kIdealDistance = 800.0;
+  public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
+  // public final double kIdealDistance = 23.0;
   /** distance where we're confident game piece is loaded, and loading can stop. In mm */
-  public final double kBlockedDistance = 100.0;
+  public final double kBlockedDistance = 185.0;
   /** distance to the far side of passthrough when unobstructed, in mm */
-  public final double kFarWallDistance = 400.0; //mm
-  //LaserCan Measurements
-
+  public final double kFarWallDistance = 355.0; //mm
+  
 
   /** Creates a new Passthrough. */
   public Passthrough() {
     motor.restoreFactoryDefaults();
     motor.clearFaults();
+    motor.setInverted(true);
     //Safety inplace
     motor.setSmartCurrentLimit(30);
 
@@ -60,6 +59,10 @@ public class Passthrough extends SubsystemBase {
     return Optional.of(Units.Millimeters.of(reading.distance_mm));
   }
 
+  public void setPower(double power){
+    motor.set(power);
+  }
+
   //This for manual option for driver
   public void intake(){
     motor.set(kPassthroughSpeed);
@@ -72,7 +75,7 @@ public class Passthrough extends SubsystemBase {
   public void eject() {
     motor.set(-kPassthroughSpeed);
   }
-  // 
+  
   public Measure<Distance> getSensorDistance() {   
     var measurement = getSensorReading(); 
     var distance = measurement.orElseGet(()->Units.Millimeters.of(kFarWallDistance));
