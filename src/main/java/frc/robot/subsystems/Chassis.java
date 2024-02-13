@@ -257,6 +257,15 @@ public class Chassis extends SubsystemBase {
     navx.reset();
   }
 
+  /** Apply an offset from initial navx zero to the intended "forward" direction
+   * for fieldcentric controls.
+   * positive value rotates zero CW
+   */
+  public void setFieldCentricOffset(double offset){
+    zeroHeading();
+    navx.setAngleAdjustment(offset);
+  }
+
   /**
    * Returns the heading of the robot.
    *

@@ -183,7 +183,7 @@ public class RobotContainer {
     // );
 
     //Reset Gyro
-    driverController.b().onTrue(new InstantCommand()
+    driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
     // operatorJoystick.button(2). //press down button 2 while moving joystick to move
