@@ -6,10 +6,10 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LEDs;
+import frc.robot.subsystems.Leds;
 
 public class LightingRainbowSolid extends Command {
-  LEDs leds;
+  Leds leds;
   double secondsPerCycle;
   double startHue = 0;
   double percentOutput;
@@ -17,7 +17,7 @@ public class LightingRainbowSolid extends Command {
   double startTime;
   boolean finished;
   /** Creates a new LightingRainbow. */
-  public LightingRainbowSolid(LEDs leds, double secondsPerCycle, double percentOutput) {
+  public LightingRainbowSolid(Leds leds, double secondsPerCycle, double percentOutput) {
     this.leds = leds;
     this.secondsPerCycle = secondsPerCycle;
     this.percentOutput = percentOutput;

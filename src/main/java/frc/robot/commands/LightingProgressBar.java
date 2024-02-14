@@ -5,12 +5,12 @@
 package frc.robot.commands;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LEDs;
+import frc.robot.subsystems.Leds;
 
   
 public class LightingProgressBar extends Command {
   /** Creates a new LightingColor. */
-  LEDs leds;
+  Leds leds;
   Color backGroundColor;
   Color progressColor;
   double timeLimt;
@@ -20,7 +20,7 @@ public class LightingProgressBar extends Command {
   int value;
 
 
-  public LightingProgressBar(LEDs leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
+  public LightingProgressBar(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = progressColor;
@@ -52,8 +52,10 @@ public class LightingProgressBar extends Command {
     double timePerLED = (timeLimt / leds.ledBuffer.getLength());
     var channels = (double)(Math.round((elapsedTime / timePerLED)));
     if(channels > leds.ledBuffer.getLength()){
-      finished = true;
       channels = leds.ledBuffer.getLength();
+    }
+    if (elapsedTime>timeLimt+.5){
+      finished = true;
     }
     leds.setLedHSV(progressColor, value, channels);
     // if (channels + 1 > leds.ledBuffer.getLength()){

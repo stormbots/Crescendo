@@ -6,12 +6,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LEDs;
+import frc.robot.subsystems.Leds;
 
   
 public class LightingProgressBarSnap extends Command {
   /** Creates a new LightingColor. */
-  LEDs leds;
+  Leds leds;
   Color backGroundColor;
   Color progressColor;
   double timeLimt;
@@ -21,7 +21,7 @@ public class LightingProgressBarSnap extends Command {
   int value;
 
 
-  public LightingProgressBarSnap(LEDs leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
+  public LightingProgressBarSnap(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = progressColor;
@@ -38,8 +38,6 @@ public class LightingProgressBarSnap extends Command {
   @Override
   public void initialize(){
     finished = false;
-    // leds.ledStrip.setData(leds.ledBuffer);
-    // leds.ledStrip.start();
     startTime = leds.getTime();
     leds.setLedRGB(backGroundColor);
     // SmartDashboard.putNumber("leds/startTime", startTime);
@@ -56,10 +54,14 @@ public class LightingProgressBarSnap extends Command {
     double timePerLED = (timeLimt / leds.ledBuffer.getLength());
     var numberOfChannelsOn = (int)((elapsedTime / timePerLED));
     // SmartDashboard.putNumber("leds/channels", channels);
-    if(numberOfChannelsOn > leds.ledBuffer.getLength()){
-      finished = true;
+    if (numberOfChannelsOn > leds.ledBuffer.getLength()){
+      // finished =true;
       numberOfChannelsOn = leds.ledBuffer.getLength();
     }
+    if (elapsedTime>timeLimt+.5){
+      finished =true;
+    }
+
     leds.setLedHSV(progressColor, value, numberOfChannelsOn);
     // if (channels + 1 > leds.ledBuffer.getLength()){
     //   finished = true;

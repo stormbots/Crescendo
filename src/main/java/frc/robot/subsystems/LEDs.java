@@ -13,20 +13,24 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.BlinkinLeds;
 
 
-public class LEDs extends SubsystemBase {
+public class Leds extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
   boolean hasRun;
+  BlinkinLeds blinkinLeds;
   /** Creates a new LEDs. */
-  public LEDs() {
+  public Leds() {
     ledStrip = new AddressableLED(9);
     ledBuffer = new AddressableLEDBuffer(16);
     ledStrip.setLength(ledBuffer.getLength());
     ledStrip.setData(ledBuffer);
     ledStrip.start();
     hasRun = false;
+    
   }
 
   @Override
@@ -160,10 +164,6 @@ public class LEDs extends SubsystemBase {
 
     public Command showNoteIntake(){
       return new RunCommand(()->this.setLedRGB(Color.kOrangeRed),this).withTimeout(2);
-    }
-
-    public Command runFirstTime(){
-      return new RunCommand(()->this.runOnce(),this).withTimeout(1);
     }
     
   }

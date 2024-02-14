@@ -8,12 +8,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LEDs;
+import frc.robot.subsystems.Leds;
 
 public class LightingFlickerUniform extends Command {
   double percentOutput;
   double scaleValue;
-  LEDs leds;
+  Leds leds;
   Color color;
   boolean finished;
   int[] hsv;
@@ -22,7 +22,7 @@ public class LightingFlickerUniform extends Command {
   double currentTime;
   double elapsedTime;
   /** Creates a new LightingFlicker. */
-  public LightingFlickerUniform(LEDs leds, Color color, double percentOutput) {
+  public LightingFlickerUniform(Leds leds, Color color, double percentOutput) {
     this.leds = leds;
     this.color = color;
     this.percentOutput = percentOutput;
