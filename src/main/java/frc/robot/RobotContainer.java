@@ -7,16 +7,13 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -26,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
@@ -48,17 +46,17 @@ public class RobotContainer {
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
-    new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)//,
-    // new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
-    // new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
+    new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
+    new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
+    new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
   );
   public AHRS navx = new AHRS();
   public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, navx.getRotation2d(), 
     new SwerveModulePosition[] {
         new SwerveModulePosition(),
         new SwerveModulePosition(),
-        // new SwerveModulePosition(),
-        // new SwerveModulePosition()
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
     }, 
     new Pose2d(0, 0 , new Rotation2d())
   );
@@ -111,6 +109,9 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
+    //default, but only runs once
+    new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
+
   }
 
   /**
@@ -133,6 +134,12 @@ public class RobotContainer {
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+
+    driverController.x().onTrue(
+      new RunCommand(
+        ()->climber.setPower(0.25 * driverController.getRawAxis(1)), 
+        climber)
+    );
   }
 
   private void configureOperatorBindings(){
