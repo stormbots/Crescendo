@@ -13,10 +13,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -27,6 +29,8 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
+import frc.robot.commands.IntakeNote;
+import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
@@ -164,6 +168,14 @@ public class RobotContainer {
 
     leds.setDefaultCommand(leds.showTeamColor());
     flywheel.setDefaultCommand(flywheel.getShooterSetRPMCommand(0));
+    
+    //align a note if nothing else is using passthrough
+    new Trigger(DriverStation::isEnabled)
+    .and(passthrough::isBlocked)
+    .and(()->passthrough.getCurrentCommand()==null)
+    .whileTrue(new PassthroughAlignNote(passthrough, intake))
+    ;
+
   }
 
   /**
@@ -223,6 +235,12 @@ public class RobotContainer {
     operatorJoystick.button(2).onTrue(new InstantCommand()
       .andThen( new SetDunkArmSlew(0, dunkArm))
     );
+    // operatorJoystick.button(1).whileTrue(new InstantCommand());
+    operatorJoystick.button(9)
+    .whileTrue(new IntakeNote(intake, passthrough));
+
+    operatorJoystick.button(10)
+    .whileTrue(new RunCommand(intake::eject, intake));
 
     operatorJoystick.button(3).onTrue(new InstantCommand()
       .andThen(new SetDunkArmSlew(100, dunkArm))
