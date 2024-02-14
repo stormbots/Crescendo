@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -79,7 +80,7 @@ public class RobotContainer {
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
   public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
-  //public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
+  public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -125,9 +126,9 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    // driverController.x().whileTrue(
-    //   new VisionTurnToTargetAprilTag(shooterVision, intakeVision, chassis, navx)
-    // );
+    driverController.x().whileTrue(
+      new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
+    );
 
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()

@@ -37,7 +37,7 @@ public class IntakeVision extends SubsystemBase {
     public Double time;
   }
 
-  NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
+  public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
   
   //NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose
   //public double bpDefault [] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -62,15 +62,13 @@ public class IntakeVision extends SubsystemBase {
   @Override
   public void periodic() {
 
-    SmartDashboard.putData("visionfield", field);
-
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("vision/rotations in radians", poseEstimator.getEstimatedPosition().getRotation().getRadians());
     // SmartDashboard.putNumber("vision/x", poseEstimator.getEstimatedPosition().getX());
     // SmartDashboard.putNumber("vision/y", poseEstimator.getEstimatedPosition().getY());
-    if (hasValidTarget()==false) {return;}
+    //if (hasValidTarget()==false) {return;}
 
-    zoomIfPossible();
+    //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
 
     SmartDashboard.putData("visionfield", field);
@@ -78,7 +76,7 @@ public class IntakeVision extends SubsystemBase {
 
   public boolean hasValidTarget() {
     double tv = camera.getEntry("tv").getDouble(0.0);
-    return tv >= 0.5;
+    return tv >= 1;
   }
 
   public Optional<LimelightReadings> getVisibleTarget() {
@@ -97,7 +95,7 @@ public class IntakeVision extends SubsystemBase {
   }
 
   private void updateOdometry() {
-    if (getVisibleTarget().isEmpty()) {return;}
+    if (hasValidTarget()==false) {return;}
 
     double[] bp = camera.getEntry("botpose").getDoubleArray(new double[]{0,0,0,0,0,0});
 
@@ -130,11 +128,13 @@ public class IntakeVision extends SubsystemBase {
     switch(pipeline) {
       case kNoVision:
       camera.getEntry("pipeline").setNumber(0);
+      break;
       case kNoZoom:
       camera.getEntry("pipeline").setNumber(1);
       break;
       case kZoom:
       camera.getEntry("pipeline").setNumber(2);
+      break;
     }
   }
 }

@@ -68,7 +68,7 @@ public class ShooterVision extends SubsystemBase {
     zoomIfPossible();
     updateOdometry();
 
-    SmartDashboard.putData("visionfield", field);
+    //SmartDashboard.putData("visionfield", field); overloaded with subscribers on smartdashboard
   }
 
   public boolean hasValidTarget() {
