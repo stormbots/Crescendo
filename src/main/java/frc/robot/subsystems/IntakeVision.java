@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Clamp;
-import frc.robot.FieldPosition;
 
 public class IntakeVision extends SubsystemBase {
   /** Creates a new Vision. */
@@ -38,19 +37,8 @@ public class IntakeVision extends SubsystemBase {
   }
 
   public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
-  
-  //NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose
-  //public double bpDefault [] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  //public Pose2d botPose;
-  //public Rotation2d rot;
   Field2d field = new Field2d();
-  //public LimelightReadings limelightReadings;
   public SwerveDrivePoseEstimator poseEstimator;
-  private FieldPosition fieldPos = new FieldPosition();
-
-  //public double targetHeight = Units.inchesToMeters(48.0);
-  //public double camHeight = Units.inchesToMeters(6);
-  //public double camAngle = 80.0; //degrees
 
   public IntakeVision(AHRS gyro, SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
     this.gyro = gyro;
@@ -61,16 +49,8 @@ public class IntakeVision extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("vision/rotations in radians", poseEstimator.getEstimatedPosition().getRotation().getRadians());
-    // SmartDashboard.putNumber("vision/x", poseEstimator.getEstimatedPosition().getX());
-    // SmartDashboard.putNumber("vision/y", poseEstimator.getEstimatedPosition().getY());
-    //if (hasValidTarget()==false) {return;}
-
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
-
     SmartDashboard.putData("visionfield", field);
   }
 

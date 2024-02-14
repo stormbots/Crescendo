@@ -6,9 +6,7 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Chassis;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.IntakeVision.LimelightReadings;
 
 import java.util.Optional;
 import edu.wpi.first.wpilibj2.command.Command;

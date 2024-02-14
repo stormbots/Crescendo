@@ -127,9 +127,9 @@ public class RobotContainer {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    driverController.x().whileTrue(
-      new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
-    );
+    // driverController.x().whileTrue(
+    //   new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
+    // );
 
     //Reset Gyro
     driverController.button(10).onTrue(new InstantCommand()
