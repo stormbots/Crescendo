@@ -38,6 +38,7 @@ import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
+import frc.robot.subsystems.ShooterVision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -87,7 +88,7 @@ public class RobotContainer {
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
   public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
-  //public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
+  public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -179,7 +180,7 @@ public class RobotContainer {
     // // cancelling on release.
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
     // driverController.x().whileTrue(
-    //   new VisionTurnToTargetAprilTag(shooterVision, intakeVision, chassis, navx)
+    //   new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
     // );
 
     //Reset Gyro

@@ -1,6 +1,12 @@
 {
   "NetworkTables": {
     "retained": {
+      "CameraPublisher": {
+        "open": true
+      },
+      "SmartDashboard": {
+        "open": true
+      },
       "limelight": {
         "open": true
       }
@@ -16,27 +22,43 @@
         "open": true
       },
       "SmartDashboard": {
-        "open": true
+        "angle": {
+          "open": true
+        },
+        "open": true,
+        "vision": {
+          "open": true
+        }
       }
     },
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/chassis": "Field2d",
+      "/SmartDashboard/dunkArm/setPID-20": "Command",
+      "/SmartDashboard/dunkArm/setPID0": "Command",
+      "/SmartDashboard/dunkArm/setPID20": "Command",
+      "/SmartDashboard/dunkArm/setPID85": "Command",
+      "/SmartDashboard/dunkArm/setProfile-20": "Command",
+      "/SmartDashboard/dunkArm/setProfile0": "Command",
+      "/SmartDashboard/dunkArm/setProfile20": "Command",
+      "/SmartDashboard/dunkArm/setProfile85": "Command",
       "/SmartDashboard/flywheel/set0": "Command",
       "/SmartDashboard/flywheel/set1000": "Command",
       "/SmartDashboard/flywheel/set2500": "Command",
       "/SmartDashboard/flywheel/set5000": "Command",
-      "/SmartDashboard/passthroughAlignNote/testerButton": "Command",
+      "/SmartDashboard/robot/scheduler": "Scheduler",
       "/SmartDashboard/visionfield": "Field2d"
     },
     "windows": {
-      "/FMSInfo": {
-        "window": {
-          "visible": true
-        }
-      },
       "/SmartDashboard/chassis": {
+        "bottom": 544,
+        "builtin": "2024 Crescendo",
+        "height": 8.013679504394531,
+        "left": 46,
+        "right": 1088,
+        "top": 36,
+        "width": 16.541748046875,
         "window": {
           "visible": true
         }
