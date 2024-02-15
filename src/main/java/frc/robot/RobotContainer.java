@@ -13,10 +13,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -27,10 +29,13 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
-import frc.robot.commands.SetDunkArmProfiled;
-import frc.robot.commands.SetDunkArmSlew;
+import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
+import frc.robot.commands.SetDunkArmProfiled;
+import frc.robot.commands.SetDunkArmSlew;
+import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
@@ -76,7 +81,7 @@ public class RobotContainer {
   public final Intake intake = new Intake();
   public final Passthrough passthrough = new Passthrough();
   public final Shooter shooter = new Shooter();
-  public final ShooterFlywheel flywheel = new ShooterFlywheel();
+  public final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
   public final LEDs leds = new LEDs();
   public final DunkArm dunkArm = new DunkArm();
   public final DunkArmRoller dunkArmRoller = new DunkArmRoller();
@@ -107,13 +112,19 @@ public class RobotContainer {
     chassis.setDefaultCommand(
         // The left stick controls translation of the robot.
         // Turning is controlled by the X axis of the right stick.
+        // chassis.getDriveCommand( 
+        //   -driverController.getRawAxis(1), 
+        //   -driverController.getRawAxis(0), 
+        //   -driverController.getRawAxis(4)
+        // )
         new RunCommand(
             () -> chassis.drive(
                 -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(driverController.getRawAxis(2), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getRawAxis(4), OIConstants.kDriveDeadband),
                 true, true),
-            chassis));
+            chassis)
+    );
 
     // Configure the trigger bindings
     configureDefaultCommands();
@@ -128,10 +139,10 @@ public class RobotContainer {
     // SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
     // SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
 
-    SmartDashboard.putData("flywheel/set0",flywheel.getShooterSetRPMCommand(0));
-    SmartDashboard.putData("flywheel/set1000",flywheel.getShooterSetRPMCommand(1000));
-    SmartDashboard.putData("flywheel/set2500",flywheel.getShooterSetRPMCommand(2500));
-    SmartDashboard.putData("flywheel/set5000",flywheel.getShooterSetRPMCommand(5000));
+    SmartDashboard.putData("shooterFlywheel/set0",shooterFlywheel.getShooterSetRPMCommand(0));
+    SmartDashboard.putData("shooterFlywheel/set1000",shooterFlywheel.getShooterSetRPMCommand(1000));
+    SmartDashboard.putData("shooterFlywheel/set2500",shooterFlywheel.getShooterSetRPMCommand(2500));
+    SmartDashboard.putData("shooterFlywheel/set5000",shooterFlywheel.getShooterSetRPMCommand(5000));
 
     SmartDashboard.putData("dunkArm/setProfile-20", new SetDunkArmProfiled(-20, dunkArm));
     SmartDashboard.putData("dunkArm/setProfile0", new SetDunkArmProfiled(0, dunkArm));
@@ -152,22 +163,12 @@ public class RobotContainer {
   private void configureDefaultCommands() {
     //default, but only runs once
     //TODO: Only enable when robot is tested 
-    // new Trigger(()->climber.isHomed).whileFalse(new ClimberGoHome(climber));
-    driverController.button(2).onTrue(new ClimberGoHome(climber));
-    
-    // climber.setDefaultCommand(
-    //   new RunCommand(
-    //     ()->climber.setPower(driverController.getRawAxis(0)*0.1), 
-    //     climber)
-    // );
-
-    //TODO : Enable for driving but not testing
     // new Trigger(DriverStation::isEnabled)
     // .and(()->climber.isHomed==false)
-    // .whileTrue(new ClimberGoHome(climber));  //TODO: disallowed until climber is configured
-
+    // .whileTrue(new ClimberGoHome(climber));
+    
     leds.setDefaultCommand(leds.showTeamColor());
-    flywheel.setDefaultCommand(flywheel.getShooterSetRPMCommand(0));
+    shooterFlywheel.setDefaultCommand(shooterFlywheel.getShooterSetRPMCommand(0));
     
     //align a note if nothing else is using passthrough
     new Trigger(DriverStation::isEnabled)
@@ -176,6 +177,7 @@ public class RobotContainer {
     .whileTrue(new PassthroughAlignNote(passthrough, intake))
     ;
 
+    intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
   }
 
   /**
@@ -195,59 +197,101 @@ public class RobotContainer {
     //   new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
     // );
 
+    driverController.button(1).whileTrue(new InstantCommand()); //TODO: brian make bearring face down
+    driverController.button(2).whileTrue(new InstantCommand()); //TODO: brian make bearring face right
+    driverController.button(3).whileTrue(new InstantCommand()); //TODO: brian make bearring face left
+    driverController.button(4).whileTrue(new InstantCommand()); //TODO: brian make bearring face up
+    driverController.button(5).onTrue(new InstantCommand()); //TODO: brian make slow mode
+    driverController.button(6).onTrue(new InstantCommand()); //TODO: brian make swerve x
+
+
+    driverController.button(6).whileTrue(
+      new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
+    );
+
+
+
+    driverController.button(7).onTrue(new ClimberGoHome(climber));
+
     //Reset Gyro
-    driverController.button(10).onTrue(new InstantCommand()
+    driverController.button(8).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-    // operatorJoystick.button(2). //press down button 2 while moving joystick to move
-    // whileTrue(
-    //   new SetDunkArmSlew(-0.25 * operatorJoystick.getRawAxis(1), dunkArm)
-    // );
-
-    // operatorJoystick.button(3).
-    // whileTrue(
-    //   new RunCommand(
-    //     ()->dunkArmRoller.setSpeed(-0.25 * operatorJoystick.getRawAxis(1)), dunkArmRoller)
-    //     .finallyDo(()->dunkArmRoller.stop())
-    // );
-
-    // operatorJoystick.button(4).onTrue(new InstantCommand()
-    //     .andThen(new SetDunkArmProfiled(0, dunkArm))
-    // );
   
     // driverController.a().onTrue(new InstantCommand()
     //   .andThen(new SetShooterProfiled(20, shooter))
     // );
 
-    operatorJoystick.button(1)
-    .whileTrue(
-      new RunCommand(
-        ()->climber.setPower(-0.25 * operatorJoystick.getRawAxis(1)), 
-        climber)
-        .finallyDo(()->climber.setPower(0))
-    )
-    ;
 
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
   }
 
   private void configureOperatorBindings(){
-    operatorJoystick.button(2).onTrue(new InstantCommand()
-      .andThen( new SetDunkArmSlew(0, dunkArm))
-    );
-    // operatorJoystick.button(1).whileTrue(new InstantCommand());
-    operatorJoystick.button(9)
-    .whileTrue(new IntakeNote(intake, passthrough));
+    // operatorJoystick.button(2).onTrue(new InstantCommand()
+    //   .andThen( new SetDunkArmSlew(0, dunkArm))
+    // );
+    // // operatorJoystick.button(1).whileTrue(new InstantCommand());
+    // operatorJoystick.button(9)
+    // .whileTrue(new IntakeNote(intake, passthrough));
 
-    operatorJoystick.button(10)
-    .whileTrue(new RunCommand(intake::eject, intake));
+    // operatorJoystick.button(10)
+    // .whileTrue(new RunCommand(intake::eject, intake));
 
-    operatorJoystick.button(3).onTrue(new InstantCommand()
-      .andThen(new SetDunkArmSlew(100, dunkArm))
-    );
+    // operatorJoystick.button(3).onTrue(new InstantCommand()
+    //   .andThen(new SetDunkArmSlew(100, dunkArm))
+    // );
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
     // operatorJoystick.button(3)
-    // .whileTrue(flywheel.getShooterSetRPMCommand(2500));
+    // .whileTrue(shooterFlywheel.getShooterSetRPMCommand(2500));
+
+    operatorJoystick.button(1)
+    .whileTrue(new ConditionalCommand(
+      new InstantCommand(passthrough::intake,passthrough), 
+      new InstantCommand(()->shooter.setAngle(40),shooter), 
+      passthrough::isBlocked
+    ));
+
+    operatorJoystick.button(2).onTrue(new InstantCommand()
+      .andThen(new SetShooterProfiled(0, shooter) //TODO: not setting to 0
+      .andThen(new SetDunkArmSlew(-20, dunkArm)))
+    );
+
+    //empty button?
+    operatorJoystick.button(3).onTrue(new InstantCommand());
+
+    operatorJoystick.button(4).onTrue(
+      new SetShooterProfiled(40, shooter)
+      //TODO: vision targeting to speaker angle
+    );
+
+    operatorJoystick.button(5).whileTrue(new InstantCommand()
+      .andThen(new SetDunkArmSlew(-10, dunkArm))
+      .andThen(()->dunkArmRoller.setSpeed(
+        0.1)) 
+      //TODO: set dunkarmroller speed and position properly
+    );
+
+    operatorJoystick.button(6).onTrue(
+      new SetDunkArmSlew(90, dunkArm)
+    );
+
+    operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
+      new RunCommand(intake::eject),
+      new RunCommand(passthrough::eject)
+    )//TODO: set shooter/intake eject RPM properly
+    );
+
+    operatorJoystick.button(8).whileTrue(
+      new ClimberSetPosition(climber, climber.kMaxHeight) //TODO: not working
+    );
+
+    operatorJoystick.button(9).whileTrue(
+      new ClimberSetPosition(climber, Units.Inches.of(0))
+    );
+
+    operatorJoystick.button(10).whileTrue(
+      new IntakeNote(intake, passthrough)
+    );
   }
   
   /**

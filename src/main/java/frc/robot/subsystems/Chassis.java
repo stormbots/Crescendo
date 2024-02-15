@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,8 +19,11 @@ import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.MAXSwerveModule;
 import frc.robot.SwerveUtils;
 
@@ -273,5 +277,23 @@ public class Chassis extends SubsystemBase {
    */
   public double getHeading() {
     return navx.getRotation2d().getDegrees();
+  }
+
+  //TODO: not working
+  /**
+   * Fieldcentric drive command, using Field coordinates 
+   * @param xPower [-1..1] with positive away from driver
+   * @param yPower [-1..1] with positive to left
+   * @param rotationPower [-1..1] with positive CCW
+   * @return
+   */
+  public Command getDriveCommand(double xPower, double yPower, double rotationPower){
+    return new RunCommand(
+      () -> {drive(
+          -MathUtil.applyDeadband(xPower, OIConstants.kDriveDeadband),
+          -MathUtil.applyDeadband(yPower, OIConstants.kDriveDeadband),
+          -MathUtil.applyDeadband(rotationPower, OIConstants.kDriveDeadband),
+          true, true);},
+      this);
   }
 }

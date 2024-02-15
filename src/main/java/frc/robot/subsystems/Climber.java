@@ -17,7 +17,6 @@ import com.stormbots.Clamp;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
@@ -85,7 +84,12 @@ public class Climber extends SubsystemBase {
 
   }
 
-  public void setPosition(double target){
+  public void setPosition(Measure<Distance> target){
+    setPosition(target.in(Units.Inches));
+  }
+
+  /** Takes target in inches */
+  private void setPosition(double target){
     this.positionSetpoint = target;
     var ff = 0.0;
 
