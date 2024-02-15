@@ -14,18 +14,17 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.LightingProgressBar;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.Chassis;
@@ -104,7 +103,7 @@ public class RobotContainer {
                 -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(driverController.getRawAxis(2), OIConstants.kDriveDeadband),
-                true, true),
+                true, false),
             chassis));
 
     // Configure the trigger bindings
@@ -171,6 +170,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // return Autos.exampleAuto(m_exampleSubsystem);
+    return autoFactory.getTwoMeterForwardTrajectory().andThen(chassis.getZeroOutputCommand());
+    // return autoFactory.getTwoMeterForwardTrajectory().andThen(new WaitCommand(5)).andThen(autoFactory.getTwoMeterBackwardTrajectory());
+    // return autoFactory.getModuleOneMeterPerSecond();
   }
 }

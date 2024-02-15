@@ -18,6 +18,8 @@ import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.MAXSwerveModule;
@@ -104,7 +106,10 @@ public class Chassis extends SubsystemBase {
     
     SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
+
+    SmartDashboard.putNumber("modules/frVel",frontRight.drivingEncoder.getVelocity());
   }
+
   public Pose2d getPose() {
     return swerveDrivePoseEstimator.getEstimatedPosition();
   }
@@ -231,7 +236,7 @@ public class Chassis extends SubsystemBase {
   }
 
   /**
-   * Sets the swerve ModuleStates.
+   * Sets the swerve ModuleStates. Meters Per Second
    *
    * @param desiredStates The desired SwerveModule states.
    */
@@ -264,5 +269,9 @@ public class Chassis extends SubsystemBase {
    */
   public double getHeading() {
     return navx.getRotation2d().getDegrees();
+  }
+
+  public Command getZeroOutputCommand(){
+    return new RunCommand(()->drive(0,0,0, false, false), this);
   }
 }
