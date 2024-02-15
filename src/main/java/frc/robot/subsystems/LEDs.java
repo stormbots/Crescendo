@@ -4,24 +4,29 @@
 
 package frc.robot.subsystems;
 
+import com.stormbots.BlinkenPattern;
+import frc.robot.CustomColor;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.BlinkinLeds;
+import frc.robot.CustomColor;
 
 
 public class Leds extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
   boolean hasRun;
-  BlinkinLeds blinkinLeds;
+  Spark blinkin = new Spark(8);
+
+
   /** Creates a new LEDs. */
   public Leds() {
     ledStrip = new AddressableLED(9);
@@ -30,6 +35,8 @@ public class Leds extends SubsystemBase {
     ledStrip.setData(ledBuffer);
     ledStrip.start();
     hasRun = false;
+
+    // blinkin.setBoundsMicroseconds(2000, 1501, 1500, 1499, 1000);
     
   }
 
@@ -50,6 +57,34 @@ public class Leds extends SubsystemBase {
   double r = color.red;
   double g = color.green;
   double b = color.blue;
+  double max = Math.max(r, Math.max(g, b)); // maximum of r, g, b 
+  double min = Math.min(r, Math.min(g, b)); // minimum of r, g, b 
+  double range = max - min; // diff of cmax and cmin. 
+  double h = -1, s = -1; 
+  if (max == min) 
+    h = 0; 
+  else if (max == r) 
+    h = ((60 * ((g - b) / range) + 360) % 360)/2; 
+  else if (max == g) 
+    h = ((60 * ((b - r) / range) + 120) % 360)/2; 
+  else if (max == b) 
+    h = ((60 * ((r - g) / range) + 240) % 360)/2; 
+  if (max == 0) 
+    s = 0; 
+  else
+    s = (range / max) * 255; 
+  double v = max * 255; 
+  int[] hsv = new int[3];
+  hsv[0] = (int)Math.round(h);
+  hsv[1] = (int)Math.round(s);
+  hsv[2] = (int)Math.round(v);
+  return hsv;
+ }
+
+ public int[] rgbToHsv(CustomColor color){
+  double r = color.red/255;
+  double g = color.green/255;
+  double b = color.blue/255;
   double max = Math.max(r, Math.max(g, b)); // maximum of r, g, b 
   double min = Math.min(r, Math.min(g, b)); // minimum of r, g, b 
   double range = max - min; // diff of cmax and cmin. 
@@ -111,6 +146,24 @@ public class Leds extends SubsystemBase {
     }
   }
 
+  public void setLedRGB(CustomColor color){
+    int red = (int)(color.red);
+    int green = (int)(color.green);
+    int blue = (int)(color.blue);
+    for(var i = 0; i < ledBuffer.getLength(); i++){
+      ledBuffer.setRGB(i, red, green, blue);
+    }
+  }
+
+  public void setLedRGB(CustomColor color, double channels){
+    int red = (int)(color.red);
+    int green = (int)(color.green);
+    int blue = (int)(color.blue);
+    for(var i = 0; i < channels; i++){
+      ledBuffer.setRGB(i, red, green, blue);
+    }
+  }
+
   public void setLedHSV(Color color, int percentOutput){
     int[] hsv = rgbToHsv(color);
     int hue = hsv[0];
@@ -122,6 +175,26 @@ public class Leds extends SubsystemBase {
   }
 
   public void setLedHSV(Color color, int percentOutput, double channels){
+    int[] hsv = rgbToHsv(color);
+    int hue = hsv[0];
+    int saturation = hsv[1];
+    int value = (int) Math.round((hsv[2]*percentOutput/100));
+    for(var i = 0; i < channels; i++){
+      ledBuffer.setHSV(i, hue, saturation, value);
+    }
+  }
+
+  public void setLedHSV(CustomColor color, int percentOutput){
+    int[] hsv = rgbToHsv(color);
+    int hue = hsv[0];
+    int saturation = hsv[1];
+    int value = (int) Math.round((hsv[2]*percentOutput/100));
+    for(var i = 0; i < ledBuffer.getLength(); i++){
+      ledBuffer.setHSV(i, hue, saturation, value);
+    }
+  }
+
+  public void setLedHSV(CustomColor color, int percentOutput, double channels){
     int[] hsv = rgbToHsv(color);
     int hue = hsv[0];
     int saturation = hsv[1];
@@ -150,20 +223,24 @@ public class Leds extends SubsystemBase {
         if (color.isPresent()){
           if (color.get() == DriverStation.Alliance.Red){
             this.setLedHSV(Color.kRed, this.matchBrightnessScaling(10, 100));
+            blinkin.set(BlinkenPattern.solidRed.pwm());
           }
           if (color.get() == DriverStation.Alliance.Blue){
             this.setLedHSV(Color.kBlue, this.matchBrightnessScaling(10, 100));
+            blinkin.set(BlinkenPattern.solidBlue.pwm());
           }
           return;
         }
         this.setLedHSV(Color.kPurple, 10);
+        blinkin.set(BlinkenPattern.solidViolet.pwm());
       },this)
       .ignoringDisable(true)
       ;
     }
 
     public Command showNoteIntake(){
-      return new RunCommand(()->this.setLedRGB(Color.kOrangeRed),this).withTimeout(2);
+      return new RunCommand(()->{this.setLedRGB(Color.kOrangeRed);
+      this.blinkin.set(BlinkenPattern.solidRedOrange.pwm());},this).withTimeout(2);
     }
     
   }

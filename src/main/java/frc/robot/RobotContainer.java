@@ -34,7 +34,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
-import frc.robot.subsystems.LEDs;
+import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
@@ -72,7 +72,7 @@ public class RobotContainer {
   public final Passthrough passthrough = new Passthrough();
   public final Shooter shooter = new Shooter();
   public final ShooterFlywheel flywheel = new ShooterFlywheel();
-  public final LEDs leds = new LEDs();
+  public final Leds leds = new Leds();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
   
@@ -152,8 +152,6 @@ public class RobotContainer {
     );
 
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
-    new Trigger(DriverStation::isEnabled)
-    .and(leds::hasRun).onTrue(leds.runFirstTime());
   }
 
   private void configureOperatorBindings(){
