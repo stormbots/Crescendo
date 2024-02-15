@@ -19,10 +19,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
-  public CANSparkMax shooterMotor = new CANSparkMax(13, MotorType.kBrushless);
+  public CANSparkMax shooterMotor = new CANSparkMax(Robot.isCompbot?14:13, MotorType.kBrushless);
   private SparkPIDController pidController = shooterMotor.getPIDController();
   private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double shooterSetPoint = 0.0;

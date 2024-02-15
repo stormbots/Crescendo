@@ -17,14 +17,16 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class Passthrough extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax motor = new CANSparkMax(10, MotorType.kBrushless); //
+  public CANSparkMax motor = new CANSparkMax(Robot.isCompbot?10:10 , MotorType.kBrushless); //
+  public CANSparkMax motorB = new CANSparkMax(Robot.isCompbot?11:22, MotorType.kBrushless); //
   //Define motor speed, adjust
   private double kPassthroughSpeed;
   //LaserCAN Sensor Setup
-  public LaserCan lasercan = new LaserCan(20);
+  public LaserCan lasercan = new LaserCan(20);//TODO: Update LaserCAN PB
 
   /** where we want the game piece under ideal conditions, in mm */
   public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
@@ -39,6 +41,10 @@ public class Passthrough extends SubsystemBase {
   public Passthrough() {
     motor.restoreFactoryDefaults();
     motor.clearFaults();
+    motorB.restoreFactoryDefaults();
+    motorB.clearFaults();
+
+    motorB.follow(motor,false);//TODO: Check invert
     motor.setInverted(true);
     //Safety inplace
     motor.setSmartCurrentLimit(30);

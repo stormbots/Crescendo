@@ -15,10 +15,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class ShooterFlywheel extends SubsystemBase {
-  public CANSparkMax topMotor = new CANSparkMax(11, MotorType.kBrushless);
-  public CANSparkMax botMotor = new CANSparkMax(12, MotorType.kBrushless);
+  public CANSparkMax topMotor = new CANSparkMax(Robot.isCompbot?12:11, MotorType.kBrushless);
+  public CANSparkMax botMotor = new CANSparkMax(Robot.isCompbot?13:12, MotorType.kBrushless);
 
   private final double kGearing = 2.0;
   private final double kMaxRPM = 6784 * kGearing;

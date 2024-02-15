@@ -19,12 +19,13 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
 
-  private CANSparkFlex leftMotor = new CANSparkFlex(16, MotorType.kBrushless);
-  private CANSparkFlex rightMotor = new CANSparkFlex(17, MotorType.kBrushless);
+  private CANSparkFlex leftMotor = new CANSparkFlex(Robot.isCompbot?17:16, MotorType.kBrushless);
+  private CANSparkFlex rightMotor = new CANSparkFlex(Robot.isCompbot?18:17, MotorType.kBrushless);
   
   public boolean isHomed=false;
   public final double kHomeCurrentThreshold=5;
