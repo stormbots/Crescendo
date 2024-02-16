@@ -29,7 +29,6 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
-import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmProfiled;
@@ -197,7 +196,7 @@ public class RobotContainer {
     //   new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
     // );
 
-    driverController.button(1).whileTrue(new InstantCommand()); //TODO: brian make bearring face down
+    //driverController.button(1).whileTrue(new RunCommand()); //TODO: brian make bearring face down
     driverController.button(2).whileTrue(new InstantCommand()); //TODO: brian make bearring face right
     driverController.button(3).whileTrue(new InstantCommand()); //TODO: brian make bearring face left
     driverController.button(4).whileTrue(new InstantCommand()); //TODO: brian make bearring face up
@@ -251,10 +250,11 @@ public class RobotContainer {
       passthrough::isBlocked
     ));
 
-    operatorJoystick.button(2).onTrue(new InstantCommand()
-      .andThen(new SetShooterProfiled(0, shooter) //TODO: not setting to 0
-      .andThen(new SetDunkArmSlew(-20, dunkArm)))
-    );
+    operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
+      new SetShooterProfiled(0, shooter), //TODO: not setting to 0
+      //.andThen(()->shooter.setAngle(0.0)) //TODO: not setting to 0
+      new SetDunkArmSlew(-20, dunkArm)
+    ));
 
     //empty button?
     operatorJoystick.button(3).onTrue(new InstantCommand());
@@ -272,7 +272,7 @@ public class RobotContainer {
     );
 
     operatorJoystick.button(6).onTrue(
-      new SetDunkArmSlew(90, dunkArm)
+      new SetDunkArmSlew(80, dunkArm)
     );
 
     operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
@@ -281,12 +281,14 @@ public class RobotContainer {
     )//TODO: set shooter/intake eject RPM properly
     );
 
-    operatorJoystick.button(8).whileTrue(
-      new ClimberSetPosition(climber, climber.kMaxHeight) //TODO: not working
+    operatorJoystick.button(8).whileTrue(new RunCommand(//TODO: check if wrok 
+      ()->climber.setPosition(climber.kMaxHeight),
+      climber)
     );
 
-    operatorJoystick.button(9).whileTrue(
-      new ClimberSetPosition(climber, Units.Inches.of(0))
+    operatorJoystick.button(9).whileTrue(new RunCommand(//TODO: check if wrok 
+      ()->climber.setPosition(Units.Inches.of(0.0)),
+      climber)
     );
 
     operatorJoystick.button(10).whileTrue(
