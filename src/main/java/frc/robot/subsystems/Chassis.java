@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
@@ -325,13 +327,25 @@ public class Chassis extends SubsystemBase {
    * @param rotationPower [-1..1] with positive CCW
    * @return
    */
-  public Command getDriveCommand(double xPower, double yPower, double rotationPower){
+  public Command getFCDriveCommand(DoubleSupplier xPower, DoubleSupplier yPower, DoubleSupplier rotationPower){
     return new RunCommand(
       () -> {drive(
-          -MathUtil.applyDeadband(xPower, OIConstants.kDriveDeadband),
-          -MathUtil.applyDeadband(yPower, OIConstants.kDriveDeadband),
-          -MathUtil.applyDeadband(rotationPower, OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(xPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(yPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(rotationPower.getAsDouble(), OIConstants.kDriveDeadband),
           true, true);},
+      this);
+  }
+
+  public Command getDriveToBearingCommand(DoubleSupplier xPower, DoubleSupplier yPower, DoubleSupplier bearing){
+    return new RunCommand(
+      () -> {
+        driveToBearing(
+          MathUtil.applyDeadband(xPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(yPower.getAsDouble(), OIConstants.kDriveDeadband),
+          bearing.getAsDouble()
+        );
+      },
       this);
   }
 }

@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.function.BooleanSupplier;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
@@ -100,11 +98,9 @@ public class RobotContainer {
   public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
   public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
 
-  //pythagorean thoremo!!!!!!!!11
-  BooleanSupplier inDeadzone = ()->{return (Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5;};
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
     // Run delayed constructors
     sequenceFactory = new SequenceFactory(this);
     autoFactory = new AutoFactory(this);
@@ -112,22 +108,7 @@ public class RobotContainer {
     // Sensor Driven triggers/commands
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
-    chassis.setDefaultCommand(
-        // The left stick controls translation of the robot.
-        // Turning is controlled by the X axis of the right stick.
-        // chassis.getDriveCommand( 
-        //   -driverController.getRawAxis(1), 
-        //   -driverController.getRawAxis(0), 
-        //   -driverController.getRawAxis(4)
-        // )
-        new RunCommand(
-            () -> chassis.drive(
-                -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(driverController.getRawAxis(4), OIConstants.kDriveDeadband),
-                true, true),
-            chassis)
-    );
+
 
     // Configure the trigger bindings
     configureDefaultCommands();
@@ -164,6 +145,24 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
+    // The left stick controls translation of the robot.
+    // Turning is controlled by the X axis of the right stick.
+    chassis.setDefaultCommand(
+    new RunCommand(
+      () -> chassis.drive(
+        -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+        -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+        -MathUtil.applyDeadband(driverController.getRawAxis(4), OIConstants.kDriveDeadband),
+        true, true),
+      chassis)
+  );
+  //TODO: This should work now
+  // chassis.setDefaultCommand(chassis.getFCDriveCommand( 
+  //   ()-> -driverController.getRawAxis(1), 
+  //   ()-> -driverController.getRawAxis(0), 
+  //   ()-> -driverController.getRawAxis(4)
+  // ));
+
     //default, but only runs once
     //TODO: Only enable when robot is tested 
     // new Trigger(DriverStation::isEnabled)
@@ -171,6 +170,10 @@ public class RobotContainer {
     // .whileTrue(new ClimberGoHome(climber));
     
     leds.setDefaultCommand(leds.showTeamColor());
+    new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
+    //TODO: When shooter is aligned with target, and at rpm, show show green lights
+
+
     shooterFlywheel.setDefaultCommand(shooterFlywheel.getShooterSetRPMCommand(0));
     
     //align a note if nothing else is using passthrough
@@ -183,15 +186,6 @@ public class RobotContainer {
     intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
   private void configureDriverBindings() {
     // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // // cancelling on release.
@@ -200,19 +194,16 @@ public class RobotContainer {
     //   new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
     // );
 
-    //driverController.button(1).whileTrue(new RunCommand()); //TODO: brian make bearring face down
-    driverController.button(2).whileTrue(new InstantCommand()); //TODO: brian make bearring face right
-    driverController.button(3).whileTrue(new InstantCommand()); //TODO: brian make bearring face left
-    driverController.button(4).whileTrue(new InstantCommand()); //TODO: brian make bearring face up
-    driverController.button(5).onTrue(new InstantCommand()); //TODO: brian make slow mode
-    driverController.button(6).onTrue(new InstantCommand()); //TODO: brian make swerve x
-
+    //face toward driver
+    driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(180))); //Face toward driver
+    driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(270))); //Face right
+    driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(90))); //Face left
+    driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(0))); //Face away from driver
+    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->driverController.getLeftX()/2.0, ()->driverController.getLeftY()/2.0, ()->driverController.getRightX()/2.0));
 
     driverController.button(6).whileTrue(
       new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
     );
-
-
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
 
@@ -220,24 +211,7 @@ public class RobotContainer {
     driverController.button(8).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-  
-    // driverController.a().onTrue(new InstantCommand()
-    //   .andThen(new SetShooterProfiled(20, shooter))
-    // );
-
-
-    new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
-    // driverController.button(8).onTrue(
-    //    new RunCommand(
-    //         () -> chassis.driveToBearing(
-    //             -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-    //             -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-    //             Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
-    //             ),
-    //         chassis)
-    // );
-
-    driverController.button(8).and(inDeadzone).onTrue(
+    driverController.button(8).and(()->isRightStickInDeadzone()==false).onTrue(
       new RunCommand(
         () -> chassis.driveToBearing(
             -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
@@ -246,9 +220,7 @@ public class RobotContainer {
             ),
         chassis))
       ;
-    
-    // driverController.a().and(new Trigger((()->{(Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5})));
-  }
+   }
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(2).onTrue(new InstantCommand()
@@ -330,4 +302,11 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return Autos.exampleAuto(m_exampleSubsystem);
   }
+
+  //NOTE: There's a built in function for this! Let's use that.
+  // BooleanSupplier inDeadzone = ()->{return (Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5;};
+  private boolean isRightStickInDeadzone(){
+    return  Math.hypot(driverController.getRawAxis(4), driverController.getRawAxis(5)) > 0.5;
+  }
+
 }
