@@ -121,25 +121,25 @@ public class RobotContainer {
     // SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
     // SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
 
-    SmartDashboard.putData("shooterFlywheel/set0",shooterFlywheel.getShooterSetRPMCommand(0));
-    SmartDashboard.putData("shooterFlywheel/set1000",shooterFlywheel.getShooterSetRPMCommand(1000));
-    SmartDashboard.putData("shooterFlywheel/set2500",shooterFlywheel.getShooterSetRPMCommand(2500));
-    SmartDashboard.putData("shooterFlywheel/set5000",shooterFlywheel.getShooterSetRPMCommand(5000));
+    // SmartDashboard.putData("shooterFlywheel/set0",shooterFlywheel.getShooterSetRPMCommand(0));
+    // SmartDashboard.putData("shooterFlywheel/set1000",shooterFlywheel.getShooterSetRPMCommand(1000));
+    // SmartDashboard.putData("shooterFlywheel/set2500",shooterFlywheel.getShooterSetRPMCommand(2500));
+    // SmartDashboard.putData("shooterFlywheel/set5000",shooterFlywheel.getShooterSetRPMCommand(5000));
 
-    SmartDashboard.putData("dunkArm/setProfile-20", new SetDunkArmProfiled(-20, dunkArm));
-    SmartDashboard.putData("dunkArm/setProfile0", new SetDunkArmProfiled(0, dunkArm));
-    SmartDashboard.putData("dunkArm/setProfile20", new SetDunkArmProfiled(20, dunkArm));
-    SmartDashboard.putData("dunkArm/setProfile85", new SetDunkArmProfiled(85, dunkArm));
+    // SmartDashboard.putData("dunkArm/setProfile-20", new SetDunkArmProfiled(-20, dunkArm));
+    // SmartDashboard.putData("dunkArm/setProfile0", new SetDunkArmProfiled(0, dunkArm));
+    // SmartDashboard.putData("dunkArm/setProfile20", new SetDunkArmProfiled(20, dunkArm));
+    // SmartDashboard.putData("dunkArm/setProfile85", new SetDunkArmProfiled(85, dunkArm));
     
-    SmartDashboard.putData("dunkArm/setPID-20", new RunCommand(()->dunkArm.setArmAngle(-20), dunkArm));
-    SmartDashboard.putData("dunkArm/setPID0", new RunCommand(()->dunkArm.setArmAngle(0), dunkArm));
-    SmartDashboard.putData("dunkArm/setPID20", new RunCommand(()->dunkArm.setArmAngle(20), dunkArm));
-    SmartDashboard.putData("dunkArm/setPID85", new RunCommand(()->dunkArm.setArmAngle(85), dunkArm));
+    // SmartDashboard.putData("dunkArm/setPID-20", new RunCommand(()->dunkArm.setArmAngle(-20), dunkArm));
+    // SmartDashboard.putData("dunkArm/setPID0", new RunCommand(()->dunkArm.setArmAngle(0), dunkArm));
+    // SmartDashboard.putData("dunkArm/setPID20", new RunCommand(()->dunkArm.setArmAngle(20), dunkArm));
+    // SmartDashboard.putData("dunkArm/setPID85", new RunCommand(()->dunkArm.setArmAngle(85), dunkArm));
 
-    SmartDashboard.putData("dunkArm/setSlew-20", new SetDunkArmSlew(-20, dunkArm));
-    SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
-    SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
-    SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
+    // SmartDashboard.putData("dunkArm/setSlew-20", new SetDunkArmSlew(-20, dunkArm));
+    // SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
+    // SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
+    // SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
   }
 
   private void configureDefaultCommands() {
@@ -174,6 +174,7 @@ public class RobotContainer {
 
     intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
 
+    dunkArm.setDefaultCommand(new RunCommand(()->dunkArm.setArmAngle(-10), dunkArm));
     dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
   }
 
@@ -263,15 +264,17 @@ public class RobotContainer {
       new RunCommand(()->dunkArmRoller.setSpeed(0.1))
     ));
 
-    operatorJoystick.button(6).onTrue(
+    operatorJoystick.button(6).whileTrue(
       new SetDunkArmSlew(80, dunkArm)
     );
 
     operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
-      new RunCommand(intake::eject),
-      new RunCommand(passthrough::eject)
+      new RunCommand(intake::eject, intake),
+      new RunCommand(passthrough::eject, passthrough)
     )//TODO: set shooter/intake eject RPM properly
-    );
+    .finallyDo((e)->passthrough.stop())
+    )
+    ;
 
     operatorJoystick.button(8).whileTrue(new RunCommand(//TODO: check if wrok 
       ()->climber.setPosition(climber.kMaxHeight),

@@ -141,16 +141,16 @@ public class Climber extends SubsystemBase {
     // SmartDashboard.putBoolean("/climber/isHomed", isHomed);
     // SmartDashboard.putNumber("/climber/out", leftMotor.getAppliedOutput());
 
-    double max =  kMaxHeight.in(Units.Inches) - 2.0;
-    double min =  2.0; //temp value
+    // double max =  kMaxHeight.in(Units.Inches) - 2.0;
+    // double min =  2.0; //temp value
 
-    if(isHomed && Clamp.bounded(getPosition().in(Units.Inches), min, max)){
-      leftMotor.setSmartCurrentLimit(30);
-      rightMotor.setSmartCurrentLimit(30);
-    } else{
-      leftMotor.setSmartCurrentLimit(4);
-      rightMotor.setSmartCurrentLimit(4);
-    }
+    // if(isHomed && Clamp.bounded(getPosition().in(Units.Inches), min, max)){
+    //   leftMotor.setSmartCurrentLimit(30);
+    //   rightMotor.setSmartCurrentLimit(30);
+    // } else{
+    //   leftMotor.setSmartCurrentLimit(4);
+    //   rightMotor.setSmartCurrentLimit(4);
+    // }
 
 
 
