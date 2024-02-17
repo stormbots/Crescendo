@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
@@ -98,12 +100,14 @@ public class RobotContainer {
   public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
   public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
 
+  //pythagorean thoremo!!!!!!!!11
+  BooleanSupplier inDeadzone = ()->{return (Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5;};
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Run delayed constructors
     sequenceFactory = new SequenceFactory(this);
     autoFactory = new AutoFactory(this);
-
 
     // Sensor Driven triggers/commands
     // new Trigger(m_exampleSubsystem::exampleCondition)
@@ -223,6 +227,27 @@ public class RobotContainer {
 
 
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
+    // driverController.button(8).onTrue(
+    //    new RunCommand(
+    //         () -> chassis.driveToBearing(
+    //             -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+    //             -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+    //             Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
+    //             ),
+    //         chassis)
+    // );
+
+    driverController.button(8).and(inDeadzone).onTrue(
+      new RunCommand(
+        () -> chassis.driveToBearing(
+            -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+            -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+            Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
+            ),
+        chassis))
+      ;
+    
+    // driverController.a().and(new Trigger((()->{(Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5})));
   }
 
   private void configureOperatorBindings(){
