@@ -34,6 +34,8 @@ public class ShooterFlywheel extends SubsystemBase {
       motor.clearFaults();
       motor.getEncoder().setVelocityConversionFactor(kGearing);
 
+      motor.setSmartCurrentLimit(20);
+
       var pid = motor.getPIDController();
       pid.setP(0.0003);
       pid.setFF(1/kMaxRPM);

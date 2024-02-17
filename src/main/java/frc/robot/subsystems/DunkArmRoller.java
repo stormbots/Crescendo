@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,6 +16,7 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.restoreFactoryDefaults();
 
         rollerMotor.setSmartCurrentLimit(20);
+        // rollerMotor.setIdleMode(IdleMode.kBrake);
     }
 
     @Override

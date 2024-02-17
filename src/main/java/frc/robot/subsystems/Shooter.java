@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
     shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()); //native unit is RPS
 
     //Configure relative encoder
-    shooterMotor.getEncoder().setPositionConversionFactor(56.8/15.1);
+    shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51);//56.8/15.1
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
 
@@ -58,7 +58,7 @@ public class Shooter extends SubsystemBase {
     //closed-loop control
     pidController.setP(6.0/1.2/360.0);
 
-    shooterMotor.setIdleMode(IdleMode.kBrake);
+    shooterMotor.setIdleMode(IdleMode.kCoast);
   }
 
   @Override
@@ -84,6 +84,10 @@ public class Shooter extends SubsystemBase {
     }
   }
 
+  public void setPower(double power){
+    shooterMotor.set(power);
+  }
+
   public void stopShooter(){
     shooterMotor.set(0);
   }
@@ -106,7 +110,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public double getShooterFFPercent(){
-    var  kCosFFGain = 0.06;
+    var  kCosFFGain = 0.06;//0.085 at a cos of 28 deg
     return kCosFFGain*Math.cos(Math.toRadians(getShooterAngle()));
   }
 

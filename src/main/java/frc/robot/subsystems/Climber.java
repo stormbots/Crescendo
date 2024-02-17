@@ -31,7 +31,7 @@ public class Climber extends SubsystemBase {
   public final double kHomeCurrentThreshold=5;
   public final double kClimbingCurrentThreshold=10;
   public final double kHomePower=-0.1;
-  public final  Measure<Distance> kMaxHeight=Units.Inches.of(23.25);;
+  public final  Measure<Distance> kMaxHeight=Units.Inches.of(23);;
   public final  Measure<Distance> kClimbReadyPosition=Units.Inches.of(23.25-6);
   private double positionSetpoint=0;
 
@@ -52,7 +52,7 @@ public class Climber extends SubsystemBase {
       motor.setSoftLimit(SoftLimitDirection.kForward, (float)(kMaxHeight.in(Units.Inches)-0.2));
       motor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
-      motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/71.69);
+      motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
       motor.setSmartCurrentLimit(5);
     }
   }

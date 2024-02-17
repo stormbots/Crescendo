@@ -42,7 +42,7 @@ public class DunkArm extends SubsystemBase {
     
     //configure relative encoder
     armMotor.getPIDController().setFeedbackDevice(armMotor.getEncoder()); //Make sure we revert to native encoder for PID
-    armMotor.getEncoder().setPositionConversionFactor(21.8/3.0);
+    armMotor.getEncoder().setPositionConversionFactor(22.5/1.929);//21.8/3.0
     armMotor.getEncoder().setVelocityConversionFactor(armMotor.getEncoder().getPositionConversionFactor()/60.0); //native unit is RPS
     
     armPID.setP((1/100.0)*2*4/2);
@@ -101,7 +101,7 @@ public class DunkArm extends SubsystemBase {
   }
   
   public double getArmFFPercent(){
-    var  kCosFFGain = (0.025+0.055)/2.0;
+    var  kCosFFGain = 0.043;
     return kCosFFGain*Math.cos(Math.toRadians(getAngle()));
   }
 
