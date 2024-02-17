@@ -5,41 +5,46 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Passthrough;
 
-public class ClimberGoHome extends Command {
-  /** Creates a new ClimberGoHome. */
+public class IntakeNote extends Command {
+  
+  private Intake intake;
+  private Passthrough passthrough;
 
-  Climber climber;
-  public ClimberGoHome(Climber climber) {
+  /** Creates a new IntakeNote. */
+  public IntakeNote(Intake intake, Passthrough passthrough) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.climber = climber;
-    addRequirements(climber);
+    this.intake = intake; 
+    this.passthrough = passthrough;
+    addRequirements(intake,passthrough);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
+  public void initialize(){
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute(){
-    climber.setPower(climber.kHomePower);
+  //TODO Fix this!!!
+  public void execute() {
+    intake.intake();
+    passthrough.intake();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted){
-    climber.setPower(0);
-    if(interrupted) return; //not homed!!
-    climber.setHomed();
+    intake.stop();
+    passthrough.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    //what we care about: Current home threshhold;
-    return climber.isAtHomePosition();
+    return passthrough.isBlocked();
   }
 }

@@ -4,154 +4,114 @@
 
 package frc.robot.subsystems;
 
-import java.lang.reflect.Array;
 import java.util.Optional;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Clamp;
 
 public class ShooterVision extends SubsystemBase {
   /** Creates a new Vision. */
   private AHRS gyro;
 
   public enum LimelightPipeline {
-    kNoZoom, kZoom
+    kNoVision, kNoZoom, kZoom
+  }
+  public class LimelightReadings {
+    public double targetID;
+    public double distance; //meters
+    public double angleHorizontal; //degrees
+    public double angleVertical; //degrees
+    public Double time;
   }
 
   NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
-  
-  NetworkTableEntry bpTable = camera.getEntry("botpose"); //gets translation (x, y, z) and rotation (x, y, z) for bot pose; may or may not change; currently gets bp relative to the target
-  Pose2d botPose = new Pose2d(0, 0, new Rotation2d());
-  private SwerveDrivePoseEstimator poseEstimator;
-  //is there a way we can cross check the two bot poses????
-
-  public double bpDefault [] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  public Rotation2d rot = new Rotation2d(0,0);
-  public double llTargetValid = 0.0;
-  public double targetHeight = 48.0;
-  public double camHeight = 6.0;
-  public double camAngle = 80.0; //degrees
-  private double horizontalOffset = 0.0;
-  private double verticalOffset = 0.0;
-
   Field2d field = new Field2d();
+  public SwerveDrivePoseEstimator poseEstimator;
 
   public ShooterVision(AHRS gyro, SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
     this.gyro = gyro;
     this.poseEstimator = poseEstimator;
+    
     setPipeline(LimelightPipeline.kNoZoom);
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-  
-    
+    //zoomIfPossible(); pipeline makes frames drop a lot
+    updateOdometry();
+    //SmartDashboard.putData("visionfield", field); overloaded with subscribers on smartdashboard
+  }
+
+  public boolean hasValidTarget() {
     double tv = camera.getEntry("tv").getDouble(0.0);
-    var valid = tv >=1;
-    if (! valid) {return;}
-    double[] bp = bpTable.getDoubleArray(bpDefault);
+    return tv >= 1;
+  }
 
-    // var target = getDistanceAprilTag();
-    // if(target.isEmpty()){return;}
-    // SmartDashboard.putNumber("distance", target.get());
-    // SmartDashboard.putNumber("verticalOffset", verticalOffset);
-    var distance = getDistanceAprilTag(); //meters
-    SmartDashboard.putNumber("limelight/translation2d", -distance.get()); //distance is a negative for some reason
+  public Optional<LimelightReadings> getVisibleTarget() {
+    if (hasValidTarget()==false) {return Optional.empty();}
 
-    ifZoom();
-    rot = new Rotation2d( Math.toRadians(bp[5]) );
-    botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
+    double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(new double[]{0,0,0,0,0,0});
+
+    var target = new LimelightReadings();
+    target.targetID = camera.getEntry("tid").getDouble(0.0);
+    target.distance = bp[2]; //meters TODO: negative for some reason :(
+    target.angleHorizontal = camera.getEntry("tx").getDouble(0.0);
+    target.angleVertical = camera.getEntry("ty").getDouble(0.0);
+    target.time = Timer.getFPGATimestamp();
+
+    return Optional.of(target);
+  }
+
+  private void updateOdometry() {
+    if (getVisibleTarget().isEmpty()) {return;}
+
+    double[] bp = camera.getEntry("botpose").getDoubleArray(new double[]{0,0,0,0,0,0});
+
+    Rotation2d rot = new Rotation2d(Math.toRadians(bp[5]));
+    Pose2d botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
+
+    var stdevs = new Matrix<>(Nat.N3(), Nat.N1(), new double[]{1,1,1}); //confidence checker
+    poseEstimator.setVisionMeasurementStdDevs(stdevs);
+
     field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
     field.getObject("visionpose").setPose(botPose);
-    SmartDashboard.putData("shootervision", field);
   }
 
-  public Optional<Double> getDistanceAprilTag() {
-    double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(bpDefault);
-    if (Array.getLength(bp)<6) {return Optional.empty();} //should work?
+  public void zoomIfPossible() {
+    var target = getVisibleTarget();
+    if (hasValidTarget()==false) {return;}
 
-    Double distance = bp[2]; //meters
-    return Optional.of(distance); //negative (idk why)
-  }
-
-  public Optional<Double> getDistanceOdometry(Pose3d target) {
-    return Optional.empty();
-  }
-
-  public Optional<Double> getAngleToNote() {
-    //TODO: if has value return non-empty but no values rn :( (angle to note)
-    return Optional.empty();
-  }
-
-  public Pose2d getBotPose() { 
-    return botPose;
+    double tx = target.get().angleHorizontal;
+    double ty = target.get().angleVertical;
+    if (Clamp.bounded(tx, -11, 11) && Clamp.bounded(ty, -10, 10)) {
+      setPipeline(LimelightPipeline.kZoom);
+    }
+    else {
+      setPipeline(LimelightPipeline.kNoZoom);
+    }
   }
 
   public void setPipeline(LimelightPipeline pipeline) {
     switch(pipeline) {
-      case kNoZoom:
+      case kNoVision:
       camera.getEntry("pipeline").setNumber(0);
+      case kNoZoom:
+      camera.getEntry("pipeline").setNumber(1);
       break;
       case kZoom:
-      camera.getEntry("pipeline").setNumber(1);
-    }
-  }
-
-  public double getAngleToTargetPose(Pose3d pose) {
-    Pose2d botPose = poseEstimator.getEstimatedPosition();
-    var targetPose = pose.toPose2d();
-
-    double dx = targetPose.getX() - botPose.getX();
-    double dy = targetPose.getY() - botPose.getY();
-
-    double angle = Math.toDegrees(Math.atan2(dy,dx));
-
-    double botPoseAngle = (botPose.getRotation().getDegrees() % 360);
-    angle = botPoseAngle - angle;
-    return angle;
-  }
-  
-  public double getTargetHeading() {
-    return gyro.getAngle() + horizontalOffset;
-  }
-
-  // public double getHorizontalOffset() {
-  //   return horizontalOffset;
-  // }
-
-  // public double getVerticalOffset() {
-  //   return verticalOffset;
-  // }
-
-  public Optional<double[]> getCrosshairOffset() {
-    double[] bp = bpTable.getDoubleArray(bpDefault);
-    if (Array.getLength(bp)<6) {return Optional.empty();} //should work?
-    horizontalOffset = camera.getEntry("tx").getDouble(0.0);
-    verticalOffset = camera.getEntry("ty").getDouble(0.0);
-    double[] offset = {horizontalOffset, verticalOffset};
-    return Optional.of(offset);
-  }
-  public void ifZoom() {
-    double tx = camera.getEntry("tx").getDouble(0.0);
-    double ty = camera.getEntry("ty").getDouble(0.0);
-    if ((tx<=11.0&&tx>=-11.0) && (ty<=5.0&&tx>=-5)) {
-      setPipeline(ShooterVision.LimelightPipeline.kZoom);
-    }
-    else {
-      setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
+      camera.getEntry("pipeline").setNumber(2);
     }
   }
 }

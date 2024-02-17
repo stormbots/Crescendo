@@ -4,8 +4,13 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,12 +19,18 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.MAXSwerveModule;
 import frc.robot.SwerveUtils;
 
@@ -70,10 +81,19 @@ public class Chassis extends SubsystemBase {
   private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double prevTime = WPIUtilJNI.now() * 1e-6;
 
+  /**
+   * Tuning notes: 
+   * 1/pi is good
+   * 2/pi is too much, cause backlash 
+   */
+  PIDController turnpid = new PIDController(1/Math.PI,0,0);
+
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
     this.swerveDrivePoseEstimator = swerveDrivePoseEstimator;
+
+    turnpid.enableContinuousInput(0, Math.PI*2);
   }
 
   @Override
@@ -251,10 +271,19 @@ public class Chassis extends SubsystemBase {
     rearLeft.resetEncoders();
     rearRight.resetEncoders();
   }
-
+  
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     navx.reset();
+  }
+
+  /** Apply an offset from initial navx zero to the intended "forward" direction
+   * for fieldcentric controls.
+   * positive value rotates zero CW
+   */
+  public void setFieldCentricOffset(double offset){
+    zeroHeading();
+    navx.setAngleAdjustment(offset);
   }
 
   /**
@@ -264,5 +293,62 @@ public class Chassis extends SubsystemBase {
    */
   public double getHeading() {
     return navx.getRotation2d().getDegrees();
+  }
+
+  public void driveToBearing(double xSpeed, double ySpeed, double bearingRad){
+    //move elsewhere
+    // turnpid.atSetpoint();
+    // turnpid.setTolerance(4);
+
+    //In degrees
+    double currentTheta = navx.getRotation2d().getRadians(); 
+    // double thetaError = Math.toDegrees(MathUtil.angleModulus(rot - currentTheta.getRadians()));
+
+    double output = turnpid.calculate(currentTheta,bearingRad);
+
+    // if(thetaError > 180){  
+    //   thetaError -= 360;
+    // }
+    // else if (thetaError < -180){
+    //   thetaError += 360;
+    // }
+    // double proportionalRotation = thetaError / 180.0;
+    // //may not be needed but just to be safe
+    // if(proportionalRotation > 1.0){
+    //   proportionalRotation = 1.0;
+    // }
+
+    drive(xSpeed, ySpeed, output, true, true);
+    SmartDashboard.putNumber("bearing", bearingRad);
+  }
+
+  //TODO: not working
+  /**
+   * Fieldcentric drive command, using Field coordinates 
+   * @param xPower [-1..1] with positive away from driver
+   * @param yPower [-1..1] with positive to left
+   * @param rotationPower [-1..1] with positive CCW
+   * @return
+   */
+  public Command getFCDriveCommand(DoubleSupplier xPower, DoubleSupplier yPower, DoubleSupplier rotationPower){
+    return new RunCommand(
+      () -> {drive(
+          MathUtil.applyDeadband(xPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(yPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(rotationPower.getAsDouble(), OIConstants.kDriveDeadband),
+          true, true);},
+      this);
+  }
+
+  public Command getDriveToBearingCommand(DoubleSupplier xPower, DoubleSupplier yPower, Supplier<Measure<Angle>> bearing){
+    return new RunCommand(
+      () -> {
+        driveToBearing(
+          MathUtil.applyDeadband(xPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(yPower.getAsDouble(), OIConstants.kDriveDeadband),
+          bearing.get().in(Units.Radians)
+        );
+      },
+      this);
   }
 }
