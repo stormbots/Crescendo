@@ -147,21 +147,12 @@ public class RobotContainer {
   private void configureDefaultCommands() {
     // The left stick controls translation of the robot.
     // Turning is controlled by the X axis of the right stick.
-    chassis.setDefaultCommand(
-    new RunCommand(
-      () -> chassis.drive(
-        -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-        -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-        -MathUtil.applyDeadband(driverController.getRawAxis(4), OIConstants.kDriveDeadband),
-        true, true),
-      chassis)
-  );
   //TODO: This should work now
-  // chassis.setDefaultCommand(chassis.getFCDriveCommand( 
-  //   ()-> -driverController.getRawAxis(1), 
-  //   ()-> -driverController.getRawAxis(0), 
-  //   ()-> -driverController.getRawAxis(4)
-  // ));
+  chassis.setDefaultCommand(chassis.getFCDriveCommand( 
+    ()-> -driverController.getLeftY(), 
+    ()-> -driverController.getLeftX(), 
+    ()-> -driverController.getRightX()
+  ));
 
     //default, but only runs once
     //TODO: Only enable when robot is tested 
@@ -197,11 +188,11 @@ public class RobotContainer {
     // );
 
     //face toward driver
-    driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(180))); //Face toward driver
-    driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(270))); //Face right
-    driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(90))); //Face left
-    driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(0))); //Face away from driver
-    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->driverController.getLeftX()/2.0, ()->driverController.getLeftY()/2.0, ()->driverController.getRightX()/2.0));
+    driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(180))); //Face toward driver
+    driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
+    driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
+    driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
+    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->driverController.getLeftX()/2.0, ()->driverController.getRightX()/2.0));
 
     driverController.button(6).whileTrue(
       new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
@@ -213,17 +204,23 @@ public class RobotContainer {
     driverController.button(8).onTrue(new InstantCommand()
     .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
 
-    driverController.button(8).and(()->isRightStickInDeadzone()==false).onTrue(
-      new RunCommand(
-        () -> chassis.driveToBearing(
-            -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-            -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-            Math.atan2(-driverController.getRawAxis(3), driverController.getRawAxis(2))-Math.PI/2
-            ),
-        chassis))
-      ;
+    driverController
+    .axisGreaterThan(3, 0.5)
+    // .and(()->isRightStickInDeadzone()==false)
+    .whileTrue(
+      chassis.getDriveToBearingCommand(
+        ()-> -driverController.getLeftY(), 
+        ()-> -driverController.getLeftX(), 
+        ()->Units.Radians.of(Math.atan2(driverController.getRightY(), -driverController.getRightX())+Math.PI/2))
+    // new RunCommand(
+    //   () -> chassis.driveToBearing(
+    //       -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
+    //       -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
+    //       Math.atan2(-driverController.getRightY(), driverController.getRightX())
+    //       ),
+    //   chassis)
+    );
    }
-
   private void configureOperatorBindings(){
     // operatorJoystick.button(2).onTrue(new InstantCommand()
     //   .andThen( new SetDunkArmSlew(0, dunkArm))

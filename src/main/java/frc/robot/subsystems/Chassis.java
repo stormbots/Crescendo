@@ -93,7 +93,7 @@ public class Chassis extends SubsystemBase {
     this.swerveDriveKinematics = swerveDriveKinematics; 
     this.swerveDrivePoseEstimator = swerveDrivePoseEstimator;
 
-    turnpid.enableContinuousInput(0, Math.PI*2);
+    turnpid.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   @Override
