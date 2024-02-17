@@ -236,8 +236,6 @@ public class RobotContainer {
     //   .andThen(new SetDunkArmSlew(100, dunkArm))
     // );
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
-    // operatorJoystick.button(3)
-    // .whileTrue(shooterFlywheel.getShooterSetRPMCommand(2500));
 
     operatorJoystick.button(1)
     .whileTrue(new ConditionalCommand(
@@ -253,7 +251,8 @@ public class RobotContainer {
     ));
 
     //empty button?
-    operatorJoystick.button(3).onTrue(new InstantCommand());
+    operatorJoystick.button(3)
+    .whileTrue(shooterFlywheel.getShooterSetRPMCommand(2500));
 
     operatorJoystick.button(4).onTrue(
       new SetShooterProfiled(80, shooter)
@@ -262,7 +261,7 @@ public class RobotContainer {
 
     operatorJoystick.button(5).whileTrue(new ParallelCommandGroup(
       new SetDunkArmSlew(-10, dunkArm).repeatedly(),
-      new RunCommand(()->dunkArmRoller.setSpeed(0.1))
+      new RunCommand(()->dunkArmRoller.setSpeed(0.1),dunkArmRoller)
     ));
 
     operatorJoystick.button(6).onTrue(
