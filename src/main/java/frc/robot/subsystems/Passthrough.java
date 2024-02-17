@@ -24,7 +24,7 @@ public class Passthrough extends SubsystemBase {
   public CANSparkMax motor = new CANSparkMax(Robot.isCompbot?10:10 , MotorType.kBrushless); //
   public CANSparkMax motorB = new CANSparkMax(Robot.isCompbot?11:22, MotorType.kBrushless); //
   //Define motor speed, adjust
-  private double kPassthroughSpeed;
+  private double kPassthroughSpeed=0.3;
   //LaserCAN Sensor Setup
   public LaserCan lasercan = new LaserCan(20);//TODO: Update LaserCAN PB
 
