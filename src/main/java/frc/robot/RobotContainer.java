@@ -26,9 +26,6 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
-import frc.robot.commands.LightingProgressBarFlow;
-import frc.robot.commands.LightingProgressBarSnap;
-import frc.robot.commands.LightingRainbowSolid;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -151,14 +148,11 @@ public class RobotContainer {
         climber)
     );
 
-    new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
+    // new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
   }
 
   private void configureOperatorBindings(){
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
-    operatorJoystick.button(3).onTrue(new LightingProgressBarSnap(leds, Color.kBlack, Color.kBlue, 5, 100));
-    
-    operatorJoystick.button(1).onTrue(new LightingRainbowSolid(leds, 5, 100));
   }
 
   /**

@@ -2,13 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Lighting;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Leds;
 
   
-public class LightingProgressBar extends Command {
+public class LightingProgressBarSnap extends Command {
   /** Creates a new LightingColor. */
   Leds leds;
   Color backGroundColor;
@@ -20,7 +21,7 @@ public class LightingProgressBar extends Command {
   int value;
 
 
-  public LightingProgressBar(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
+  public LightingProgressBarSnap(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = progressColor;
@@ -37,10 +38,9 @@ public class LightingProgressBar extends Command {
   @Override
   public void initialize(){
     finished = false;
-    // leds.ledStrip.setData(leds.ledBuffer);
-    // leds.ledStrip.start();
     startTime = leds.getTime();
-    leds.setLedRGB(backGroundColor);
+    leds.setColor(backGroundColor);
+    // SmartDashboard.putNumber("leds/startTime", startTime);
     
   }
 
@@ -48,16 +48,21 @@ public class LightingProgressBar extends Command {
   @Override
   public void execute(){
     var currentTime = leds.getTime();
+    // SmartDashboard.putNumber("leds/currentTime", currentTime);
     var elapsedTime = currentTime-startTime;
+    // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
     double timePerLED = (timeLimt / leds.ledBuffer.getLength());
-    var channels = (double)(Math.round((elapsedTime / timePerLED)));
-    if(channels > leds.ledBuffer.getLength()){
-      channels = leds.ledBuffer.getLength();
+    var numberOfChannelsOn = (int)((elapsedTime / timePerLED));
+    // SmartDashboard.putNumber("leds/channels", channels);
+    if (numberOfChannelsOn > leds.ledBuffer.getLength()){
+      // finished =true;
+      numberOfChannelsOn = leds.ledBuffer.getLength();
     }
     if (elapsedTime>timeLimt+.5){
-      finished = true;
+      finished =true;
     }
-    leds.setLedHSV(progressColor, value, channels);
+
+    leds.setColor(progressColor, value);
     // if (channels + 1 > leds.ledBuffer.getLength()){
     //   finished = true;
     // }
@@ -69,7 +74,7 @@ public class LightingProgressBar extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    leds.setLedRGB(backGroundColor);
+    leds.setColor(backGroundColor);
   }
 
   // Returns true when the command should end.
