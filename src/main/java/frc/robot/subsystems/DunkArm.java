@@ -18,10 +18,11 @@ import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class DunkArm extends SubsystemBase {
   /** Creates a new Shooter. */
-  public CANSparkMax armMotor = new CANSparkMax(14, MotorType.kBrushless);
+  public CANSparkMax armMotor = new CANSparkMax(Robot.isCompbot?15:14, MotorType.kBrushless);
   private SparkPIDController armPID = armMotor.getPIDController();
   private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double armSetpoint = 0.0;

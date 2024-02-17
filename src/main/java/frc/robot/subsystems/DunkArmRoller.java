@@ -5,9 +5,10 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 public class DunkArmRoller extends SubsystemBase{
-    public CANSparkMax rollerMotor = new CANSparkMax(15, MotorType.kBrushless);
+    public CANSparkMax rollerMotor = new CANSparkMax(Robot.isCompbot?16:15, MotorType.kBrushless);
 
     public DunkArmRoller() {
         rollerMotor.clearFaults();
