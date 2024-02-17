@@ -39,14 +39,14 @@ public class SetDunkArmProfiled extends Command {
   @Override
   public void initialize() {
     startTimer = Timer.getFPGATimestamp();
-    initial = dunkArm.getArmState();
+    initial = dunkArm.getState();
     armProfile = new TrapezoidProfile(constraints);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var currentState = dunkArm.getArmState();
+    var currentState = dunkArm.getState();
 
     var targetState = armProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal);
     var targetPosition = targetState.position;

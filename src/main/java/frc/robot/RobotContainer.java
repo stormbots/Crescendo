@@ -184,6 +184,8 @@ public class RobotContainer {
     ;
 
     intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
+
+    dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
   }
 
   private void configureDriverBindings() {
@@ -257,16 +259,14 @@ public class RobotContainer {
     operatorJoystick.button(3).onTrue(new InstantCommand());
 
     operatorJoystick.button(4).onTrue(
-      new SetShooterProfiled(40, shooter)
+      new SetShooterProfiled(80, shooter)
       //TODO: vision targeting to speaker angle
     );
 
-    operatorJoystick.button(5).whileTrue(new InstantCommand()
-      .andThen(new SetDunkArmSlew(-10, dunkArm))
-      .andThen(()->dunkArmRoller.setSpeed(
-        0.1)) 
-      //TODO: set dunkarmroller speed and position properly
-    );
+    operatorJoystick.button(5).whileTrue(new ParallelCommandGroup(
+      new SetDunkArmSlew(-10, dunkArm).repeatedly(),
+      new RunCommand(()->dunkArmRoller.setSpeed(0.1))
+    ));
 
     operatorJoystick.button(6).onTrue(
       new SetDunkArmSlew(80, dunkArm)
