@@ -195,10 +195,10 @@ public class RobotContainer {
     // );
 
     //face toward driver
-    driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(180))); //Face toward driver
-    driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(270))); //Face right
-    driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(90))); //Face left
-    driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Math.toRadians(0))); //Face away from driver
+    driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(180))); //Face toward driver
+    driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(270))); //Face right
+    driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(90))); //Face left
+    driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(driverController::getLeftX,driverController::getLeftY, ()->Units.Degrees.of(0))); //Face away from driver
     driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->driverController.getLeftX()/2.0, ()->driverController.getLeftY()/2.0, ()->driverController.getRightX()/2.0));
 
     driverController.button(6).whileTrue(

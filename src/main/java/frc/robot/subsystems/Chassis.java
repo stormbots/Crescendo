@@ -5,12 +5,12 @@
 package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,6 +19,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -292,7 +295,7 @@ public class Chassis extends SubsystemBase {
     return navx.getRotation2d().getDegrees();
   }
 
-  public void driveToBearing(double xSpeed, double ySpeed, double bearing){
+  public void driveToBearing(double xSpeed, double ySpeed, double bearingRad){
     //move elsewhere
     // turnpid.atSetpoint();
     // turnpid.setTolerance(4);
@@ -301,7 +304,7 @@ public class Chassis extends SubsystemBase {
     double currentTheta = navx.getRotation2d().getRadians(); 
     // double thetaError = Math.toDegrees(MathUtil.angleModulus(rot - currentTheta.getRadians()));
 
-    double output = turnpid.calculate(currentTheta,bearing);
+    double output = turnpid.calculate(currentTheta,bearingRad);
 
     // if(thetaError > 180){  
     //   thetaError -= 360;
@@ -316,7 +319,7 @@ public class Chassis extends SubsystemBase {
     // }
 
     drive(xSpeed, ySpeed, output, true, true);
-    SmartDashboard.putNumber("bearing", bearing);
+    SmartDashboard.putNumber("bearing", bearingRad);
   }
 
   //TODO: not working
@@ -337,13 +340,13 @@ public class Chassis extends SubsystemBase {
       this);
   }
 
-  public Command getDriveToBearingCommand(DoubleSupplier xPower, DoubleSupplier yPower, DoubleSupplier bearing){
+  public Command getDriveToBearingCommand(DoubleSupplier xPower, DoubleSupplier yPower, Supplier<Measure<Angle>> bearing){
     return new RunCommand(
       () -> {
         driveToBearing(
           MathUtil.applyDeadband(xPower.getAsDouble(), OIConstants.kDriveDeadband),
           MathUtil.applyDeadband(yPower.getAsDouble(), OIConstants.kDriveDeadband),
-          bearing.getAsDouble()
+          bearing.get().in(Units.Radians)
         );
       },
       this);
