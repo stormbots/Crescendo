@@ -17,7 +17,6 @@ import com.stormbots.Clamp;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -38,14 +37,10 @@ public class Climber extends SubsystemBase {
   public Climber(AHRS navx) {
     //TODO Auto-generated constructor stub
 
-    setIdleMode(IdleMode.kCoast);    
-
-    //set soft limits
-
-    leftMotor.setInverted(false);
-    rightMotor.setInverted(true);
-
     for(CANSparkBase motor : new CANSparkBase[]{leftMotor,rightMotor} ){
+      motor.clearFaults();
+      motor.restoreFactoryDefaults();
+
       motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.5);
       motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
@@ -54,7 +49,21 @@ public class Climber extends SubsystemBase {
 
       motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
       motor.setSmartCurrentLimit(5);
+      motor.getPIDController().setP(0.3);
     }
+
+    //set soft limits
+    leftMotor.setInverted(false);
+    rightMotor.setInverted(true);
+    setIdleMode(IdleMode.kCoast);  
+
+
+    // SmartDashboard.putData("climber/home", new ClimberGoHome(this));
+
+    // var up = Units.Inches.of(20);
+    // SmartDashboard.putData("climber/up", new RunCommand(()->setPosition(up),this));
+    // var down = Units.Inches.of(0);
+    // SmartDashboard.putData("climber/down", new RunCommand(()->setPosition(down),this));
   }
 
 
@@ -86,7 +95,12 @@ public class Climber extends SubsystemBase {
 
   }
 
-  public void setPosition(double target){
+  public void setPosition(Measure<Distance> target){
+    setPosition(target.in(Units.Inches));
+  }
+
+  /** Takes target in inches */
+  private void setPosition(double target){
     this.positionSetpoint = target;
     var ff = 0.0;
 
@@ -125,8 +139,8 @@ public class Climber extends SubsystemBase {
     // SmartDashboard.putNumber("/climber/leftPosition", leftMotor.getEncoder().getPosition());
     // SmartDashboard.putNumber("/climber/rightPosition", rightMotor.getEncoder().getPosition());
     // SmartDashboard.putBoolean("/climber/isHomed", isHomed);
-    // SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
-    // SmartDashboard.putNumber("/climber/rightCurrent", leftMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("/climber/out", leftMotor.getAppliedOutput());
+
     double max =  kMaxHeight.in(Units.Inches) - 2.0;
     double min =  2.0; //temp value
 

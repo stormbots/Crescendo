@@ -65,8 +65,8 @@ public class DunkArm extends SubsystemBase {
     SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
     SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/output", armMotor.getAppliedOutput());
-    SmartDashboard.putNumber("dunkArm/velocity", getArmState().velocity);
-    SmartDashboard.putNumber("dunkArm/position", getArmState().position);
+    SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
+    SmartDashboard.putNumber("dunkArm/position", getState().position);
   }
 
   public void syncEncoders(){
@@ -118,7 +118,7 @@ public class DunkArm extends SubsystemBase {
     armPID.setReference(degrees, ControlType.kPosition, 0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 
-  public TrapezoidProfile.State getArmState(){
+  public TrapezoidProfile.State getState(){
     return new TrapezoidProfile.State(armMotor.getEncoder().getPosition(), armMotor.getEncoder().getVelocity());
   }
 }

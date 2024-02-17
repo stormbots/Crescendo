@@ -47,7 +47,7 @@ public class ClimberSetPosition extends Command {
   @Override
   public void execute() {
     double targetPosition = motionProfile.calculate(Timer.getFPGATimestamp()-startTimer, initialPos, goalPos).position;
-    climber.setPosition(targetPosition);
+    climber.setPosition(Units.Inches.of(targetPosition));
   }
 
   // Called once the command ends or is interrupted.

@@ -5,6 +5,9 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.DunkArm;
+
+import com.stormbots.Clamp;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,12 +46,20 @@ public class SetDunkArmSlew extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    dunkArm.stop();
+    if(interrupted == false){
+      dunkArm.setArmAngle(angle);
+    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    var posTol = 5;
+    var pos = Clamp.bounded(dunkArm.getAngle(), angle-posTol, angle+posTol);
+  
+    var velTol = 10; // per sec
+    var vol = Clamp.bounded(dunkArm.getState().velocity, -velTol, velTol);
+  
+    return pos && vol;
   }
 }
