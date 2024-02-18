@@ -45,14 +45,16 @@ public class DunkArm extends SubsystemBase {
     armMotor.getEncoder().setPositionConversionFactor(22.5/1.929);//21.8/3.0
     armMotor.getEncoder().setVelocityConversionFactor(armMotor.getEncoder().getPositionConversionFactor()/60.0); //native unit is RPS
     
-    armPID.setP((1/100.0)*2*4/2);
+    armPID.setP((1/25.0)*4);
+    armMotor.setClosedLoopRampRate(0.05);
+    armPID.setOutputRange(-1, 1);
     syncEncoders();
 
-    armMotor.setSoftLimit(SoftLimitDirection.kReverse, -10);
-    armMotor.setSoftLimit(SoftLimitDirection.kForward,104);
+    armMotor.setSoftLimit(SoftLimitDirection.kReverse, -25);
+    armMotor.setSoftLimit(SoftLimitDirection.kForward,99);
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-    armMotor.setSmartCurrentLimit(20);
+    armMotor.setSmartCurrentLimit(40);
   }
 
   @Override
@@ -67,11 +69,12 @@ public class DunkArm extends SubsystemBase {
     SmartDashboard.putNumber("dunkArm/output", armMotor.getAppliedOutput());
     SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
     SmartDashboard.putNumber("dunkArm/position", getState().position);
+    SmartDashboard.putNumber("dunkArm/current", armMotor.getOutputCurrent());
   }
 
   public void syncEncoders(){
     var position = armAbsEncoder.getPosition();
-    if(position > 270){ //TODO:fix
+    if(position > 270){
       //Account for discontinuity, set relative to negative position
     armMotor.getEncoder().setPosition(position-360);
     }else{
@@ -114,7 +117,8 @@ public class DunkArm extends SubsystemBase {
 
   public void setArmAngle(double degrees) {
     this.armSetpoint = degrees;
-    Clamp.clamp(degrees, armMotor.getSoftLimit(SoftLimitDirection.kReverse), armMotor.getSoftLimit(SoftLimitDirection.kForward));
+    degrees = Clamp.clamp(degrees, armMotor.getSoftLimit(SoftLimitDirection.kReverse), armMotor.getSoftLimit(SoftLimitDirection.kForward));
+    SmartDashboard.putNumber("dunkArm/targetAngle", degrees);
     armPID.setReference(degrees, ControlType.kPosition, 0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 

@@ -90,7 +90,7 @@ public class Climber extends SubsystemBase {
       motor.setSmartCurrentLimit(30);
       setIdleMode(IdleMode.kBrake);
       //TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for drive team
-      motor.setSoftLimit(SoftLimitDirection.kReverse, 13);
+      motor.setSoftLimit(SoftLimitDirection.kReverse, (float) 9.5);
     }
 
   }

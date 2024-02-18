@@ -17,7 +17,7 @@ public class ClimberSetPosition extends Command {
   Climber climber;
   Measure<Distance> target;
   TrapezoidProfile motionProfile = new TrapezoidProfile(
-    new TrapezoidProfile.Constraints (5.0, 5.0)
+    new TrapezoidProfile.Constraints (0.5, 5.0)
     );
     TrapezoidProfile.State initialPos = new TrapezoidProfile.State(0, 0);
     TrapezoidProfile.State goalPos;

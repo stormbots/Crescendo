@@ -34,10 +34,10 @@ public class DunkArmRoller extends SubsystemBase{
     }
 
     public void intake() {
-        rollerMotor.set(0.1);
+        rollerMotor.set(-0.4);
     }
     public void eject() {
-        rollerMotor.set(-0.1);
+        rollerMotor.set(0.4);
     }
 
 }

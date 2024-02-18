@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -114,15 +115,15 @@ public class Chassis extends SubsystemBase {
     var pose = swerveDrivePoseEstimator.getEstimatedPosition();
     SmartDashboard.putNumber("chassis/x",pose.getX());
     SmartDashboard.putNumber("chassis/y",pose.getY());
-    field.setRobotPose(pose);
+    // field.setRobotPose(pose);
     
-    SmartDashboard.putData("chassis", field);
-    SmartDashboard.putData("modules/fr", frontRight);
-    SmartDashboard.putData("modules/fl", frontLeft);
-    SmartDashboard.putData("modules/rr", rearRight);
-    SmartDashboard.putData("modules/rl", rearLeft);
+    // SmartDashboard.putData("chassis", field);
+    // SmartDashboard.putData("modules/fr", frontRight);
+    // SmartDashboard.putData("modules/fl", frontLeft);
+    // SmartDashboard.putData("modules/rr", rearRight);
+    // SmartDashboard.putData("modules/rl", rearLeft);
     
-    SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
+    // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
   }
   public Pose2d getPose() {
@@ -157,8 +158,8 @@ public class Chassis extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
 
-    SmartDashboard.putNumber("Raw X Speed", xSpeed);
-    SmartDashboard.putNumber("Raw Y Speed", ySpeed);
+    // SmartDashboard.putNumber("Raw X Speed", xSpeed);
+    // SmartDashboard.putNumber("Raw Y Speed", ySpeed);
     
     double xSpeedCommanded;
     double ySpeedCommanded;
@@ -168,8 +169,8 @@ public class Chassis extends SubsystemBase {
       double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
       double inputTranslationMag = Math.sqrt(Math.pow(xSpeed, 2) + Math.pow(ySpeed, 2));
 
-      SmartDashboard.putNumber("Input Translation Dir", inputTranslationDir);
-      SmartDashboard.putNumber("Input Translation Mag", inputTranslationMag);
+      // SmartDashboard.putNumber("Input Translation Dir", inputTranslationDir);
+      // SmartDashboard.putNumber("Input Translation Mag", inputTranslationMag);
 
       // Calculate the direction slew rate based on an estimate of the lateral acceleration
       double directionSlewRate;
@@ -207,8 +208,8 @@ public class Chassis extends SubsystemBase {
       ySpeedCommanded = currentTranslationMag * Math.sin(currentTranslationDir);
       currentRotation = rotLimiter.calculate(rot);
 
-      SmartDashboard.putNumber("Current Translation Dir", currentTranslationDir);
-      SmartDashboard.putNumber("Current Translation Mag", currentTranslationMag);
+      // SmartDashboard.putNumber("Current Translation Dir", currentTranslationDir);
+      // SmartDashboard.putNumber("Current Translation Mag", currentTranslationMag);
 
 
     } else {
@@ -217,16 +218,16 @@ public class Chassis extends SubsystemBase {
       currentRotation = rot;
     }
 
-    SmartDashboard.putNumber("X Speed Out", xSpeedCommanded);
-    SmartDashboard.putNumber("Y Speed Out", ySpeedCommanded);
+    // SmartDashboard.putNumber("X Speed Out", xSpeedCommanded);
+    // SmartDashboard.putNumber("Y Speed Out", ySpeedCommanded);
 
     // Convert the commanded speeds into the correct units for the drivetrain
     double xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
     double ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = currentRotation * DriveConstants.kMaxAngularSpeed;
 
-    SmartDashboard.putNumber("X Speed Delivered", xSpeedDelivered);
-    SmartDashboard.putNumber("Y Speed Delivered", ySpeedDelivered);
+    // SmartDashboard.putNumber("X Speed Delivered", xSpeedDelivered);
+    // SmartDashboard.putNumber("Y Speed Delivered", ySpeedDelivered);
 
     var swerveModuleStates = swerveDriveKinematics.toSwerveModuleStates(
         fieldRelative
@@ -319,7 +320,7 @@ public class Chassis extends SubsystemBase {
     // }
 
     drive(xSpeed, ySpeed, output, true, true);
-    SmartDashboard.putNumber("bearing", bearingRad);
+    // SmartDashboard.putNumber("bearing", bearingRad);
   }
 
   //TODO: not working
@@ -350,5 +351,11 @@ public class Chassis extends SubsystemBase {
         );
       },
       this);
+  }
+
+  public void setBrakeMode(){
+    for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
+      module.drivingSparkFlex.setIdleMode(IdleMode.kBrake);
+    }
   }
 }

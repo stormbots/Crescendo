@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -154,9 +155,9 @@ public class RobotContainer {
 
     //default, but only runs once
     //TODO: Only enable when robot is tested 
-    // new Trigger(DriverStation::isEnabled)
-    // .and(()->climber.isHomed==false)
-    // .whileTrue(new ClimberGoHome(climber));
+    new Trigger(DriverStation::isEnabled)
+    .and(()->climber.isHomed==false)
+    .whileTrue(new ClimberGoHome(climber));
     
     leds.setDefaultCommand(leds.showTeamColor());
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
@@ -174,7 +175,7 @@ public class RobotContainer {
 
     intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
 
-    dunkArm.setDefaultCommand(new RunCommand(()->dunkArm.setArmAngle(-10), dunkArm));
+    dunkArm.setDefaultCommand(new SetDunkArmSlew(-25, dunkArm).repeatedly());
     dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
   }
 
@@ -237,39 +238,51 @@ public class RobotContainer {
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
 
     operatorJoystick.button(1)
-    .whileTrue(new ConditionalCommand(
-      new InstantCommand(passthrough::intake,passthrough), 
-      new InstantCommand(()->shooter.setAngle(40),shooter), 
+    .onTrue(new ConditionalCommand(
+      new RunCommand(passthrough::intake,passthrough)
+        .alongWith(new RunCommand(intake::intake,intake))
+        .withTimeout(5), 
+      new RunCommand(()->dunkArmRoller.setSpeed(-0.4), dunkArmRoller)
+        .withTimeout(3),//dunk arm roller for amp
       passthrough::isBlocked
     ));
 
     operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
       //.andThen(()->shooter.setAngle(0.0)) //TODO: not setting to 0
-      new SetDunkArmSlew(-20, dunkArm)
+      new SetDunkArmSlew(-25, dunkArm).repeatedly()
     ));
 
     //empty button?
     operatorJoystick.button(3)
-    .whileTrue(shooterFlywheel.getShooterSetRPMCommand(2500));
+    // .whileTrue(shooterFlywheel.getShooterSetRPMCommand(2500));
+    .whileTrue(new ParallelCommandGroup(
+      shooterFlywheel.getShooterSetRPMCommand(10000),
+      new SetShooterProfiled(50, shooter)
+    ));
 
     operatorJoystick.button(4).onTrue(
-      new SetShooterProfiled(80, shooter)
+      new SetShooterProfiled(50, shooter)
       //TODO: vision targeting to speaker angle
     );
 
     operatorJoystick.button(5).whileTrue(new ParallelCommandGroup(
-      new SetDunkArmSlew(-10, dunkArm).repeatedly(),
-      new RunCommand(()->dunkArmRoller.setSpeed(0.1),dunkArmRoller)
+      new SetDunkArmSlew(-25, dunkArm).repeatedly(),
+      new SetShooterProfiled(0, shooter),
+      new RunCommand(()->dunkArmRoller.setSpeed(0.1),dunkArmRoller),
+      new RunCommand(()->passthrough.intake(), passthrough),
+      new RunCommand(()->intake.intake(), intake),
+      shooterFlywheel.getShooterSetRPMCommand(3000)
     ));
 
     operatorJoystick.button(6).whileTrue(
-      new SetDunkArmSlew(80, dunkArm)
+      new SetDunkArmSlew(99, dunkArm).repeatedly()
     );
 
     operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
       new RunCommand(intake::eject, intake),
-      new RunCommand(passthrough::eject, passthrough)
+      new RunCommand(passthrough::eject, passthrough),
+      new SetShooterProfiled(0, shooter)
     )//TODO: set shooter/intake eject RPM properly
     .finallyDo((e)->passthrough.stop())
     )
@@ -281,12 +294,16 @@ public class RobotContainer {
     );
 
     operatorJoystick.button(9).whileTrue(new RunCommand(//TODO: check if wrok 
-      ()->climber.setPosition(Units.Inches.of(0.0)),
+      ()->climber.setPosition(Units.Inches.of(9.5)),
       climber)
     );
 
     operatorJoystick.button(10).whileTrue(
-      new IntakeNote(intake, passthrough)
+      // new IntakeNote(intake, passthrough)
+      new ParallelCommandGroup(
+        new IntakeNote(intake, passthrough),
+        new SetShooterProfiled(0, shooter)
+      )
     );
   }
   

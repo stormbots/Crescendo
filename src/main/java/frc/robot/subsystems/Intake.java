@@ -13,14 +13,14 @@ public class Intake extends SubsystemBase {
   //Define SparkMax
   private CANSparkMax motor = new CANSparkMax(9, MotorType.kBrushless);
   //Define motor speed, adjust
-  private double kIntakeSpeed = 0.8;
+  private double kIntakeSpeed = 1.0;
 
   /** Creates a new Intake. */
   public Intake() {
     motor.restoreFactoryDefaults();
     motor.clearFaults();
     //Safety
-    motor.setSmartCurrentLimit(30);
+    motor.setSmartCurrentLimit(40);
   }
   
   public void setPower(double speed) {
