@@ -4,10 +4,12 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Clamp;
 import frc.robot.subsystems.Shooter;
 
 /** An example command that uses an example subsystem. */
@@ -20,7 +22,7 @@ public class SetShooterProfiled extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(360, 180);
+  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(360*8, 180*8*2);
   TrapezoidProfile.State goal = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile.State initial = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile shooterProfile = new TrapezoidProfile(constraints);
@@ -49,17 +51,28 @@ public class SetShooterProfiled extends Command {
     var targetPosition = shooterProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal).position;
     shooter.setAngle(targetPosition);
     SmartDashboard.putNumber("profile/target", targetPosition);
+
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //Will need to figure out 
+    //Will need to figure out, add feedforward stuff?
+    SmartDashboard.putBoolean("shooter/interrupted", interrupted);
+    if(interrupted == false){
+      shooter.setAngle(shooterAngle);
+    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    var posTol = 5;
+    var pos = Clamp.bounded(shooter.getShooterAngle(), shooterAngle-posTol, shooterAngle+posTol);
+  
+    var velTol = 10; // per sec
+    var vol = Clamp.bounded(shooter.getState().velocity, -velTol, velTol);
+  
+    return pos && vol;
   }
 }

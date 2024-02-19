@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.ChassisConstants.DriveConstants;
@@ -29,14 +30,20 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer robotContainer;
-  
 
+  public static boolean isCompbot=true;
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
+    var entry = SmartDashboard.getEntry("isCompbot");
+    isCompbot=entry.getBoolean(true);
+    entry.setBoolean(isCompbot);
+    entry.setPersistent();
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
@@ -56,12 +63,13 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-
+    SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    robotContainer.chassis.setBrakeMode();
   }
 
   @Override
@@ -80,10 +88,13 @@ public class Robot extends TimedRobot {
     }
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
+<<<<<<< HEAD
 
     robotContainer.chassis.zeroHeading();
     robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();
+=======
+>>>>>>> origin/compbot/bringup
   }
 
   /** This function is called periodically during autonomous. */
@@ -102,9 +113,12 @@ public class Robot extends TimedRobot {
 
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
+<<<<<<< HEAD
 
     // robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();
+=======
+>>>>>>> origin/compbot/bringup
   }
 
   /** This function is called periodically during operator control. */

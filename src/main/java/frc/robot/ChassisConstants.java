@@ -18,14 +18,19 @@ public class ChassisConstants {
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
+<<<<<<< HEAD
     public static final double kDirectionSlewRate = 2.4; // radians per second
     public static final double kMagnitudeSlewRate = 2.5; // percent per second (1 = 100%)
+=======
+    public static final double kDirectionSlewRate = 1.2*3; // radians per second
+    public static final double kMagnitudeSlewRate = 1.8*5; // percent per second (1 = 100%)
+>>>>>>> origin/compbot/bringup
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
 
     // Chassis configuration
-    public static final double kTrackWidth = Units.inchesToMeters(28);
+    public static final double kTrackWidth = Units.inchesToMeters(27);
     // Distance between centers of right and left wheels on robot
-    public static final double kWheelBase = Units.inchesToMeters(28);
+    public static final double kWheelBase = Units.inchesToMeters(27);
     // Distance between front and back wheels on robot
     public static final double distanceToModuleFromCenter = Math.sqrt(Math.pow(kTrackWidth/2, 2) + Math.pow(kWheelBase/2, 2));
 
@@ -96,7 +101,11 @@ public class ChassisConstants {
     public static final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
     public static final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;
 
+<<<<<<< HEAD
     public static final int kDrivingMotorCurrentLimit = 50;
+=======
+    public static final int kDrivingMotorCurrentLimit = 60; // amps
+>>>>>>> origin/compbot/bringup
     public static final int kTurningMotorCurrentLimit = 20; // amps
   }
 
