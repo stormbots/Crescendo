@@ -27,6 +27,7 @@ public class ChassisConstants {
     // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(28);
     // Distance between front and back wheels on robot
+    public static final double distanceToModuleFromCenter = Math.sqrt(Math.pow(kTrackWidth/2, 2) + Math.pow(kWheelBase/2, 2));
 
     // Angular offsets of the modules relative to the chassis in radians
     public static final double kFrontLeftChassisAngularOffset = 0;
@@ -109,13 +110,12 @@ public class ChassisConstants {
     public static final double kMaxAccelerationMetersPerSecondSquared = 1; //4.375
     //NOTE: Half of these are only used once, only use for them would be to improve code understanding, as to which these names rev provided are actually HORRIBLE
 
-    // public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     // public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI;
 
   //   // Unused, from original template
-    // public static final double kPXController = 1;
-    // public static final double kPYController = 1;
-    // public static final double kPThetaController = 1;
+    public static final double kPDrivingP = 0.01;
+    public static final double kPThetaP = 0.01/360.0; //idk, very small value so it dont break anything too much
 
   //   // Constraint for the motion profiled robot angle controller
     // public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(

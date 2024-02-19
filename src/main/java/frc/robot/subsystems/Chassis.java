@@ -249,6 +249,15 @@ public class Chassis extends SubsystemBase {
     rearRight.setDesiredState(desiredStates[3]);
   }
 
+  public SwerveModuleState[] getModuleStates(){
+    return new SwerveModuleState[] {
+      frontLeft.getState(),
+      frontRight.getState(),
+      rearLeft.getState(),
+      rearRight.getState()
+    };
+  }
+
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
     frontLeft.resetEncoders();

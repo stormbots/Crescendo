@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -174,5 +175,9 @@ public class RobotContainer {
     return autoFactory.getTwoMeterForwardTrajectory().andThen(chassis.getZeroOutputCommand());
     // return autoFactory.getTwoMeterForwardTrajectory().andThen(new WaitCommand(5)).andThen(autoFactory.getTwoMeterBackwardTrajectory());
     // return autoFactory.getModuleOneMeterPerSecond();
+
+    // return autoFactory.getAutoChooser().getSelected();
+    // return AutoBuilder.followPath(autoFactory.pathPlannerPath);
+
   }
 }
