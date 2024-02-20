@@ -53,6 +53,10 @@ public class VisionTurnToAprilTag extends Command {
       var rotation = 0.5/60.0 * x;
       chassis.drive(0, 0, rotation, true, true);
     }
+    else
+    {
+      //TODO: move VisionTurnToTargetPose here if it works
+    }
 
     if (intakeVision.hasValidTarget()) {
       double x = intakeOffset.get().angleHorizontal;

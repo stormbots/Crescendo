@@ -94,8 +94,8 @@ public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
-  public final IntakeVision intakeVision = new IntakeVision(navx, swerveDrivePoseEstimator);
-  public final ShooterVision shooterVision = new ShooterVision(navx, swerveDrivePoseEstimator);
+  public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
+  public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {

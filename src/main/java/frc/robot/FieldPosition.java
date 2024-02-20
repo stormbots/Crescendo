@@ -11,15 +11,16 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.subsystems.IntakeVision;
+import frc.robot.subsystems.ShooterVision;
 import frc.robot.subsystems.IntakeVision.LimelightReadings;
 
 public class FieldPosition {
     public final static double kOriginOffsetX=15.98/2.0;
     public final static double kOriginOffsetY=8.120/2.0;
 
-    public final static double[] kSpeakerCols = {0.0, 0.0}; //TODO: get speaker cols
+    public final static double[] kSpeakerCols = {0.0, 0.0}; //TODO: get speaker cols!!
     public final static double kSpeakerRow = 0.0;
-    public final static double kSpeakerHeight = 0; //TODO: get speaker height
+    public final static double kSpeakerHeight = 0; //TODO: get speaker height!!
 
     public final static Pose3d RedSpeaker= new Pose3d(kSpeakerCols[0], kSpeakerRow, kSpeakerHeight, new Rotation3d());
     public final static Pose3d BlueSpeaker= new Pose3d(kSpeakerCols[0], kSpeakerRow, kSpeakerHeight, new Rotation3d());
@@ -58,38 +59,61 @@ public class FieldPosition {
     ///////////////////////////
     //Utility Functions
     ///////////////////////////
-    public static enum TargetType{Speaker}
+    public static enum TargetType{Speaker} //TODO: add more targets for better functionality
 
-    public static Pose3d GetTargetList(TargetType targetType){
-      DriverStation.Alliance color = DriverStation.getAlliance().get();
+    public static Pose3d getTargetList(TargetType targetType){
+      Alliance color = DriverStation.getAlliance().get(); //maybe use optional?
       switch(targetType){
-      case Speaker:   return color==Alliance.Red ? FieldPosition.RedSpeaker : FieldPosition.BlueSpeaker;
+        case Speaker:   return color==Alliance.Red ? FieldPosition.RedSpeaker : FieldPosition.BlueSpeaker;
       }
       return new Pose3d();
     }
 
-    public LimelightReadings getTargetDataOdometry(IntakeVision intakeVision, Pose3d target, SwerveDrivePoseEstimator poseEstimator) {
-    LimelightReadings targetData = intakeVision.new LimelightReadings();
+    // public IntakeVision.LimelightReadings getIntakeTargetDataOdometry(IntakeVision intakeVision, Pose3d target, SwerveDrivePoseEstimator poseEstimator) {
+    //   IntakeVision.LimelightReadings targetData = intakeVision.new LimelightReadings();
 
-    Pose2d botPose = poseEstimator.getEstimatedPosition();
-    Pose2d targetPose = target.toPose2d();
+    //   Pose2d botPose = poseEstimator.getEstimatedPosition();
+    //   Pose2d targetPose = target.toPose2d();
 
-    //data from field positions
-    double dx = targetPose.getX() - botPose.getX();
-    double dy = targetPose.getY() - botPose.getY();
-    double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
-    //bot rotations at current pose
-    double botPoseAngle = botPose.getRotation().getDegrees()%360;
-    double angleOffset = botPoseAngle - orthogonalAngle;
+    //   //data from field positions
+    //   double dx = targetPose.getX() - botPose.getX();
+    //   double dy = targetPose.getY() - botPose.getY();
+    //   double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+    //   //bot rotations at current pose
+    //   double botPoseAngle = botPose.getRotation().getDegrees()%360;
+    //   double angleOffset = botPoseAngle - orthogonalAngle;
 
-    targetData.angleHorizontal = angleOffset; //degrees
-    targetData.distance = Math.hypot(dx, dy); //meters
-    targetData.targetID = 0;
-    targetData.angleVertical = 0;
-    targetData.time = Timer.getFPGATimestamp();
+    //   targetData.angleHorizontal = angleOffset; //degrees
+    //   targetData.distance = Math.hypot(dx, dy); //meters
+    //   targetData.targetID = 0;
+    //   targetData.angleVertical = 0;
+    //   targetData.time = Timer.getFPGATimestamp();
 
-    return targetData;
-  }
+    //   return targetData;
+    // }
+
+    // public ShooterVision.LimelightReadings getShooterTargetDataOdometry(ShooterVision shooterVision, Pose3d target, SwerveDrivePoseEstimator poseEstimator) {
+    //   ShooterVision.LimelightReadings targetData = shooterVision.new LimelightReadings();
+
+    //   Pose2d botPose = poseEstimator.getEstimatedPosition();
+    //   Pose2d targetPose = target.toPose2d();
+
+    //   //data from field positions
+    //   double dx = targetPose.getX() - botPose.getX();
+    //   double dy = targetPose.getY() - botPose.getY();
+    //   double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+    //   //bot rotations at current pose
+    //   double botPoseAngle = botPose.getRotation().getDegrees()%360;
+    //   double angleOffset = botPoseAngle - orthogonalAngle;
+
+    //   targetData.angleHorizontal = angleOffset; //degrees
+    //   targetData.distance = Math.hypot(dx, dy); //meters
+    //   targetData.targetID = 0;
+    //   targetData.angleVertical = 0;
+    //   targetData.time = Timer.getFPGATimestamp();
+
+    //   return targetData;
+    // }
     
     public static void ShowOnGlassDashboard(Field2d field){
         field.getObject("Red Speaker").setPoses(RedSpeaker.toPose2d());
