@@ -25,6 +25,8 @@ public class DunkArm extends SubsystemBase {
   public CANSparkMax armMotor = new CANSparkMax(Robot.isCompbot?15:14, MotorType.kBrushless);
   private SparkPIDController armPID = armMotor.getPIDController();
   private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+  private double reverseSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kReverse);
+  private double forwardSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kForward);
   private double armSetpoint = 0.0;
 
   ArmFeedforward armff = new ArmFeedforward(.015, .035, 0.13/45);  // (0.025+0.055)/2.0;
@@ -38,16 +40,16 @@ public class DunkArm extends SubsystemBase {
     //Configure abs encoder
     armAbsEncoder.setPositionConversionFactor(360.0);
     armAbsEncoder.setInverted(true);
-    armAbsEncoder.setVelocityConversionFactor(armAbsEncoder.getPositionConversionFactor()/60.0); //native unit is RPS, degrees/second
+    armAbsEncoder.setVelocityConversionFactor(armAbsEncoder.getPositionConversionFactor()); //native unit is RPS, degrees/second
     
     //configure relative encoder
     armMotor.getPIDController().setFeedbackDevice(armMotor.getEncoder()); //Make sure we revert to native encoder for PID
     armMotor.getEncoder().setPositionConversionFactor(22.5/1.929);//21.8/3.0
     armMotor.getEncoder().setVelocityConversionFactor(armMotor.getEncoder().getPositionConversionFactor()/60.0); //native unit is RPS
     
-    armPID.setP((1/25.0)*4);
+    armPID.setP((1/25.0));
     armMotor.setClosedLoopRampRate(0.05);
-    armPID.setOutputRange(-1, 1);
+    armPID.setOutputRange(-0.2, 0.2);
     syncEncoders();
 
     armMotor.setSoftLimit(SoftLimitDirection.kReverse, -25);
@@ -64,11 +66,11 @@ public class DunkArm extends SubsystemBase {
     // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
 
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
-    SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
+    // SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/output", armMotor.getAppliedOutput());
-    SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
-    SmartDashboard.putNumber("dunkArm/position", getState().position);
+    // SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
+    // SmartDashboard.putNumber("dunkArm/position", getState().position);
     SmartDashboard.putNumber("dunkArm/current", armMotor.getOutputCurrent());
   }
 
@@ -83,7 +85,7 @@ public class DunkArm extends SubsystemBase {
   }
   
   public void setPower(double power) {
-    armMotor.set(power + getArmFFPercent());
+    armMotor.set(power);
   }
 
   public void stop() {
@@ -98,9 +100,10 @@ public class DunkArm extends SubsystemBase {
     return armAbsEncoder.getPosition(); //in rotations, need to do limit
   }
 
-  public double isOnTarget(){
+  public Boolean isOnTarget(){
     //TODO figure out better tolerances that make sense
-    return Clamp.clamp(armAbsEncoder.getPosition(), armSetpoint-3, armSetpoint+3);
+    // return Clamp.clamp(armAbsEncoder.getPosition(), armSetpoint-3, armSetpoint+3);
+    return (getAngle() < armSetpoint+3 && getAngle() > armSetpoint-3);
   }
   
   public double getArmFFPercent(){
@@ -109,7 +112,7 @@ public class DunkArm extends SubsystemBase {
   }
 
   public double getArmFFProperly(double position, double velocity){
-    //TODO: Manage feed forward and implement in a new setArmAngle profiler
+    //TODO: Manage feed forward and implement f a new setArmAngle profiler
     var pos = Math.toRadians(position);
     var vel = Math.toRadians(velocity);
     return armff.calculate(pos, vel); //NOTE: must be in rad + rad/s
@@ -117,12 +120,14 @@ public class DunkArm extends SubsystemBase {
 
   public void setArmAngle(double degrees) {
     this.armSetpoint = degrees;
-    degrees = Clamp.clamp(degrees, armMotor.getSoftLimit(SoftLimitDirection.kReverse), armMotor.getSoftLimit(SoftLimitDirection.kForward));
-    SmartDashboard.putNumber("dunkArm/targetAngle", degrees);
+    degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit);
+    //SmartDashboard.putNumber("dunkArm/targetAngle", degrees);
     armPID.setReference(degrees, ControlType.kPosition, 0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 
   public TrapezoidProfile.State getState(){
     return new TrapezoidProfile.State(armMotor.getEncoder().getPosition(), armMotor.getEncoder().getVelocity());
   }
+
+  // public isOnTarget()
 }

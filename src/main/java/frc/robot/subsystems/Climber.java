@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
@@ -23,8 +24,8 @@ import frc.robot.Robot;
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
 
-  private CANSparkFlex leftMotor = new CANSparkFlex(Robot.isCompbot?17:16, MotorType.kBrushless);
-  private CANSparkFlex rightMotor = new CANSparkFlex(Robot.isCompbot?18:17, MotorType.kBrushless);
+  private CANSparkMax leftMotor = new CANSparkMax(Robot.isCompbot?17:16, MotorType.kBrushless);
+  private CANSparkMax rightMotor = new CANSparkMax(Robot.isCompbot?18:17, MotorType.kBrushless);
   
   public boolean isHomed=false;
   public final double kHomeCurrentThreshold=5;

@@ -15,6 +15,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -56,6 +58,7 @@ import frc.robot.subsystems.ShooterVision;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
@@ -175,7 +178,7 @@ public class RobotContainer {
 
     intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
 
-    dunkArm.setDefaultCommand(new SetDunkArmSlew(-25, dunkArm).repeatedly());
+    // dunkArm.setDefaultCommand(new RunCommand(()->dunkArm.setPower(0), dunkArm));
     dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
   }
 
@@ -250,8 +253,9 @@ public class RobotContainer {
     operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
       //.andThen(()->shooter.setAngle(0.0)) //TODO: not setting to 0
-      new SetDunkArmSlew(-25, dunkArm).repeatedly()
-    ));
+      // new SetDunkArmSlew(-25, dunkArm).until((dunkArm::isOnTarget)
+      new RunCommand(()->dunkArm.setArmAngle(-30), dunkArm)
+      ));
 
     //empty button?
     operatorJoystick.button(3)
@@ -267,16 +271,18 @@ public class RobotContainer {
     );
 
     operatorJoystick.button(5).whileTrue(new ParallelCommandGroup(
-      new SetDunkArmSlew(-25, dunkArm).repeatedly(),
+      // new SetDunkArmSlew(-25, dunkArm).until(dunkArm::isOnTarget),
+      new RunCommand(()->dunkArm.setArmAngle(-30), dunkArm),
       new SetShooterProfiled(0, shooter),
-      new RunCommand(()->dunkArmRoller.setSpeed(0.1),dunkArmRoller),
+      new RunCommand(()->dunkArmRoller.setSpeed(0.1), dunkArmRoller),
       new RunCommand(()->passthrough.intake(), passthrough),
       new RunCommand(()->intake.intake(), intake),
       shooterFlywheel.getShooterSetRPMCommand(3000)
     ));
 
     operatorJoystick.button(6).whileTrue(
-      new SetDunkArmSlew(99, dunkArm).repeatedly()
+      new RunCommand(()->dunkArm.setArmAngle(105), dunkArm)
+      //new SetDunkArmSlew(105, dunkArm).until(dunkArm::isOnTarget)
     );
 
     operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
@@ -304,6 +310,20 @@ public class RobotContainer {
         new IntakeNote(intake, passthrough),
         new SetShooterProfiled(0, shooter)
       )
+    );
+
+    // operatorJoystick.button(11).whileTrue(
+    //   new SetDunkArmSlew(-2, dunkArm)
+    // );
+
+    // operatorJoystick.button(12).whileTrue(new ParallelCommandGroup(
+    //   new RunCommand(()->dunkArmRoller.setSpeed(0.4))
+    //   // new RunCommand(()->shooterPassthrough::eject);
+    // )
+    // );
+
+    operatorJoystick.button(11).whileTrue(
+      new RunCommand(()->dunkArm.setPower(operatorJoystick.getRawAxis(1)), dunkArm)
     );
   }
   
