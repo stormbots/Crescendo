@@ -113,6 +113,12 @@ public class Leds extends SubsystemBase {
     }
   }
 
+  private void setColorManual(int red, int green, int blue){
+    for(var i = 0; i < ledBuffer.getLength(); i++){
+      ledBuffer.setRGB(i, red, green, blue);
+    }
+  }
+
 
     public Command showTeamColor(){
       return new RunCommand(()->{
