@@ -18,8 +18,8 @@ public class FieldPosition {
     public final static double kOriginOffsetX=15.98/2.0;
     public final static double kOriginOffsetY=8.120/2.0;
 
-    public final static double[] kSpeakerCols = {0.0, 0.0}; //TODO: get speaker cols!!
-    public final static double kSpeakerRow = 0.0;
+    public final static double[] kSpeakerCols = {0, 0.0}; //TODO: get speaker cols!!
+    public final static double kSpeakerRow = 7.5;
     public final static double kSpeakerHeight = 0; //TODO: get speaker height!!
 
     public final static Pose3d RedSpeaker= new Pose3d(kSpeakerCols[0], kSpeakerRow, kSpeakerHeight, new Rotation3d());

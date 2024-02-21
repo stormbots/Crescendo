@@ -51,7 +51,7 @@ public class ShooterVision extends SubsystemBase {
   public void periodic() {
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
-    SmartDashboard.putData("visionfield", field);
+    SmartDashboard.putData("shootervisionfield", field);
   }
 
   public boolean hasValidTarget() {
@@ -87,7 +87,7 @@ public class ShooterVision extends SubsystemBase {
     poseEstimator.setVisionMeasurementStdDevs(stdevs);
 
     field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
-    field.getObject("visionpose").setPose(botPose);
+    field.getObject("shootervisionpose").setPose(botPose);
   }
 
   public void zoomIfPossible() {

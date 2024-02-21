@@ -53,12 +53,12 @@ public class VisionTurnToAprilTag extends Command {
       var rotation = 0.5/60.0 * x;
       chassis.drive(0, 0, rotation, true, true);
     }
-    else
-    {
-      //TODO: move VisionTurnToTargetPose here if it works
-    }
+    // else
+    // {
+    //   //TODO: move VisionTurnToTargetPose here if it works
+    // }
 
-    if (intakeVision.hasValidTarget()) {
+    else if (intakeVision.hasValidTarget()) {
       double x = intakeOffset.get().angleHorizontal;
       var rotation = 0.5/60.0 * x;
       chassis.drive(0, 0, rotation, true, true);
