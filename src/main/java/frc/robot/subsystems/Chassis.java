@@ -4,8 +4,14 @@
 
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
+import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkBase.IdleMode;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,12 +20,18 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.MAXSwerveModule;
 import frc.robot.SwerveUtils;
 
@@ -70,39 +82,49 @@ public class Chassis extends SubsystemBase {
   private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double prevTime = WPIUtilJNI.now() * 1e-6;
 
+  /**
+   * Tuning notes: 
+   * 1/pi is good
+   * 2/pi is too much, cause backlash 
+   */
+  PIDController turnpid = new PIDController(1/Math.PI,0,0);
+
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
     this.swerveDrivePoseEstimator = swerveDrivePoseEstimator;
+
+    turnpid.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   // Update the odometry in the periodic block
-    swerveDrivePoseEstimator.updateWithTime(
-        Timer.getFPGATimestamp(),
-        navx.getRotation2d(),
-        new SwerveModulePosition[] {
-            frontLeft.getPosition(),
-            frontRight.getPosition(),
-            rearLeft.getPosition(),
-            rearRight.getPosition()
-        });
+    // swerveDrivePoseEstimator.updateWithTime(
+    //     Timer.getFPGATimestamp(),
+    //     navx.getRotation2d(),
+    //     new SwerveModulePosition[] {
+    //         frontLeft.getPosition(),
+    //         frontRight.getPosition(),
+    //         rearLeft.getPosition(),
+    //         rearRight.getPosition()
+    //     });
     
     //i WILL cry if this doesn't work by next week
-    var pose = swerveDrivePoseEstimator.getEstimatedPosition();
-    SmartDashboard.putNumber("chassis/x",pose.getX());
-    SmartDashboard.putNumber("chassis/y",pose.getY());
-    field.setRobotPose(pose);
+    // var pose = swerveDrivePoseEstimator.getEstimatedPosition();
+    // SmartDashboard.putNumber("chassis/x",pose.getX());
+    // SmartDashboard.putNumber("chassis/y",pose.getY());
+    // field.setRobotPose(pose);
     
-    SmartDashboard.putData("chassis", field);
-    SmartDashboard.putData("modules/fr", frontRight);
-    SmartDashboard.putData("modules/fl", frontLeft);
-    SmartDashboard.putData("modules/rr", rearRight);
-    SmartDashboard.putData("modules/rl", rearLeft);
-    
-    SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
+    // SmartDashboard.putData("chassis", field);
+    // SmartDashboard.putData("modules/fr", frontRight);
+    // SmartDashboard.putData("modules/fl", frontLeft);
+    // SmartDashboard.putData("modules/rr", rearRight);
+    // SmartDashboard.putData("modules/rl", rearLeft);
+
+    SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
   }
   public Pose2d getPose() {
@@ -137,8 +159,8 @@ public class Chassis extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
 
-    SmartDashboard.putNumber("Raw X Speed", xSpeed);
-    SmartDashboard.putNumber("Raw Y Speed", ySpeed);
+    // SmartDashboard.putNumber("Raw X Speed", xSpeed);
+    // SmartDashboard.putNumber("Raw Y Speed", ySpeed);
     
     double xSpeedCommanded;
     double ySpeedCommanded;
@@ -148,8 +170,8 @@ public class Chassis extends SubsystemBase {
       double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
       double inputTranslationMag = Math.sqrt(Math.pow(xSpeed, 2) + Math.pow(ySpeed, 2));
 
-      SmartDashboard.putNumber("Input Translation Dir", inputTranslationDir);
-      SmartDashboard.putNumber("Input Translation Mag", inputTranslationMag);
+      // SmartDashboard.putNumber("Input Translation Dir", inputTranslationDir);
+      // SmartDashboard.putNumber("Input Translation Mag", inputTranslationMag);
 
       // Calculate the direction slew rate based on an estimate of the lateral acceleration
       double directionSlewRate;
@@ -187,8 +209,8 @@ public class Chassis extends SubsystemBase {
       ySpeedCommanded = currentTranslationMag * Math.sin(currentTranslationDir);
       currentRotation = rotLimiter.calculate(rot);
 
-      SmartDashboard.putNumber("Current Translation Dir", currentTranslationDir);
-      SmartDashboard.putNumber("Current Translation Mag", currentTranslationMag);
+      // SmartDashboard.putNumber("Current Translation Dir", currentTranslationDir);
+      // SmartDashboard.putNumber("Current Translation Mag", currentTranslationMag);
 
 
     } else {
@@ -197,16 +219,16 @@ public class Chassis extends SubsystemBase {
       currentRotation = rot;
     }
 
-    SmartDashboard.putNumber("X Speed Out", xSpeedCommanded);
-    SmartDashboard.putNumber("Y Speed Out", ySpeedCommanded);
+    // SmartDashboard.putNumber("X Speed Out", xSpeedCommanded);
+    // SmartDashboard.putNumber("Y Speed Out", ySpeedCommanded);
 
     // Convert the commanded speeds into the correct units for the drivetrain
     double xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
     double ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = currentRotation * DriveConstants.kMaxAngularSpeed;
 
-    SmartDashboard.putNumber("X Speed Delivered", xSpeedDelivered);
-    SmartDashboard.putNumber("Y Speed Delivered", ySpeedDelivered);
+    // SmartDashboard.putNumber("X Speed Delivered", xSpeedDelivered);
+    // SmartDashboard.putNumber("Y Speed Delivered", ySpeedDelivered);
 
     var swerveModuleStates = swerveDriveKinematics.toSwerveModuleStates(
         fieldRelative
@@ -251,10 +273,19 @@ public class Chassis extends SubsystemBase {
     rearLeft.resetEncoders();
     rearRight.resetEncoders();
   }
-
+  
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     navx.reset();
+  }
+
+  /** Apply an offset from initial navx zero to the intended "forward" direction
+   * for fieldcentric controls.
+   * positive value rotates zero CW
+   */
+  public void setFieldCentricOffset(double offset){
+    zeroHeading();
+    navx.setAngleAdjustment(offset);
   }
 
   /**
@@ -264,5 +295,68 @@ public class Chassis extends SubsystemBase {
    */
   public double getHeading() {
     return navx.getRotation2d().getDegrees();
+  }
+
+  public void driveToBearing(double xSpeed, double ySpeed, double bearingRad){
+    //move elsewhere
+    // turnpid.atSetpoint();
+    // turnpid.setTolerance(4);
+
+    //In degrees
+    double currentTheta = navx.getRotation2d().getRadians(); 
+    // double thetaError = Math.toDegrees(MathUtil.angleModulus(rot - currentTheta.getRadians()));
+
+    double output = turnpid.calculate(currentTheta,bearingRad);
+
+    // if(thetaError > 180){  
+    //   thetaError -= 360;
+    // }
+    // else if (thetaError < -180){
+    //   thetaError += 360;
+    // }
+    // double proportionalRotation = thetaError / 180.0;
+    // //may not be needed but just to be safe
+    // if(proportionalRotation > 1.0){
+    //   proportionalRotation = 1.0;
+    // }
+
+    drive(xSpeed, ySpeed, output, true, true);
+    // SmartDashboard.putNumber("bearing", bearingRad);
+  }
+
+  //TODO: not working
+  /**
+   * Fieldcentric drive command, using Field coordinates 
+   * @param xPower [-1..1] with positive away from driver
+   * @param yPower [-1..1] with positive to left
+   * @param rotationPower [-1..1] with positive CCW
+   * @return
+   */
+  public Command getFCDriveCommand(DoubleSupplier xPower, DoubleSupplier yPower, DoubleSupplier rotationPower){
+    return new RunCommand(
+      () -> {drive(
+          MathUtil.applyDeadband(xPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(yPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(rotationPower.getAsDouble(), OIConstants.kDriveDeadband),
+          true, true);},
+      this);
+  }
+
+  public Command getDriveToBearingCommand(DoubleSupplier xPower, DoubleSupplier yPower, Supplier<Measure<Angle>> bearing){
+    return new RunCommand(
+      () -> {
+        driveToBearing(
+          MathUtil.applyDeadband(xPower.getAsDouble(), OIConstants.kDriveDeadband),
+          MathUtil.applyDeadband(yPower.getAsDouble(), OIConstants.kDriveDeadband),
+          bearing.get().in(Units.Radians)
+        );
+      },
+      this);
+  }
+
+  public void setBrakeMode(){
+    for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
+      module.drivingSparkFlex.setIdleMode(IdleMode.kBrake);
+    }
   }
 }

@@ -17,7 +17,7 @@ public class ClimberSetPosition extends Command {
   Climber climber;
   Measure<Distance> target;
   TrapezoidProfile motionProfile = new TrapezoidProfile(
-    new TrapezoidProfile.Constraints (5.0, 5.0)
+    new TrapezoidProfile.Constraints (0.5, 5.0)
     );
     TrapezoidProfile.State initialPos = new TrapezoidProfile.State(0, 0);
     TrapezoidProfile.State goalPos;
@@ -47,7 +47,7 @@ public class ClimberSetPosition extends Command {
   @Override
   public void execute() {
     double targetPosition = motionProfile.calculate(Timer.getFPGATimestamp()-startTimer, initialPos, goalPos).position;
-    climber.setPosition(targetPosition);
+    climber.setPosition(Units.Inches.of(targetPosition));
   }
 
   // Called once the command ends or is interrupted.
