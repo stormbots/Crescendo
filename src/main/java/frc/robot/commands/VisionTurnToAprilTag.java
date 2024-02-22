@@ -45,7 +45,7 @@ public class VisionTurnToAprilTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<ShooterVision.LimelightReadings> shooterOffset = shooterVision.getVisibleTarget();
+    Optional<ShooterVision.LimelightReadings> shooterOffset = shooterVision.getVisibleTargetData();
     Optional<IntakeVision.LimelightReadings> intakeOffset = intakeVision.getVisibleTarget();
 
     if (shooterVision.hasValidTarget()) {

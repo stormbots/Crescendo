@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Clamp;
-import frc.robot.FieldPosition;
 
 public class ShooterVision extends SubsystemBase {
   /** Creates a new Vision. */
@@ -59,7 +58,7 @@ public class ShooterVision extends SubsystemBase {
     return tv >= 1;
   }
 
-  public Optional<LimelightReadings> getVisibleTarget() {
+  public Optional<LimelightReadings> getVisibleTargetData() {
     if (hasValidTarget()==false) {return Optional.empty();}
 
     double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(new double[]{0,0,0,0,0,0});
@@ -91,7 +90,7 @@ public class ShooterVision extends SubsystemBase {
   }
 
   public void zoomIfPossible() {
-    var target = getVisibleTarget();
+    var target = getVisibleTargetData();
     if (hasValidTarget()==false) {return;}
 
     double tx = target.get().angleHorizontal;

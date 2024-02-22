@@ -4,11 +4,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.FieldPosition;
-import frc.robot.FieldPosition.TargetType;
 import frc.robot.subsystems.Chassis;
+import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.FieldPosition.TargetType;
 
 public class VisionTurnToTargetPose extends Command{
     private IntakeVision intakeVision;

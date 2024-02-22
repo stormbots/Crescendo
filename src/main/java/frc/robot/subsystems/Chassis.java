@@ -115,15 +115,15 @@ public class Chassis extends SubsystemBase {
     var pose = swerveDrivePoseEstimator.getEstimatedPosition();
     SmartDashboard.putNumber("chassis/x",pose.getX());
     SmartDashboard.putNumber("chassis/y",pose.getY());
-    // field.setRobotPose(pose);
+    field.setRobotPose(pose);
     
-    // SmartDashboard.putData("chassis", field);
-    // SmartDashboard.putData("modules/fr", frontRight);
-    // SmartDashboard.putData("modules/fl", frontLeft);
-    // SmartDashboard.putData("modules/rr", rearRight);
-    // SmartDashboard.putData("modules/rl", rearLeft);
+    SmartDashboard.putData("chassis", field);
+    SmartDashboard.putData("modules/fr", frontRight);
+    SmartDashboard.putData("modules/fl", frontLeft);
+    SmartDashboard.putData("modules/rr", rearRight);
+    SmartDashboard.putData("modules/rl", rearLeft);
     
-    // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
+    SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
   }
   public Pose2d getPose() {

@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.subsystems;
 
 import java.util.ArrayList;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.subsystems.IntakeVision;
-import frc.robot.subsystems.ShooterVision;
 import frc.robot.subsystems.IntakeVision.LimelightReadings;
 
 public class FieldPosition {
@@ -23,7 +21,14 @@ public class FieldPosition {
     public final static double kSpeakerHeight = 0; //TODO: get speaker height!!
 
     public final static Pose3d RedSpeaker= new Pose3d(kSpeakerCols[0], kSpeakerRow, kSpeakerHeight, new Rotation3d());
-    public final static Pose3d BlueSpeaker= new Pose3d(kSpeakerCols[0], kSpeakerRow, kSpeakerHeight, new Rotation3d());
+    public final static Pose3d BlueSpeaker= new Pose3d(kSpeakerCols[1], kSpeakerRow, kSpeakerHeight, new Rotation3d());
+
+    public final static double[] kAmpCols = {0.0, 0.0};
+    public static final double kAmpRow = 0.0;
+    public static final double kAmpHeight = 0.0;
+
+    public final static Pose3d RedAmp = new Pose3d(kAmpCols[0], kAmpRow, kAmpHeight, new Rotation3d());
+    public final static Pose3d BlueAmp = new Pose3d(kAmpCols[1], kAmpRow, kAmpHeight, new Rotation3d());
 
     /**
      * From https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf page 4
@@ -116,7 +121,12 @@ public class FieldPosition {
     // }
     
     public static void ShowOnGlassDashboard(Field2d field){
-        field.getObject("Red Speaker").setPoses(RedSpeaker.toPose2d());
-        field.getObject("Blue Speaker").setPoses(BlueSpeaker.toPose2d());
+        field.getObject("Red Speaker").setPose(RedSpeaker.toPose2d());
+        field.getObject("Blue Speaker").setPose(BlueSpeaker.toPose2d());
+        field.getObject("Red Amp").setPose(RedAmp.toPose2d());
+        field.getObject("Blue Amp").setPose(BlueAmp.toPose2d());
+
+        // Pose2d[] fieldObjects = {RedSpeaker.toPose2d(), BlueSpeaker.toPose2d(), RedAmp.toPose2d(), BlueAmp.toPose2d()};
+        // field.getObject("Field Elements").setPoses(fieldObjects);
     }
 }
