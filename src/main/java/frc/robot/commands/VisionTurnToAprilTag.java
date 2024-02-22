@@ -5,10 +5,15 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeVision;
+import frc.robot.ChassisConstants;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.ShooterVision;
 
 import java.util.Optional;
+
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
@@ -17,17 +22,21 @@ public class VisionTurnToAprilTag extends Command {
   private ShooterVision shooterVision;
   private IntakeVision intakeVision;
   private Chassis chassis;
-  
+  private AHRS gyro;
+  private double targetAngle = 0.0; //or 180?
+  private double tolerance = 10.0;
+  private double angleError = 0.0;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToAprilTag(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis) {
+  public VisionTurnToAprilTag(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis, AHRS gyro) {
     this.shooterVision = shooterVision;
     this.intakeVision = intakeVision;
     this.chassis = chassis;
+    this.gyro = gyro;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(shooterVision);
@@ -45,13 +54,28 @@ public class VisionTurnToAprilTag extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<ShooterVision.LimelightReadings> shooterOffset = shooterVision.getVisibleTargetData();
-    Optional<IntakeVision.LimelightReadings> intakeOffset = intakeVision.getVisibleTarget();
+    Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
+    Optional<IntakeVision.LimelightReadings> intakeData = intakeVision.getVisibleTarget();
 
     if (shooterVision.hasValidTarget()) {
-      double x = shooterOffset.get().angleHorizontal;
-      var rotation = -0.5/800.0 * x;
-      chassis.drive(0, 0, rotation, true, true);
+      angleError = shooterData.get().angleHorizontal;
+      var continuousMin=-180;
+      var continuousMax=180;
+      if(continuousMin != continuousMax){
+        var continuousHalfRange = (continuousMax-continuousMin)/2.0;
+        angleError %= (continuousHalfRange*2);
+        if(angleError>continuousHalfRange) angleError-=2*continuousHalfRange;
+        if(angleError<-continuousHalfRange) angleError+=2*continuousHalfRange;
+      }
+
+      angleError= MathUtil.clamp(angleError, -5, 5);
+
+      double turnOutput = angleError*0.5/60.0;
+      turnOutput += 0.5/60.0*Math.signum(turnOutput);
+
+      turnOutput += gyro.getRate() * .03/4.0; //.05 -> .03
+
+      chassis.drive(0, 0, turnOutput, true, true);
     }
     // else
     // {
@@ -59,9 +83,24 @@ public class VisionTurnToAprilTag extends Command {
     // }
 
     else if (intakeVision.hasValidTarget()) {
-      double x = intakeOffset.get().angleHorizontal;
-      var rotation = 0.5/60.0 * x;
-      chassis.drive(0, 0, rotation, true, true);
+      angleError = intakeData.get().angleHorizontal;
+      var continuousMin=-180;
+      var continuousMax=180;
+      if(continuousMin != continuousMax){
+        var continuousHalfRange = (continuousMax-continuousMin)/2.0;
+        angleError %= (continuousHalfRange*2);
+        if(angleError>continuousHalfRange) angleError-=2*continuousHalfRange;
+        if(angleError<-continuousHalfRange) angleError+=2*continuousHalfRange;
+      }
+
+      angleError= MathUtil.clamp(angleError, -5, 5);
+
+      double turnOutput = angleError*0.5/60.0;
+      turnOutput += 0.5/60.0*Math.signum(turnOutput);
+
+      turnOutput += gyro.getRate() * .03/4.0; //.05 -> .03
+
+      chassis.drive(0, 0, turnOutput, true, true);
     }
   }
 
