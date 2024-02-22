@@ -49,8 +49,8 @@ public class VisionTurnToAprilTag extends Command {
     Optional<IntakeVision.LimelightReadings> intakeOffset = intakeVision.getVisibleTarget();
 
     if (shooterVision.hasValidTarget()) {
-      double x = -shooterOffset.get().angleHorizontal;
-      var rotation = 0.5/60.0 * x;
+      double x = shooterOffset.get().angleHorizontal;
+      var rotation = -0.5/800.0 * x;
       chassis.drive(0, 0, rotation, true, true);
     }
     // else

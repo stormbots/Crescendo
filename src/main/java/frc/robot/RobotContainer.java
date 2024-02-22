@@ -5,7 +5,6 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,12 +17,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,9 +31,10 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
-import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.ShooterSetManually;
+import frc.robot.commands.VisionSetShooter;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
@@ -308,9 +308,15 @@ public class RobotContainer {
       )
     );
 
-    operatorJoystick.button(11).whileTrue(
-      new RunCommand(()->dunkArm.setPower(operatorJoystick.getRawAxis(1)), dunkArm)
-    );
+    // operatorJoystick.button(11).whileTrue(
+    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
+    //   shooterFlywheel.getShooterSetRPMCommand(10000)
+    // );
+
+    // operatorJoystick.button(12).onTrue(
+    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
+    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60), shooter)
+    // );
   }
   
   /**

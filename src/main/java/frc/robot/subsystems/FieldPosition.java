@@ -16,11 +16,11 @@ public class FieldPosition {
     public final static double kOriginOffsetX=15.98/2.0;
     public final static double kOriginOffsetY=8.120/2.0;
 
-    public final static double[] kSpeakerCols = {0, 0.0}; //TODO: get speaker cols!!
-    public final static double kSpeakerRow = 7.5;
+    public final static double[] kSpeakerCols = {16.542, 0.0}; //TODO: get speaker cols!!
+    public final static double kSpeakerRow = 2.676+2.573+2.695-2.104-0.04-0.5+0.25;
     public final static double kSpeakerHeight = 0; //TODO: get speaker height!!
 
-    public final static Pose3d RedSpeaker= new Pose3d(kSpeakerCols[0], kSpeakerRow, kSpeakerHeight, new Rotation3d());
+    public final static Pose3d RedSpeaker= new Pose3d(kSpeakerCols[0], kSpeakerRow, kSpeakerHeight, new Rotation3d(0, 0, Math.PI));
     public final static Pose3d BlueSpeaker= new Pose3d(kSpeakerCols[1], kSpeakerRow, kSpeakerHeight, new Rotation3d());
 
     public final static double[] kAmpCols = {0.0, 0.0};
@@ -123,8 +123,19 @@ public class FieldPosition {
     public static void ShowOnGlassDashboard(Field2d field){
         field.getObject("Red Speaker").setPose(RedSpeaker.toPose2d());
         field.getObject("Blue Speaker").setPose(BlueSpeaker.toPose2d());
-        field.getObject("Red Amp").setPose(RedAmp.toPose2d());
-        field.getObject("Blue Amp").setPose(BlueAmp.toPose2d());
+
+        field.getObject("Red Amp").setPose(AprilTags.get(4).toPose2d());
+        field.getObject("Blue Amp").setPose(AprilTags.get(5).toPose2d());
+        
+        //RED STAGE
+        field.getObject("April Tag 11").setPose(AprilTags.get(10).toPose2d());
+        field.getObject("April Tag 12").setPose(AprilTags.get(11).toPose2d());
+        field.getObject("April Tag 13").setPose(AprilTags.get(12).toPose2d());
+
+        //BLUE STAGE
+        field.getObject("April Tag 14").setPose(AprilTags.get(13).toPose2d());
+        field.getObject("April Tag 15").setPose(AprilTags.get(14).toPose2d());
+        field.getObject("April Tag 16").setPose(AprilTags.get(15).toPose2d());
 
         // Pose2d[] fieldObjects = {RedSpeaker.toPose2d(), BlueSpeaker.toPose2d(), RedAmp.toPose2d(), BlueAmp.toPose2d()};
         // field.getObject("Field Elements").setPoses(fieldObjects);
