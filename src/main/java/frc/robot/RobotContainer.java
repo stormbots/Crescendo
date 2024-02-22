@@ -178,7 +178,10 @@ public class RobotContainer {
 
     intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
 
-    // dunkArm.setDefaultCommand(new RunCommand(()->dunkArm.setPower(0), dunkArm));
+    dunkArm.setDefaultCommand(new SetDunkArmSlew(-25, dunkArm)
+      .andThen(new WaitCommand(1))
+      .andThen(new RunCommand(()->dunkArm.setPower(0), dunkArm))
+    );
     dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
   }
 
@@ -270,19 +273,23 @@ public class RobotContainer {
       //TODO: vision targeting to speaker angle
     );
 
-    operatorJoystick.button(5).whileTrue(new ParallelCommandGroup(
-      // new SetDunkArmSlew(-25, dunkArm).until(dunkArm::isOnTarget),
-      new RunCommand(()->dunkArm.setArmAngle(-30), dunkArm),
-      new SetShooterProfiled(0, shooter),
-      new RunCommand(()->dunkArmRoller.setSpeed(0.1), dunkArmRoller),
-      new RunCommand(()->passthrough.intake(), passthrough),
-      new RunCommand(()->intake.intake(), intake),
-      shooterFlywheel.getShooterSetRPMCommand(3000)
-    ));
+    operatorJoystick.button(5).whileTrue(
+      // new ParallelCommandGroup(
+      //   // new SetDunkArmSlew(-25, dunkArm).until(dunkArm::isOnTarget),
+      //   new RunCommand(()->dunkArm.setArmAngle(-30), dunkArm),
+      //   new SetShooterProfiled(0, shooter),
+      //   new RunCommand(()->dunkArmRoller.setSpeed(0.1), dunkArmRoller),
+      //   new RunCommand(()->passthrough.intake(), passthrough),
+      //   new RunCommand(()->intake.intake(), intake),
+      //   shooterFlywheel.getShooterSetRPMCommand(3000)
+      // )
+
+      //Trying out sequence factory
+      sequenceFactory.getDunkArmNoteTransferSequence()
+    );
 
     operatorJoystick.button(6).whileTrue(
-      new RunCommand(()->dunkArm.setArmAngle(105), dunkArm)
-      //new SetDunkArmSlew(105, dunkArm).until(dunkArm::isOnTarget)
+      new SetDunkArmSlew(105, dunkArm).runForever()
     );
 
     operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
