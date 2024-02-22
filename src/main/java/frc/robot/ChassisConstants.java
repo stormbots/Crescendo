@@ -23,9 +23,9 @@ public class ChassisConstants {
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
 
     // Chassis configuration
-    public static final double kTrackWidth = Units.inchesToMeters(27);
+    public static double kTrackWidth = Units.inchesToMeters(27);
     // Distance between centers of right and left wheels on robot
-    public static final double kWheelBase = Units.inchesToMeters(27);
+    public static  double kWheelBase = Units.inchesToMeters(27);
     // Distance between front and back wheels on robot
 
     // Angular offsets of the modules relative to the chassis in radians
@@ -96,7 +96,7 @@ public class ChassisConstants {
     public static final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
     public static final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;
 
-    public static final int kDrivingMotorCurrentLimit = 60; // amps
+    public static final int kDrivingMotorCurrentLimit = 40; // amps
     public static final int kTurningMotorCurrentLimit = 20; // amps
   }
 

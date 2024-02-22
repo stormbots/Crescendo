@@ -16,8 +16,10 @@ public class SetDunkArmSlew extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private double angle;
   DunkArm dunkArm;
+  boolean exitsOnCompletion = true;
+
   SlewRateLimiter armRateLimiter =new SlewRateLimiter(
-    90, -90, -20); //TODO: get rate limits
+    90*1.7, -90*1.7, -20); //TODO: get rate limits
   /**
    * Creates a new ExampleCommand.
    *
@@ -28,6 +30,11 @@ public class SetDunkArmSlew extends Command {
     this.dunkArm = dunkArm;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(dunkArm);
+  }
+
+  public SetDunkArmSlew runForever(){
+    this.exitsOnCompletion = false;
+    return this;
   }
 
   // Called when the command is initially scheduled.
@@ -46,7 +53,7 @@ public class SetDunkArmSlew extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if(interrupted == false){
+    if(!interrupted){
       dunkArm.setArmAngle(angle);
     }
   }
@@ -60,6 +67,6 @@ public class SetDunkArmSlew extends Command {
     var velTol = 10; // per sec
     var vol = Clamp.bounded(dunkArm.getState().velocity, -velTol, velTol);
   
-    return pos && vol;
+    return exitsOnCompletion && pos && vol;
   }
 }

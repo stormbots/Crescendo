@@ -44,6 +44,10 @@ public class Robot extends TimedRobot {
     entry.setBoolean(isCompbot);
     entry.setPersistent();
 
+    //set the value of chassis track width based on bot
+    DriveConstants.kTrackWidth = isCompbot ? 27 : 28;
+    DriveConstants.kWheelBase = isCompbot ? 27 : 28;
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();

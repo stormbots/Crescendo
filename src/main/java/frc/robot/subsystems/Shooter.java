@@ -28,6 +28,9 @@ public class Shooter extends SubsystemBase {
   private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double shooterSetPoint = 0.0;
 
+  private double reverseSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kReverse);
+  private double forwardSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kForward);
+
 
   public Shooter() {
     shooterMotor.clearFaults();
@@ -116,7 +119,7 @@ public class Shooter extends SubsystemBase {
 
   public void setAngle(double degrees) {
     this.shooterSetPoint = degrees;
-    Clamp.clamp(degrees, shooterMotor.getSoftLimit(SoftLimitDirection.kReverse), shooterMotor.getSoftLimit(SoftLimitDirection.kForward)); 
+    Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
     pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
