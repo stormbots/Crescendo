@@ -256,8 +256,7 @@ public class RobotContainer {
     operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
       //.andThen(()->shooter.setAngle(0.0)) //TODO: not setting to 0
-      // new SetDunkArmSlew(-25, dunkArm).until((dunkArm::isOnTarget)
-      new RunCommand(()->dunkArm.setArmAngle(-30), dunkArm)
+      new SetDunkArmSlew(-25, dunkArm).runForever()
       ));
 
     //empty button?
@@ -274,16 +273,6 @@ public class RobotContainer {
     );
 
     operatorJoystick.button(5).whileTrue(
-      // new ParallelCommandGroup(
-      //   // new SetDunkArmSlew(-25, dunkArm).until(dunkArm::isOnTarget),
-      //   new RunCommand(()->dunkArm.setArmAngle(-30), dunkArm),
-      //   new SetShooterProfiled(0, shooter),
-      //   new RunCommand(()->dunkArmRoller.setSpeed(0.1), dunkArmRoller),
-      //   new RunCommand(()->passthrough.intake(), passthrough),
-      //   new RunCommand(()->intake.intake(), intake),
-      //   shooterFlywheel.getShooterSetRPMCommand(3000)
-      // )
-
       //Trying out sequence factory
       sequenceFactory.getDunkArmNoteTransferSequence()
     );
@@ -318,16 +307,6 @@ public class RobotContainer {
         new SetShooterProfiled(0, shooter)
       )
     );
-
-    // operatorJoystick.button(11).whileTrue(
-    //   new SetDunkArmSlew(-2, dunkArm)
-    // );
-
-    // operatorJoystick.button(12).whileTrue(new ParallelCommandGroup(
-    //   new RunCommand(()->dunkArmRoller.setSpeed(0.4))
-    //   // new RunCommand(()->shooterPassthrough::eject);
-    // )
-    // );
 
     operatorJoystick.button(11).whileTrue(
       new RunCommand(()->dunkArm.setPower(operatorJoystick.getRawAxis(1)), dunkArm)
