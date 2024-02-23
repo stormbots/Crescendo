@@ -105,15 +105,15 @@ public class AutoFactory {
             rc.chassis
         );
 
-        // SmartDashboard.putData("Field", pathPlannerField);
+        SmartDashboard.putData("Field", pathPlannerField);
 
-        // PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
-        //     pathPlannerField.setRobotPose(pose);
-        // });
+        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+            pathPlannerField.setRobotPose(pose);
+        });
 
-        // PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-        //     pathPlannerField.getObject("target pose").setPose(pose);
-        // });
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            pathPlannerField.getObject("target pose").setPose(pose);
+        });
     }
 
     public Command ExampleAuto(){

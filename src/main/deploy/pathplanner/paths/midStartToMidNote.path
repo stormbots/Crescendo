@@ -3,38 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.0,
-        "y": 0.0
+        "x": 1.2,
+        "y": 5.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.0,
-        "y": 0.0
+        "x": 2.200000000000003,
+        "y": 5.5
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "midStartWaypoint"
     },
     {
       "anchor": {
-        "x": 2.0,
-        "y": 0.0
+        "x": 2.9,
+        "y": 5.55
       },
       "prevControl": {
-        "x": 1.0,
-        "y": 0.0
+        "x": 1.9,
+        "y": 5.55
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "midNoteWaypoint"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": 0,
-      "rotateFast": true
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -51,7 +45,7 @@
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 89.75969320292323,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": true

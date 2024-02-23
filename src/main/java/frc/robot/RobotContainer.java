@@ -5,11 +5,7 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-<<<<<<< HEAD
 import com.pathplanner.lib.auto.AutoBuilder;
-=======
-import com.revrobotics.CANSparkBase.IdleMode;
->>>>>>> origin/compbot/bringup
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,29 +16,19 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
-<<<<<<< HEAD
-import frc.robot.ChassisConstants.OIConstants;
-import frc.robot.commands.LightingProgressBar;
-=======
-import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
-import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
->>>>>>> origin/compbot/bringup
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.Chassis;
@@ -118,20 +104,6 @@ public class RobotContainer {
     // Sensor Driven triggers/commands
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
-<<<<<<< HEAD
-    chassis.setDefaultCommand(
-        // The left stick controls translation of the robot.
-        // Turning is controlled by the X axis of the right stick.
-        new RunCommand(
-            () -> chassis.drive(
-                -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(driverController.getRawAxis(2), OIConstants.kDriveDeadband),
-                true, false),
-            chassis));
-=======
-
->>>>>>> origin/compbot/bringup
 
     // Configure the trigger bindings
     configureDefaultCommands();
@@ -339,12 +311,12 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     // return Autos.exampleAuto(m_exampleSubsystem);
-    return autoFactory.getTwoMeterForwardTrajectory().andThen(chassis.getZeroOutputCommand());
+    // return autoFactory.getTwoMeterForwardTrajectory().andThen(chassis.getZeroOutputCommand());
     // return autoFactory.getTwoMeterForwardTrajectory().andThen(new WaitCommand(5)).andThen(autoFactory.getTwoMeterBackwardTrajectory());
     // return autoFactory.getModuleOneMeterPerSecond();
 
     // return autoFactory.getAutoChooser().getSelected();
-    // return AutoBuilder.followPath(autoFactory.pathPlannerPath);
+    return AutoBuilder.followPath(autoFactory.pathPlannerPath);
 
   }
 

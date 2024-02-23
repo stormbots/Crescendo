@@ -88,13 +88,10 @@ public class Robot extends TimedRobot {
     }
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
-<<<<<<< HEAD
 
-    robotContainer.chassis.zeroHeading();
-    robotContainer.chassis.resetOdometry(new Pose2d());
+    // robotContainer.chassis.zeroHeading();
+    // robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();
-=======
->>>>>>> origin/compbot/bringup
   }
 
   /** This function is called periodically during autonomous. */
@@ -113,12 +110,9 @@ public class Robot extends TimedRobot {
 
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
-<<<<<<< HEAD
 
     // robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();
-=======
->>>>>>> origin/compbot/bringup
   }
 
   /** This function is called periodically during operator control. */
