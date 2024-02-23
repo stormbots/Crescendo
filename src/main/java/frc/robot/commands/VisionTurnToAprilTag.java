@@ -5,59 +5,80 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeVision;
+import frc.robot.ChassisConstants;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.ShooterVision;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
+
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
 public class VisionTurnToAprilTag extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
-  private IntakeVision intakeVision;
   private Chassis chassis;
-  
+  private AHRS gyro;
+  private DoubleSupplier xSpeed;
+  private DoubleSupplier ySpeed;
+  private DoubleSupplier rotSpeed;
+  private double targetAngle = 0.0; //or 180?
+  private double tolerance = 10.0;
+  private double angleError = 0.0;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToAprilTag(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis) {
+  public VisionTurnToAprilTag(
+    DoubleSupplier xSpeed,
+    DoubleSupplier ySpeed,
+    DoubleSupplier rotSpeed,
+    ShooterVision shooterVision,
+    Chassis chassis,
+    AHRS gyro) {
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+    this.rotSpeed = rotSpeed;
     this.shooterVision = shooterVision;
-    this.intakeVision = intakeVision;
     this.chassis = chassis;
+    this.gyro = gyro;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooterVision);
-    addRequirements(intakeVision);
+    // addRequirements(shooterVision);
     addRequirements(chassis);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
-    intakeVision.setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
+    // shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Optional<ShooterVision.LimelightReadings> shooterOffset = shooterVision.getVisibleTarget();
-    Optional<IntakeVision.LimelightReadings> intakeOffset = intakeVision.getVisibleTarget();
+
+    //if valid target 
+      // update target and bearing
+    //if target is "newish", pid to it
+
+    //in other cases, drive
+
+    Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
 
     if (shooterVision.hasValidTarget()) {
-      double x = -shooterOffset.get().angleHorizontal;
-      var rotation = 0.5/60.0 * x;
-      chassis.drive(0, 0, rotation, true, true);
+      angleError = shooterData.get().angleHorizontal;
+      angleError = gyro.getRotation2d().getDegrees()+angleError;
+      chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), angleError);
     }
-
-    if (intakeVision.hasValidTarget()) {
-      double x = intakeOffset.get().angleHorizontal;
-      var rotation = 0.5/60.0 * x;
-      chassis.drive(0, 0, rotation, true, true);
+    else{
+    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
     }
   }
 

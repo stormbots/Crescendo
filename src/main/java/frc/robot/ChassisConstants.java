@@ -20,7 +20,7 @@ public class ChassisConstants {
 
     public static final double kDirectionSlewRate = 1.2*3; // radians per second
     public static final double kMagnitudeSlewRate = 1.8*5; // percent per second (1 = 100%)
-    public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
+    public static final double kRotationalSlewRate = 2*2.0; // percent per second (1 = 100%)
 
     // Chassis configuration
     public static double kTrackWidth = Units.inchesToMeters(27);
