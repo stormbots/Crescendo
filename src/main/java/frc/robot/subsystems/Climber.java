@@ -18,6 +18,7 @@ import com.stormbots.Clamp;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -91,7 +92,7 @@ public class Climber extends SubsystemBase {
       motor.setSmartCurrentLimit(30);
       setIdleMode(IdleMode.kBrake);
       //TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for drive team
-      motor.setSoftLimit(SoftLimitDirection.kReverse, (float) 9.5);
+      motor.setSoftLimit(SoftLimitDirection.kReverse,(float) 9.5); //Should be 11.5 b/c climber double hook, previously 9.5
     }
 
   }
@@ -151,7 +152,7 @@ public class Climber extends SubsystemBase {
     // } else{
     //   leftMotor.setSmartCurrentLimit(4);
     //   rightMotor.setSmartCurrentLimit(4);
-    // }
+    // })
 
 
 

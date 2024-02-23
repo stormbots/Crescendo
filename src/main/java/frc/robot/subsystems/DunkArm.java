@@ -103,7 +103,7 @@ public class DunkArm extends SubsystemBase {
   public Boolean isOnTarget(){
     //TODO figure out better tolerances that make sense
     // return Clamp.clamp(armAbsEncoder.getPosition(), armSetpoint-3, armSetpoint+3);
-    return (getAngle() < armSetpoint+3 && getAngle() > armSetpoint-3);
+    return Clamp.bounded(getAngle(), armSetpoint-3, armSetpoint+3);
   }
   
   public double getArmFFPercent(){

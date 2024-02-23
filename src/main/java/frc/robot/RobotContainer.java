@@ -4,8 +4,9 @@
 
 package frc.robot;
 
+import javax.swing.text.StyleContext.SmallAttributeSet;
+
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,8 +16,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -31,6 +31,7 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.IntakeNote;
+import frc.robot.commands.NoteTransferToDunkArm;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
@@ -58,7 +59,7 @@ import frc.robot.subsystems.ShooterVision;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
+  // public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
@@ -144,6 +145,9 @@ public class RobotContainer {
     // SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
+    SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
+    SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
+    SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
   }
 
   private void configureDefaultCommands() {
@@ -274,7 +278,18 @@ public class RobotContainer {
 
     operatorJoystick.button(5).whileTrue(
       //Trying out sequence factory
+      new ConditionalCommand(
+        sequenceFactory.getDunkArmNoteTransferSequence(), //do handoff
+        new ParallelCommandGroup(
+          new IntakeNote(intake, passthrough),
+          new SetShooterProfiled(0, shooter)
+        )
+        .until(passthrough::isBlocked)
+        .andThen(
       sequenceFactory.getDunkArmNoteTransferSequence()
+        ), //run intake until blocked, then handoff
+        passthrough::isBlocked //is note blocked
+      )
     );
 
     operatorJoystick.button(6).whileTrue(
@@ -308,9 +323,9 @@ public class RobotContainer {
       )
     );
 
-    operatorJoystick.button(11).whileTrue(
-      new RunCommand(()->dunkArm.setPower(operatorJoystick.getRawAxis(1)), dunkArm)
-    );
+    // operatorJoystick.button(11).whileTrue(
+    //   new RunCommand(()->dunkArm.setPower(operatorJoystick.getRawAxis(1)), dunkArm)
+    // );
   }
   
   /**
