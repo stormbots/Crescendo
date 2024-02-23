@@ -10,6 +10,7 @@ import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.ShooterVision;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -20,9 +21,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class VisionTurnToAprilTag extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
-  private IntakeVision intakeVision;
   private Chassis chassis;
   private AHRS gyro;
+  private DoubleSupplier xSpeed;
+  private DoubleSupplier ySpeed;
+  private DoubleSupplier rotSpeed;
   private double targetAngle = 0.0; //or 180?
   private double tolerance = 10.0;
   private double angleError = 0.0;
@@ -32,75 +35,50 @@ public class VisionTurnToAprilTag extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToAprilTag(ShooterVision shooterVision, IntakeVision intakeVision, Chassis chassis, AHRS gyro) {
+  public VisionTurnToAprilTag(
+    DoubleSupplier xSpeed,
+    DoubleSupplier ySpeed,
+    DoubleSupplier rotSpeed,
+    ShooterVision shooterVision,
+    Chassis chassis,
+    AHRS gyro) {
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+    this.rotSpeed = rotSpeed;
     this.shooterVision = shooterVision;
-    this.intakeVision = intakeVision;
     this.chassis = chassis;
     this.gyro = gyro;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooterVision);
-    addRequirements(intakeVision);
+    // addRequirements(shooterVision);
     addRequirements(chassis);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
-    intakeVision.setPipeline(IntakeVision.LimelightPipeline.kNoZoom);
+    // shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
+    //if valid target 
+      // update target and bearing
+    //if target is "newish", pid to it
+
+    //in other cases, drive
+
     Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
-    Optional<IntakeVision.LimelightReadings> intakeData = intakeVision.getVisibleTarget();
 
     if (shooterVision.hasValidTarget()) {
       angleError = shooterData.get().angleHorizontal;
-      var continuousMin=-180;
-      var continuousMax=180;
-      if(continuousMin != continuousMax){
-        var continuousHalfRange = (continuousMax-continuousMin)/2.0;
-        angleError %= (continuousHalfRange*2);
-        if(angleError>continuousHalfRange) angleError-=2*continuousHalfRange;
-        if(angleError<-continuousHalfRange) angleError+=2*continuousHalfRange;
-      }
-
-      angleError= MathUtil.clamp(angleError, -5, 5);
-
-      double turnOutput = angleError*0.5/60.0;
-      turnOutput += 0.5/60.0*Math.signum(turnOutput);
-
-      turnOutput += gyro.getRate() * .03/4.0; //.05 -> .03
-
-      chassis.drive(0, 0, turnOutput, true, true);
+      angleError = gyro.getRotation2d().getDegrees()+angleError;
+      chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), angleError);
     }
-    // else
-    // {
-    //   //TODO: move VisionTurnToTargetPose here if it works
-    // }
-
-    else if (intakeVision.hasValidTarget()) {
-      angleError = intakeData.get().angleHorizontal;
-      var continuousMin=-180;
-      var continuousMax=180;
-      if(continuousMin != continuousMax){
-        var continuousHalfRange = (continuousMax-continuousMin)/2.0;
-        angleError %= (continuousHalfRange*2);
-        if(angleError>continuousHalfRange) angleError-=2*continuousHalfRange;
-        if(angleError<-continuousHalfRange) angleError+=2*continuousHalfRange;
-      }
-
-      angleError= MathUtil.clamp(angleError, -5, 5);
-
-      double turnOutput = angleError*0.5/60.0;
-      turnOutput += 0.5/60.0*Math.signum(turnOutput);
-
-      turnOutput += gyro.getRate() * .03/4.0; //.05 -> .03
-
-      chassis.drive(0, 0, turnOutput, true, true);
+    else{
+    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
     }
   }
 

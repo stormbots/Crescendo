@@ -35,12 +35,12 @@ public class ShooterVision extends SubsystemBase {
     public Double time;
   }
 
-  public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
+  public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight-shooter");
   Field2d field = new Field2d();
   FieldPosition fieldPos = new FieldPosition();
   public SwerveDrivePoseEstimator poseEstimator;
 
-  public ShooterVision(SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
+  public ShooterVision(SwerveDrivePoseEstimator poseEstimator){ //need to add pose estimator
     this.poseEstimator = poseEstimator;
     
     setPipeline(LimelightPipeline.kNoZoom);
@@ -51,6 +51,7 @@ public class ShooterVision extends SubsystemBase {
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
     SmartDashboard.putData("shootervisionfield", field);
+    SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
   }
 
   public boolean hasValidTarget() {
@@ -139,4 +140,7 @@ public class ShooterVision extends SubsystemBase {
       break;
     }
   }
+  // public double getAngleToShooter(){
+  //   var angle = 
+  // }
 }

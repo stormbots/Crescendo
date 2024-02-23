@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -33,8 +34,6 @@ import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
-import frc.robot.commands.ShooterSetManually;
-import frc.robot.commands.VisionSetShooter;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
@@ -117,6 +116,7 @@ public class RobotContainer {
     configureDriverBindings();
     configureOperatorBindings();
 
+    SmartDashboard.putNumber("navx/angle", navx.getRotation2d().getDegrees());
     // SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
     // SmartDashboard.putData("shooter/profile30", new SetShooterProfiled(30, shooter));
     // SmartDashboard.putData("shooter/profile45", new SetShooterProfiled(45.0, shooter));
@@ -198,10 +198,14 @@ public class RobotContainer {
     driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
     driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
     driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
-    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->driverController.getLeftX()/2.0, ()->driverController.getRightX()/2.0));
+    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->-driverController.getLeftX()/2.0, ()->driverController.getRightX()/2.0));
 
     driverController.button(6).whileTrue(
-      new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
+      new VisionTurnToAprilTag(
+        ()-> -driverController.getLeftX(),
+        ()-> -driverController.getLeftY(),
+        ()-> -driverController.getRightX(),
+        shooterVision, chassis, navx)
     );
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
@@ -263,13 +267,15 @@ public class RobotContainer {
     operatorJoystick.button(3)
     // .whileTrue(shooterFlywheel.getShooterSetRPMCommand(2500));
     .whileTrue(new ParallelCommandGroup(
-      shooterFlywheel.getShooterSetRPMCommand(10000),
+      shooterFlywheel.getShooterSetRPMCommand(6000),
       new SetShooterProfiled(50, shooter)
     ));
 
-    operatorJoystick.button(4).onTrue(
-      new SetShooterProfiled(50, shooter)
-      //TODO: vision targeting to speaker angle
+    operatorJoystick.button(4)
+      .whileTrue(new ParallelCommandGroup(
+      shooterFlywheel.getShooterSetRPMCommand(10000),
+      new SetShooterProfiled(20, shooter)
+      )
     );
 
     operatorJoystick.button(5).whileTrue(
@@ -301,22 +307,20 @@ public class RobotContainer {
     );
 
     operatorJoystick.button(10).whileTrue(
-      // new IntakeNote(intake, passthrough)
-      new ParallelCommandGroup(
-        new IntakeNote(intake, passthrough),
-        new SetShooterProfiled(0, shooter)
+      new SetShooterProfiled(0, shooter)
+      .andThen(new IntakeNote(intake, passthrough)
       )
     );
 
-    // operatorJoystick.button(11).whileTrue(
-    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
-    //   shooterFlywheel.getShooterSetRPMCommand(10000)
-    // );
+    operatorJoystick.button(11).whileTrue(
+      // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
+      shooterFlywheel.getShooterSetRPMCommand(10000)
+    );
 
-    // operatorJoystick.button(12).onTrue(
-    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
-    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60), shooter)
-    // );
+    operatorJoystick.button(12).onTrue(
+      // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
+      new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60), shooter)
+    );
   }
   
   /**

@@ -35,7 +35,7 @@ public class IntakeVision extends SubsystemBase {
     public Double time;
   }
 
-  public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
+  public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight-intake");
   Field2d field = new Field2d();
   FieldPosition fieldPos = new FieldPosition();
   public SwerveDrivePoseEstimator poseEstimator;
@@ -49,9 +49,11 @@ public class IntakeVision extends SubsystemBase {
   @Override
   public void periodic() {
     //zoomIfPossible(); pipeline makes frames drop a lot
+    if(true)return;
     updateOdometry();
     SmartDashboard.putData("intakevisionfield", field);
     FieldPosition.ShowOnGlassDashboard(field);
+    SmartDashboard.putNumber("intakevision/tv", camera.getEntry("tv").getDouble(0.0));
   }
 
   public boolean hasValidTarget() {
