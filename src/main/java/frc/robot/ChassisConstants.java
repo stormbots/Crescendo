@@ -23,9 +23,10 @@ public class ChassisConstants {
     public static final double kRotationalSlewRate = 2*2.0; // percent per second (1 = 100%)
 
     // Chassis configuration
-    public static double kTrackWidth = Units.inchesToMeters(27);
+    //NOTE: These are over-written in robot.java
+    public static double kTrackWidth = Units.inchesToMeters(23.5);
     // Distance between centers of right and left wheels on robot
-    public static  double kWheelBase = Units.inchesToMeters(27);
+    public static  double kWheelBase = Units.inchesToMeters(23.5);
     // Distance between front and back wheels on robot
 
     // Angular offsets of the modules relative to the chassis in radians

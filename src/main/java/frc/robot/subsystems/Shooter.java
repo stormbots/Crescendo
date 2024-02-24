@@ -107,9 +107,9 @@ public class Shooter extends SubsystemBase {
     return shooterAbsEncoder.getPosition(); //in rotations, need to do limit
   }
 
-  public double isOnTarget(){
+  public boolean isOnTarget(){
     //TODO figure out better tolerances that make sense
-    return Clamp.clamp(shooterMotor.getEncoder().getPosition(), shooterSetPoint-3, shooterSetPoint+3);
+    return Clamp.bounded(shooterMotor.getEncoder().getPosition(), shooterSetPoint-3, shooterSetPoint+3);
   }
 
   public double getShooterFFPercent(){

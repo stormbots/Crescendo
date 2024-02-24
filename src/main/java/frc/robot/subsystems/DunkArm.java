@@ -88,6 +88,10 @@ public class DunkArm extends SubsystemBase {
     armMotor.set(power);
   }
 
+  public void setPowerFF(double power){
+    setPower(power + getArmFFPercent());
+  }
+
   public void stop() {
     armMotor.set(0);
   }

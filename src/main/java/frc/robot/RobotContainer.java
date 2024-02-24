@@ -205,12 +205,12 @@ public class RobotContainer {
     driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
     driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
     driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
-    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->-driverController.getLeftX()/2.0, ()->driverController.getRightX()/2.0));
+    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->-driverController.getLeftX()/2.0, ()->-driverController.getRightX()/2.0));
 
     driverController.button(6).whileTrue(
       new VisionTurnToAprilTag(
-        ()-> -driverController.getLeftX(),
         ()-> -driverController.getLeftY(),
+        ()-> -driverController.getLeftX(),
         ()-> -driverController.getRightX(),
         shooterVision, chassis, navx)
     );
@@ -266,23 +266,38 @@ public class RobotContainer {
 
     operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
-      //.andThen(()->shooter.setAngle(0.0)) //TODO: not setting to 0
-      new SetDunkArmSlew(-25, dunkArm).runForever()
-      ));
+      new SetDunkArmSlew(-25, dunkArm)
+      ).withTimeout(3)
+      )
+      ;
 
-    //empty button?
     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(6000),
-      new SetShooterProfiled(50, shooter)
-    ));
+      new SetShooterProfiled(50, shooter).runForever()
+    ))
+    .whileTrue(new RunCommand(
+      ()->{
+        if( shooterFlywheel.isOnTarget() && shooter.isOnTarget() ){
+          leds.ready();
+        }else{
+          leds.preparing();
+        }
+      },leds)
+      )
+    ;
+
+    //shooter started : leds:preparing
+    //shooter at target : maybe green
+    // flywheel at target : maybe green
 
     operatorJoystick.button(4)
       .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(10000),
-      new SetShooterProfiled(20, shooter)
+      new SetShooterProfiled(20, shooter).runForever()
       )
-    );
+    )
+    ;
 
     operatorJoystick.button(5).whileTrue(
       new ConditionalCommand(
@@ -314,37 +329,37 @@ public class RobotContainer {
     )
     ;
 
-    operatorJoystick.button(8).whileTrue(new RunCommand(//TODO: check if wrok 
+    operatorJoystick.button(13).whileTrue(new RunCommand(//TODO: check if wrok 
       ()->climber.setPosition(climber.kMaxHeight),
       climber)
     );
 
-    operatorJoystick.button(9).whileTrue(new RunCommand(//TODO: check if wrok 
+    operatorJoystick.button(14).whileTrue(new RunCommand(//TODO: check if wrok 
       ()->climber.setPosition(Units.Inches.of(9.5)),
       climber)
     );
 
-    operatorJoystick.button(10).whileTrue(
+    operatorJoystick.button(8).whileTrue(
       new SetShooterProfiled(0, shooter)
       .andThen(new IntakeNote(intake, passthrough)
       )
     );
 
     //Testing for dunkarm
-    // operatorJoystick.button(11).whileTrue(
-    //   new RunCommand(()->dunkArm.setPower(operatorJoystick.getRawAxis(1)), dunkArm)
-    // );
+    operatorJoystick.button(10).whileTrue(
+      new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
+    );
     
     // Used for testing only.
-    operatorJoystick.button(11).whileTrue(
-      // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
-      shooterFlywheel.getShooterSetRPMCommand(10000)
-    );
+    // operatorJoystick.button(11).whileTrue(
+    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
+    //   shooterFlywheel.getShooterSetRPMCommand(10000)
+    // );
 
-    operatorJoystick.button(12).onTrue(
-      // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
-      new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60), shooter)
-    );
+    // operatorJoystick.button(12).onTrue(
+    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
+    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60), shooter)
+    // );
   }
   
   /**
