@@ -34,7 +34,7 @@ public class LightingFlickerUniform extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-   hsv = leds.rgbToHsv(color);
+  //  hsv = leds.rgbToHsv(color);
    value = (int)Math.round((ThreadLocalRandom.current().nextInt(25, 200))*scaleValue);
    startTime = leds.getTime();
    

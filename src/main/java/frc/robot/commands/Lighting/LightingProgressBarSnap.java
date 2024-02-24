@@ -1,34 +1,28 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands.Lighting;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.Leds.HSVColor;
 
   
 public class LightingProgressBarSnap extends Command {
   /** Creates a new LightingColor. */
   Leds leds;
   Color backGroundColor;
-  Color progressColor;
+  Leds.HSVColor progressColor;
   double timeLimt;
   double startTime;
   boolean finished;
-  double percentOutput;
-  int value;
+  int brightness;
 
 
-  public LightingProgressBarSnap(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double percentOutput) {
+  public LightingProgressBarSnap(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double brightness) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
-    this.progressColor = progressColor;
+    this.progressColor = leds.new HSVColor(progressColor);
     this.timeLimt = timeLimt;
-    this.percentOutput = percentOutput;
-    value = (int)Math.round((255*(percentOutput/100)));
-
+    this.brightness = (int)Math.round(brightness);
     addRequirements(leds);
   }
     // Use addRequirements() here to declare subsystem dependencies.
@@ -39,7 +33,7 @@ public class LightingProgressBarSnap extends Command {
   public void initialize(){
     finished = false;
     startTime = leds.getTime();
-    leds.setColor(backGroundColor);
+    leds.setColor(backGroundColor,brightness);
     // SmartDashboard.putNumber("leds/startTime", startTime);
     
   }
@@ -47,34 +41,26 @@ public class LightingProgressBarSnap extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute(){
+    progressColor.value = (int) (progressColor.value*brightness/100.0);
     var currentTime = leds.getTime();
-    // SmartDashboard.putNumber("leds/currentTime", currentTime);
     var elapsedTime = currentTime-startTime;
-    // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
     double timePerLED = (timeLimt / leds.ledBuffer.getLength());
     var numberOfChannelsOn = (int)((elapsedTime / timePerLED));
-    // SmartDashboard.putNumber("leds/channels", channels);
     if (numberOfChannelsOn > leds.ledBuffer.getLength()){
-      // finished =true;
       numberOfChannelsOn = leds.ledBuffer.getLength();
     }
     if (elapsedTime>timeLimt+.5){
       finished =true;
     }
-
-    leds.setColor(progressColor, value);
-    // if (channels + 1 > leds.ledBuffer.getLength()){
-    //   finished = true;
-    // }
-    //do any time math
-    //set color
-
+    for(var i = 0; i < numberOfChannelsOn; i++){
+      leds.ledBuffer.setHSV(i, progressColor.hue, progressColor.saturation, progressColor.value);
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    leds.setColor(backGroundColor);
+    leds.setColor(backGroundColor, brightness);
   }
 
   // Returns true when the command should end.

@@ -34,6 +34,7 @@ public class Leds extends SubsystemBase {
       this.saturation = saturation;
       this.value = value;
     }
+    
     public HSVColor(Color color){
       double r = color.red;
       double g = color.green;
@@ -85,38 +86,7 @@ public class Leds extends SubsystemBase {
     return time;
   }
 
-  /**
-   * @deprecated Prefer use of an HSV object to return a HSVColor Type
-   * @param color
-   * @return
-   */
- public int[] rgbToHsv(Color color){
-  double r = color.red;
-  double g = color.green;
-  double b = color.blue;
-  double max = Math.max(r, Math.max(g, b)); // maximum of r, g, b 
-  double min = Math.min(r, Math.min(g, b)); // minimum of r, g, b 
-  double range = max - min; // diff of cmax and cmin. 
-  double h = -1, s = -1; 
-  if (max == min) 
-    h = 0; 
-  else if (max == r) 
-    h = ((60 * ((g - b) / range) + 360) % 360)/2; 
-  else if (max == g) 
-    h = ((60 * ((b - r) / range) + 120) % 360)/2; 
-  else if (max == b) 
-    h = ((60 * ((r - g) / range) + 240) % 360)/2; 
-  if (max == 0) 
-    s = 0; 
-  else
-    s = (range / max) * 255; 
-  double v = max * 255; 
-  int[] hsv = new int[3];
-  hsv[0] = (int)Math.round(h);
-  hsv[1] = (int)Math.round(s);
-  hsv[2] = (int)Math.round(v);
-  return hsv;
- }
+  
 
   public int matchBrightnessScaling(int disabledBrightness, int enabledBrightness){
     if (DriverStation.isDisabled()){
@@ -143,6 +113,12 @@ public class Leds extends SubsystemBase {
     hsv.value = (int) (hsv.value*brightness/100.0);
     for(var i = 0; i < ledBuffer.getLength(); i++){
       ledBuffer.setHSV(i, hsv.hue, hsv.saturation, hsv.value);
+    }
+  }
+
+  private void setColorManual(int red, int green, int blue){
+    for(var i = 0; i < ledBuffer.getLength(); i++){
+      ledBuffer.setRGB(i, red, green, blue);
     }
   }
 
