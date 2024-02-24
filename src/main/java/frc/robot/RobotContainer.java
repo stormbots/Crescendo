@@ -172,7 +172,10 @@ public class RobotContainer {
     //TODO: When shooter is aligned with target, and at rpm, show show green lights
 
 
-    shooterFlywheel.setDefaultCommand(shooterFlywheel.getShooterSetRPMCommand(0));
+    shooterFlywheel.setDefaultCommand(
+      new WaitCommand(0.5)
+      .andThen(shooterFlywheel.getShooterSetRPMCommand(0))
+    );
     
     //align a note if nothing else is using passthrough
     new Trigger(DriverStation::isEnabled)
@@ -183,8 +186,13 @@ public class RobotContainer {
 
     intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
 
+    shooter.setDefaultCommand(
+      new WaitCommand(1)
+      .andThen(new SetShooterProfiled(0, shooter))
+    );
+
     dunkArm.setDefaultCommand(new SetDunkArmSlew(-25, dunkArm)
-      .andThen(new WaitCommand(1))
+      .andThen(new WaitCommand(0.2))
       .andThen(new RunCommand(()->dunkArm.setPower(0), dunkArm))
     );
     dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
@@ -323,7 +331,10 @@ public class RobotContainer {
     operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
       new RunCommand(intake::eject, intake),
       new RunCommand(passthrough::eject, passthrough),
-      new SetShooterProfiled(0, shooter)
+      new SetShooterProfiled(0, shooter), 
+      shooterFlywheel.getShooterSetRPMCommand(-3000),
+      new RunCommand(dunkArmRoller::eject, dunkArmRoller)
+
     )//TODO: set shooter/intake eject RPM properly
     .finallyDo((e)->passthrough.stop())
     )
