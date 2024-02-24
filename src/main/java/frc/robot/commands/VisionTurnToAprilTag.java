@@ -77,6 +77,13 @@ public class VisionTurnToAprilTag extends Command {
       angleError = gyro.getRotation2d().getDegrees()+angleError;
       chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), angleError);
     }
+    else if (shooterVision.hasValidTarget()&&shooterData.get().time>0.3)
+    {
+      shooterData = shooterVision.getVisibleTargetData();
+      angleError = shooterData.get().angleHorizontal;
+      angleError = gyro.getRotation2d().getDegrees()+angleError;
+      chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), angleError);
+    }
     else{
     chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
     }
