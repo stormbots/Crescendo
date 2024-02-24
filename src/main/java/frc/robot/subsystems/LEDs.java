@@ -21,7 +21,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Leds extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
-  Spark blinkin = new Spark(8);
+  Spark blinkin1 = new Spark(2);
+  Spark blinkin2 = new Spark(0);
 
   public class HSVColor{
     // private Color rgb;
@@ -68,7 +69,9 @@ public class Leds extends SubsystemBase {
     ledStrip.setLength(ledBuffer.getLength());
     ledStrip.setData(ledBuffer);
     ledStrip.start();
-    // blinkin.setBoundsMicroseconds(2000, 1501, 1500, 1499, 1000);   
+    SmartDashboard.putData("leds/prepare", new RunCommand(this::preparing));
+    SmartDashboard.putData("leds/ready", new RunCommand(this::ready));
+    // blinkin1.setBoundsMicroseconds(2000, 1501, 1500, 1499, 1000);   
   }
 
   @Override
@@ -143,22 +146,37 @@ public class Leds extends SubsystemBase {
     }
   }
 
+  public void preparing(){
+    setColor(Color.kOrange);
+    blinkin1.set(BlinkenPattern.solidOrange.pwm());
+    blinkin2.set(BlinkenPattern.solidOrange.pwm());
+  }
+
+  public void ready(){
+    setColor(Color.kGreen);
+    blinkin1.set(BlinkenPattern.solidGreen.pwm());
+    blinkin2.set(BlinkenPattern.solidGreen.pwm());
+  }
+
   public Command showTeamColor(){
     return new RunCommand(()->{
       var color = DriverStation.getAlliance();
       if (color.isPresent()){
         if (color.get() == DriverStation.Alliance.Red){
           this.setColor(Color.kRed, this.matchBrightnessScaling(10, 100));
-          blinkin.set(BlinkenPattern.solidRed.pwm());
+          blinkin1.set(BlinkenPattern.solidRed.pwm());
+          blinkin2.set(BlinkenPattern.solidRed.pwm());
         }
         if (color.get() == DriverStation.Alliance.Blue){
           this.setColor(Color.kBlue, this.matchBrightnessScaling(10, 100));
-          blinkin.set(BlinkenPattern.solidBlue.pwm());
+          blinkin1.set(BlinkenPattern.solidBlue.pwm());
+          blinkin2.set(BlinkenPattern.solidBlue.pwm());
         }
         return;
       }
       this.setColor(Color.kPurple, 10);
-      blinkin.set(BlinkenPattern.solidViolet.pwm());
+      blinkin1.set(BlinkenPattern.solidViolet.pwm());
+      blinkin2.set(BlinkenPattern.solidViolet.pwm());
     },this)
     .ignoringDisable(true)
     ;
@@ -166,7 +184,8 @@ public class Leds extends SubsystemBase {
 
   public Command showNoteIntake(){
     return new RunCommand(()->{this.setColor(Color.kOrangeRed);
-    this.blinkin.set(BlinkenPattern.solidRedOrange.pwm());},this).withTimeout(2);
+    this.blinkin1.set(BlinkenPattern.solidRedOrange.pwm());this.blinkin2.set(BlinkenPattern.solidRedOrange.pwm());},this).withTimeout(2);
+    
   }
     
   }
