@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,14 +26,14 @@ import frc.robot.Clamp;
 public class ShooterVision extends SubsystemBase {
   /** Creates a new Vision. */
   public enum LimelightPipeline {
-    kNoVision, kNoZoom, kZoom
+    kNoVision, kNoZoom, kZoom, kSpeaker
   }
   public class LimelightReadings {
     public Optional<Double> targetID;
     public double distance; //meters
     public double angleHorizontal; //degrees
     public double angleVertical; //degrees
-    public Double time;
+    public double time;
   }
 
   public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight-shooter");
@@ -62,11 +63,11 @@ public class ShooterVision extends SubsystemBase {
   public Optional<LimelightReadings> getVisibleTargetData() {
     if (hasValidTarget()==false) {return Optional.empty();}
 
-    double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(new double[]{0,0,0,0,0,0});
+    double[] bp = camera.getEntry("targetpose_botspace").getDoubleArray(new double[]{0,0,0,0,0,0});
 
     var target = new LimelightReadings();
     target.targetID = Optional.of(camera.getEntry("tid").getDouble(0.0));
-    target.distance = bp[2]; //meters TODO: negative for some reason :(
+    target.distance = 0;//bp[2]; //meters
     target.angleHorizontal = camera.getEntry("tx").getDouble(0.0);
     target.angleVertical = camera.getEntry("ty").getDouble(0.0);
     target.time = Timer.getFPGATimestamp();
@@ -137,6 +138,9 @@ public class ShooterVision extends SubsystemBase {
       break;
       case kZoom:
       camera.getEntry("pipeline").setNumber(2);
+      break;
+      case kSpeaker:
+      camera.getEntry("pipeline").setNumber(3);
       break;
     }
   }

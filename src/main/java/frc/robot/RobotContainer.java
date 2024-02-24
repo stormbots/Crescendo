@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -187,6 +188,8 @@ public class RobotContainer {
       .andThen(new RunCommand(()->dunkArm.setPower(0), dunkArm))
     );
     dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
+
+    shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
 
   private void configureDriverBindings() {
