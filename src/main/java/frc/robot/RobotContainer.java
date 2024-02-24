@@ -286,7 +286,9 @@ public class RobotContainer {
         sequenceFactory.getDunkArmNoteTransferSequence(),
         new ParallelCommandGroup(
           new IntakeNote(intake, passthrough),
-          new SetShooterProfiled(0, shooter)
+          new SetShooterProfiled(0, shooter),
+          //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
+          shooterFlywheel.getShooterSetRPMCommand(1500)
         )
         .until(passthrough::isBlocked)
         .andThen(

@@ -42,11 +42,9 @@ public class SequenceFactory {
             ).until(()->rc.passthrough.isBlocked()==false)
         )
         .andThen(
-            new NoteTransferToDunkArm(rc.shooterFlywheel, rc.dunkArmRoller)
-        )
-        .andThen(
-            new RunCommand(()->rc.intake.stop(), rc.intake)
-            // ,new RunCommand(()->rc.passthrough.stop(), rc.passthrough)
+            new NoteTransferToDunkArm(rc.shooterFlywheel, rc.dunkArmRoller),
+            new InstantCommand(()->rc.intake.stop(), rc.intake),
+            new InstantCommand(()->rc.passthrough.stop(), rc.passthrough)
         );
     }
 

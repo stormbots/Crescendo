@@ -14,7 +14,7 @@ import frc.robot.subsystems.ShooterFlywheel;
 public class NoteTransferToDunkArm extends Command {
   private ShooterFlywheel shooterFlywheel;
   private DunkArmRoller dunkArmRoller;
-  final double distanceOfTransfer = 2.0;
+  final double distanceOfTransfer = 1.8;
   /** Creates a new NoteTransferToDunkArm. */
   public NoteTransferToDunkArm(ShooterFlywheel shooterFlywheel, DunkArmRoller dunkArmRoller) {
     // Use addRequirements() here to declare subsystem dependencies.\
@@ -52,11 +52,11 @@ public class NoteTransferToDunkArm extends Command {
     var posTol = 0.5;
     var pos = Clamp.bounded(dunkArmRoller.getPosition(), distanceOfTransfer-posTol, distanceOfTransfer+posTol);
   
-    SmartDashboard.putBoolean("pos", pos);
+    SmartDashboard.putBoolean("dunkArmRoller/pos", pos);
   
     var velTol = 0.5; // per sec
-    var vol = Clamp.bounded(dunkArmRoller.getVelocity(), -velTol, velTol);
-    SmartDashboard.putBoolean("vol", vol);
-    return pos && vol;
+    var vel = Clamp.bounded(dunkArmRoller.getVelocity(), -velTol, velTol);
+    SmartDashboard.putBoolean("dunkArmRoller/vel", vel);
+    return pos && vel;
   }
 }
