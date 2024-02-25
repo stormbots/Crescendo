@@ -144,7 +144,11 @@ public class Chassis extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
+
+    var rot = new Rotation2d(MathUtil.angleModulus(navx.getRotation2d().getRadians()));
+
     swerveDrivePoseEstimator.resetPosition(
+        // rot,
         navx.getRotation2d(),
         new SwerveModulePosition[] {
             frontLeft.getPosition(),

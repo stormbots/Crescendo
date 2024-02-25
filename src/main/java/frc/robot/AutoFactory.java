@@ -16,10 +16,12 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -76,11 +78,11 @@ public class AutoFactory {
         };
 
         HolonomicPathFollowerConfig holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
-            new PIDConstants(0), 
-            new PIDConstants(1/90.0), 
+            new PIDConstants(1/1), 
+            new PIDConstants(1/Math.PI/3.0), 
             DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
-            new ReplanningConfig(false, false));
+            new ReplanningConfig(true, false));
 
         BooleanSupplier shouldFlipPath = () -> {
             // Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -95,8 +97,8 @@ public class AutoFactory {
         };
 
         AutoBuilder.configureHolonomic(
-            rc.chassis::getPose, 
-            rc.chassis::resetOdometry, 
+            rc.chassis::getPose,
+            rc.chassis::resetOdometry,
             getSpeed, 
             setSpeed, 
             holonomicPathFollowerConfig, 
@@ -191,7 +193,17 @@ public class AutoFactory {
     // }
 
     public Command getTwoMeterPathPlanner(){
-        return AutoBuilder.followPath(pathPlannerPath);
+        //reset positon
+        var angle = rc.navx.getRotation2d().getRadians();
+        angle = MathUtil.angleModulus(angle);
+        final var fangle = angle;
+
+        return new InstantCommand(
+            ()->rc.chassis.resetOdometry(new Pose2d(1,1, new Rotation2d(fangle)))
+        )
+        .andThen(AutoBuilder.followPath(pathPlannerPath));
+        
+        // return AutoBuilder.followPath(pathPlannerPath);
     }
 
 }
