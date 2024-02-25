@@ -144,7 +144,20 @@ public class ShooterVision extends SubsystemBase {
       break;
     }
   }
-  // public double getAngleToShooter(){
-  //   var angle = 
-  // }
+
+  //TODO: test this
+  //Assuming path is linear
+  public double getAngleToShooter(){
+    var xToSpeaker = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue 
+      ? poseEstimator.getEstimatedPosition().getX() 
+      : 15.980 - poseEstimator.getEstimatedPosition().getX();
+    var yToSpeaker = poseEstimator.getEstimatedPosition().getY();
+    var distanceToSpeaker =
+      Math.sqrt(
+        Math.pow(xToSpeaker, 2) + Math.pow(yToSpeaker, 2)
+      );
+    var angle = Math.atan2(1.9, distanceToSpeaker);
+    
+    return angle;
+  }
 }
