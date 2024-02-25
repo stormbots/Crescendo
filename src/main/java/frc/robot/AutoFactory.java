@@ -119,31 +119,32 @@ public class AutoFactory {
         return new InstantCommand(()->{},rc.chassis,rc.climber);
     }
 
-    SwerveControllerCommand generateSwerveControllerCommand(Trajectory trajectory){
 
-        // Example Trajectory
-        // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        //   new Pose2d(0, 0, new Rotation2d(0)),
-        //   List.of(),
-        //   new Pose2d(1,0, new Rotation2d(0)),
-        //   config);
+    //trajectory lib: Currently not used
+    // SwerveControllerCommand generateSwerveControllerCommand(Trajectory trajectory){
+    //     // Example Trajectory
+    //     // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+    //     //   new Pose2d(0, 0, new Rotation2d(0)),
+    //     //   List.of(),
+    //     //   new Pose2d(1,0, new Rotation2d(0)),
+    //     //   config);
     
-        SwerveControllerCommand swerveControllerCommand = new
-        SwerveControllerCommand(
-          trajectory,
-          rc.chassis::getPose, // Functional interface to feed supplier
-          rc.swerveDriveKinematics,
-          //Probably percent per error (so 0.1 means 10% output for every meter)
-          new PIDController(AutoConstants.kPDrivingP, 0, 0),
-          new PIDController(AutoConstants.kPDrivingP, 0, 0),
-          thetaController,
-          rc.chassis::setModuleStates,
-          rc.chassis
-        );
+    //     SwerveControllerCommand swerveControllerCommand = new
+    //     SwerveControllerCommand(
+    //       trajectory,
+    //       rc.chassis::getPose, // Functional interface to feed supplier
+    //       rc.swerveDriveKinematics,
+    //       //Probably percent per error (so 0.1 means 10% output for every meter)
+    //       new PIDController(AutoConstants.kPDrivingP, 0, 0),
+    //       new PIDController(AutoConstants.kPDrivingP, 0, 0),
+    //       thetaController,
+    //       rc.chassis::setModuleStates,
+    //       rc.chassis
+    //     );
     
-        return swerveControllerCommand;
+    //     return swerveControllerCommand;
     
-    }
+    // }
 
     // public Command getTwoMeterForwardTrajectory(){
     //     return generateSwerveControllerCommand(

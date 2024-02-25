@@ -142,9 +142,12 @@ public class RobotContainer {
     // SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
-    SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
-    SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
-    SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
+    // SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
+    // SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
+    // SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
+
+    SmartDashboard.putData("restTo0,0", new InstantCommand(()->chassis.resetOdometry(new Pose2d())));
+    SmartDashboard.putData("restToSpeaker", new InstantCommand(()->chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
   }
 
   private void configureDefaultCommands() {

@@ -101,23 +101,23 @@ public class Chassis extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   // Update the odometry in the periodic block
-    // swerveDrivePoseEstimator.updateWithTime(
-    //     Timer.getFPGATimestamp(),
-    //     navx.getRotation2d(),
-    //     new SwerveModulePosition[] {
-    //         frontLeft.getPosition(),
-    //         frontRight.getPosition(),
-    //         rearLeft.getPosition(),
-    //         rearRight.getPosition()
-    //     });
+    swerveDrivePoseEstimator.updateWithTime(
+        Timer.getFPGATimestamp(),
+        navx.getRotation2d(),
+        new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            rearLeft.getPosition(),
+            rearRight.getPosition()
+        });
     
     //i WILL cry if this doesn't work by next week
-    // var pose = swerveDrivePoseEstimator.getEstimatedPosition();
-    // SmartDashboard.putNumber("chassis/x",pose.getX());
-    // SmartDashboard.putNumber("chassis/y",pose.getY());
-    // field.setRobotPose(pose);
+    var pose = swerveDrivePoseEstimator.getEstimatedPosition();
+    SmartDashboard.putNumber("chassis/x",pose.getX());
+    SmartDashboard.putNumber("chassis/y",pose.getY());
+    field.setRobotPose(pose);
     
-    // SmartDashboard.putData("chassis", field);
+    SmartDashboard.putData("chassis", field);
     // SmartDashboard.putData("modules/fr", frontRight);
     // SmartDashboard.putData("modules/fl", frontLeft);
     // SmartDashboard.putData("modules/rr", rearRight);
