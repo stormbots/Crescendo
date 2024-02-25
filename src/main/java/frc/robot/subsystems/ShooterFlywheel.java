@@ -34,6 +34,8 @@ public class ShooterFlywheel extends SubsystemBase {
       motor.getEncoder().setVelocityConversionFactor(kGearing);
 
       motor.setSmartCurrentLimit(30);
+      motor.getEncoder().setMeasurementPeriod(8);
+      motor.getEncoder().setAverageDepth(2);
 
       var pid = motor.getPIDController();
       pid.setP(0.0003);
@@ -42,6 +44,7 @@ public class ShooterFlywheel extends SubsystemBase {
       pid.setSmartMotionMaxVelocity(kMaxRPM, 0);
       pid.setSmartMotionMaxAccel(kMaxRPM*4*4, 0);
       pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+
     }
     topMotor.setInverted(false);
     botMotor.setInverted(true);

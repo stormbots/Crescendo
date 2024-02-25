@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
@@ -17,14 +18,15 @@ import com.stormbots.Clamp;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
 
-  private CANSparkFlex leftMotor = new CANSparkFlex(Robot.isCompbot?17:16, MotorType.kBrushless);
-  private CANSparkFlex rightMotor = new CANSparkFlex(Robot.isCompbot?18:17, MotorType.kBrushless);
+  private CANSparkMax leftMotor = new CANSparkMax(Robot.isCompbot?17:16, MotorType.kBrushless);
+  private CANSparkMax rightMotor = new CANSparkMax(Robot.isCompbot?18:17, MotorType.kBrushless);
   
   public boolean isHomed=false;
   public final double kHomeCurrentThreshold=5;
@@ -41,7 +43,7 @@ public class Climber extends SubsystemBase {
       motor.clearFaults();
       motor.restoreFactoryDefaults();
 
-      motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.5);
+      motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.1);
       motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
       motor.setSoftLimit(SoftLimitDirection.kForward, (float)(kMaxHeight.in(Units.Inches)-0.2));
@@ -90,7 +92,7 @@ public class Climber extends SubsystemBase {
       motor.setSmartCurrentLimit(30);
       setIdleMode(IdleMode.kBrake);
       //TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for drive team
-      motor.setSoftLimit(SoftLimitDirection.kReverse, (float) 9.5);
+      motor.setSoftLimit(SoftLimitDirection.kReverse,(float) 9.5); //Should be 11.5 b/c climber double hook, previously 9.5
     }
 
   }
@@ -131,6 +133,11 @@ public class Climber extends SubsystemBase {
     return Units.Inches.of(average);
   }
 
+  public void setReverseSoftLimit(double limit){
+    leftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
+    rightMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -150,7 +157,7 @@ public class Climber extends SubsystemBase {
     // } else{
     //   leftMotor.setSmartCurrentLimit(4);
     //   rightMotor.setSmartCurrentLimit(4);
-    // }
+    // })
 
 
 

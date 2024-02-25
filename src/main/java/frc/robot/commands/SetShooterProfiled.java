@@ -17,6 +17,7 @@ public class SetShooterProfiled extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Shooter shooter;
   private double shooterAngle;
+  private Boolean exitsOnCompletion = true;
   /**
    * Creates a new ExampleCommand.
    *
@@ -73,6 +74,11 @@ public class SetShooterProfiled extends Command {
     var velTol = 10; // per sec
     var vol = Clamp.bounded(shooter.getState().velocity, -velTol, velTol);
   
-    return pos && vol;
+    return exitsOnCompletion && pos && vol;
+  }
+
+  public SetShooterProfiled runForever(){
+    this.exitsOnCompletion = false;
+    return this;
   }
 }

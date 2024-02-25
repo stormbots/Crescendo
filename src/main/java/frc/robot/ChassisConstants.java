@@ -16,16 +16,17 @@ public class ChassisConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 4.8;
-    public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+    public static final double kMaxAngularSpeed = 4 * Math.PI; // radians per second
 
     public static final double kDirectionSlewRate = 1.2*3; // radians per second
     public static final double kMagnitudeSlewRate = 1.8*5; // percent per second (1 = 100%)
-    public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
+    public static final double kRotationalSlewRate = 2*2*2*2.0; // percent per second (1 = 100%)
 
     // Chassis configuration
-    public static final double kTrackWidth = Units.inchesToMeters(23.5);
+    //NOTE: These are over-written in robot.java
+    public static double kTrackWidth = Units.inchesToMeters(23.5);
     // Distance between centers of right and left wheels on robot
-    public static final double kWheelBase = Units.inchesToMeters(27);
+    public static  double kWheelBase = Units.inchesToMeters(23.5);
     // Distance between front and back wheels on robot
     public static final double distanceToModuleFromCenter = Math.sqrt(Math.pow(kTrackWidth/2, 2) + Math.pow(kWheelBase/2, 2));
 
@@ -96,7 +97,7 @@ public class ChassisConstants {
     public static final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
     public static final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;
 
-    public static final int kDrivingMotorCurrentLimit = 50;
+    public static final int kDrivingMotorCurrentLimit = 40; // amps
     public static final int kTurningMotorCurrentLimit = 20; // amps
   }
 

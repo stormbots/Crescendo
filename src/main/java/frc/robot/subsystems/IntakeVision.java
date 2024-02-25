@@ -12,6 +12,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -23,25 +24,23 @@ import frc.robot.Clamp;
 
 public class IntakeVision extends SubsystemBase {
   /** Creates a new Vision. */
-  private AHRS gyro;
-
   public enum LimelightPipeline {
     kNoVision, kNoZoom, kZoom
   }
   public class LimelightReadings {
-    public double targetID;
+    public Optional<Double> targetID;
     public double distance; //meters
     public double angleHorizontal; //degrees
     public double angleVertical; //degrees
     public Double time;
   }
 
-  public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight");
+  public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight-intake");
   Field2d field = new Field2d();
+  FieldPosition fieldPos = new FieldPosition();
   public SwerveDrivePoseEstimator poseEstimator;
 
-  public IntakeVision(AHRS gyro, SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
-    this.gyro = gyro;
+  public IntakeVision(SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
     this.poseEstimator = poseEstimator;
     
     setPipeline(LimelightPipeline.kNoZoom);
@@ -50,8 +49,11 @@ public class IntakeVision extends SubsystemBase {
   @Override
   public void periodic() {
     //zoomIfPossible(); pipeline makes frames drop a lot
+    if(true)return;
     updateOdometry();
-    SmartDashboard.putData("visionfield", field);
+    SmartDashboard.putData("intakevisionfield", field);
+    FieldPosition.ShowOnGlassDashboard(field);
+    SmartDashboard.putNumber("intakevision/tv", camera.getEntry("tv").getDouble(0.0));
   }
 
   public boolean hasValidTarget() {
@@ -65,7 +67,7 @@ public class IntakeVision extends SubsystemBase {
     double[] bp = camera.getEntry("botpose_targetspace").getDoubleArray(new double[]{0,0,0,0,0,0});
 
     var target = new LimelightReadings();
-    target.targetID = camera.getEntry("tid").getDouble(0.0);
+    target.targetID = Optional.of(camera.getEntry("tid").getDouble(0.0));
     target.distance = bp[2]; //meters TODO: negative for some reason :(
     target.angleHorizontal = camera.getEntry("tx").getDouble(0.0);
     target.angleVertical = camera.getEntry("ty").getDouble(0.0);
@@ -87,7 +89,7 @@ public class IntakeVision extends SubsystemBase {
     poseEstimator.setVisionMeasurementStdDevs(stdevs);
 
     field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
-    field.getObject("visionpose").setPose(botPose);
+    field.getObject("intakevisionpose").setPose(botPose);
   }
 
   public void zoomIfPossible() {
@@ -102,6 +104,29 @@ public class IntakeVision extends SubsystemBase {
     else {
       setPipeline(LimelightPipeline.kNoZoom);
     }
+  }
+
+  public LimelightReadings getTargetDataOdometry(Pose3d target) {
+    LimelightReadings targetData = new LimelightReadings();
+
+    Pose2d botPose = poseEstimator.getEstimatedPosition();
+    Pose2d targetPose = target.toPose2d();
+
+    //data from field positions
+    double dx = targetPose.getX() - botPose.getX();
+    double dy = targetPose.getY() - botPose.getY();
+    double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+    //bot rotations at current pose
+    double botPoseAngle = botPose.getRotation().getDegrees()%360;
+    double angleOffset = botPoseAngle - orthogonalAngle;
+
+    targetData.angleHorizontal = angleOffset; //degrees
+    targetData.distance = Math.hypot(dx, dy); //meters
+    targetData.targetID = Optional.empty();
+    targetData.angleVertical = 0;
+    targetData.time = Timer.getFPGATimestamp();
+
+    return targetData;
   }
 
   public void setPipeline(LimelightPipeline pipeline) {

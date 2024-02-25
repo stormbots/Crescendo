@@ -47,7 +47,7 @@ public class Passthrough extends SubsystemBase {
     motorB.follow(motor,true);//TODO: Check invert
     motor.setInverted(false);
     //Safety inplace
-    motor.setSmartCurrentLimit(20);
+    motor.setSmartCurrentLimit(15);
 
     motor.getPIDController().setP(0.1);
     motor.setClosedLoopRampRate(0.05);
@@ -100,6 +100,6 @@ public class Passthrough extends SubsystemBase {
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("passthrough/isBlocked", isBlocked());
     SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Millimeters));
-    SmartDashboard.putNumber("passthrough/outputCurrent", motor.getOutputCurrent());
+    // SmartDashboard.putNumber("passthrough/outputCurrent", motor.getOutputCurrent());
   }
 }
