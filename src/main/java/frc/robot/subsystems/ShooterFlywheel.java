@@ -33,7 +33,7 @@ public class ShooterFlywheel extends SubsystemBase {
       motor.clearFaults();
       motor.getEncoder().setVelocityConversionFactor(kGearing);
 
-      motor.setSmartCurrentLimit(30);
+      motor.setSmartCurrentLimit(40);
       motor.getEncoder().setMeasurementPeriod(8);
       motor.getEncoder().setAverageDepth(2);
 

@@ -286,7 +286,7 @@ public class RobotContainer {
      operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(6000),
-      new SetShooterProfiled(50, shooter).runForever()
+      new SetShooterProfiled(45, shooter).runForever()
     ))
     .whileTrue(new RunCommand(
       ()->{
