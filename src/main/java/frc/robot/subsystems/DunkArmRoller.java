@@ -48,8 +48,8 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.set(-0.4);
     }
 
-    public void score(){
-        eject();
+    public void scoreTrap(){
+        setSpeed(-0.1);
     }
 
     public void resetEncoder(double encoderValue){

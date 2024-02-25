@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
+import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.NoteTransferToDunkArm;
 import frc.robot.commands.PassthroughAlignNote;
@@ -158,7 +159,7 @@ public class RobotContainer {
   chassis.setDefaultCommand(chassis.getFCDriveCommand( 
     ()-> -driverController.getLeftY(), 
     ()-> -driverController.getLeftX(), 
-    ()-> -driverController.getRightX()
+    ()-> -driverController.getRightX()// divide by 4 is still not enough
   ));
 
     //default, but only runs once
@@ -166,6 +167,11 @@ public class RobotContainer {
     new Trigger(DriverStation::isEnabled)
     .and(()->climber.isHomed==false)
     .whileTrue(new ClimberGoHome(climber));
+
+    new Trigger( ()-> dunkArm.getAngle()>45 )
+    .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(0.1)))
+    .onFalse(new InstantCommand(()->climber.setReverseSoftLimit(9.5)))
+    ;
     
     leds.setDefaultCommand(leds.showTeamColor());
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
@@ -267,7 +273,7 @@ public class RobotContainer {
       new RunCommand(passthrough::intake,passthrough)
         .alongWith(new RunCommand(intake::intake,intake))
         .withTimeout(5), 
-      new RunCommand(()->dunkArmRoller.setSpeed(-0.4), dunkArmRoller)
+      new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
         .withTimeout(3),//dunk arm roller for amp
       passthrough::isBlocked
     ));
@@ -279,7 +285,7 @@ public class RobotContainer {
       )
       ;
 
-    operatorJoystick.button(3)
+     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(6000),
       new SetShooterProfiled(50, shooter).runForever()
@@ -324,7 +330,7 @@ public class RobotContainer {
       )
     );
 
-    operatorJoystick.button(6).whileTrue(
+    operatorJoystick.button(6).onTrue(
       new SetDunkArmSlew(105, dunkArm).runForever()
     );
 
@@ -340,14 +346,12 @@ public class RobotContainer {
     )
     ;
 
-    operatorJoystick.button(13).whileTrue(new RunCommand(//TODO: check if wrok 
-      ()->climber.setPosition(climber.kMaxHeight),
-      climber)
+    operatorJoystick.button(13).whileTrue(
+      new ClimberSetPosition(climber, Units.Inches.of(0.0))
     );
 
-    operatorJoystick.button(14).whileTrue(new RunCommand(//TODO: check if wrok 
-      ()->climber.setPosition(Units.Inches.of(9.5)),
-      climber)
+    operatorJoystick.button(14).whileTrue(
+      new ClimberSetPosition(climber, climber.kMaxHeight)
     );
 
     operatorJoystick.button(8).whileTrue(

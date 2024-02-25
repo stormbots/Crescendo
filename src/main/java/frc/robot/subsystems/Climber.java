@@ -43,7 +43,7 @@ public class Climber extends SubsystemBase {
       motor.clearFaults();
       motor.restoreFactoryDefaults();
 
-      motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.5);
+      motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.1);
       motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
       motor.setSoftLimit(SoftLimitDirection.kForward, (float)(kMaxHeight.in(Units.Inches)-0.2));
@@ -131,6 +131,11 @@ public class Climber extends SubsystemBase {
   public Measure<Distance> getPosition(){
     var average = (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition())/2;
     return Units.Inches.of(average);
+  }
+
+  public void setReverseSoftLimit(double limit){
+    leftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
+    rightMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
   }
 
   @Override

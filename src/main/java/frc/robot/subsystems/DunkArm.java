@@ -53,7 +53,7 @@ public class DunkArm extends SubsystemBase {
     syncEncoders();
 
     armMotor.setSoftLimit(SoftLimitDirection.kReverse, -25);
-    armMotor.setSoftLimit(SoftLimitDirection.kForward,99);
+    armMotor.setSoftLimit(SoftLimitDirection.kForward,112); //112 hardstop, 7.3 inch after note transfer to safep trap pos
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     armMotor.setSmartCurrentLimit(40);
@@ -66,8 +66,8 @@ public class DunkArm extends SubsystemBase {
     // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
 
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
-    // SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
+    SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/output", armMotor.getAppliedOutput());
     // SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
     // SmartDashboard.putNumber("dunkArm/position", getState().position);
@@ -91,7 +91,7 @@ public class DunkArm extends SubsystemBase {
   public void setPowerFF(double power){
     setPower(power + getArmFFPercent());
   }
-
+  
   public void stop() {
     armMotor.set(0);
   }

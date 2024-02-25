@@ -124,6 +124,10 @@ public class Chassis extends SubsystemBase {
     // SmartDashboard.putData("modules/rl", rearLeft);
 
     SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
+
     // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
   }
