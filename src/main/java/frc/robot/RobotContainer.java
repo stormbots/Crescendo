@@ -316,7 +316,7 @@ public class RobotContainer {
     // return autoFactory.getModuleOneMeterPerSecond();
 
     // return autoFactory.getAutoChooser().getSelected();
-    return AutoBuilder.followPath(autoFactory.pathPlannerPath);
+    return autoFactory.getTwoMeterPathPlanner();
 
   }
 

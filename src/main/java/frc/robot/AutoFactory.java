@@ -48,12 +48,12 @@ public class AutoFactory {
         Units.MetersPerSecondPerSecond.of(AutoConstants.kMaxAccelerationMetersPerSecondSquared)
     );
 
-    ProfiledPIDController thetaController = new ProfiledPIDController(AutoConstants.kPThetaP, 0, 0, new TrapezoidProfile.Constraints(
+    ProfiledPIDController thetaController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(
         Math.PI, Math.PI));
 
     AutoBuilder autoBuilder;
 
-    SendableChooser<Command> autoChooser;
+    // SendableChooser<Command> autoChooser;
 
     public PathPlannerPath pathPlannerPath = PathPlannerPath.fromPathFile("twoMeterAuto");
 
@@ -63,23 +63,22 @@ public class AutoFactory {
         this.rc = rc;
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        autoChooser = autoBuilder.buildAutoChooser(); //temporarily only for pathplanner
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        // autoChooser = autoBuilder.buildAutoChooser(); //temporarily only for pathplanner
+        // SmartDashboard.putData("Auto Chooser", autoChooser);
 
         Supplier<ChassisSpeeds> getSpeed = ()->{
             return rc.swerveDriveKinematics.toChassisSpeeds(rc.chassis.getModuleStates());
         };
 
         Consumer<ChassisSpeeds> setSpeed = (chassisSpeeds)->{
-            //is field relative? + no idea how this works as max should be 1, will check later.
             var swerveModuleStates = rc.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
             rc.chassis.setModuleStates(swerveModuleStates);
         };
 
         HolonomicPathFollowerConfig holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
-            new PIDConstants(ModuleConstants.kDrivingP), 
-            new PIDConstants(ModuleConstants.kTurningP), 
-            AutoConstants.kMaxSpeedMetersPerSecond, 
+            new PIDConstants(0), 
+            new PIDConstants(1/90.0), 
+            DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
             new ReplanningConfig(false, false));
 
@@ -141,44 +140,43 @@ public class AutoFactory {
           rc.chassis::setModuleStates,
           rc.chassis
         );
-
     
         return swerveControllerCommand;
     
     }
 
-    public Command getTwoMeterForwardTrajectory(){
-        return generateSwerveControllerCommand(
-            TrajectoryGenerator.generateTrajectory(
-              new Pose2d(0, 0, new Rotation2d(0)),
-              List.of(),
-              new Pose2d(2,0, new Rotation2d(Math.PI/2)),
-              trajectoryConfig)
-        );
-    }
-    public Command getTwoMeterBackwardTrajectory(){
-        return generateSwerveControllerCommand(
-            TrajectoryGenerator.generateTrajectory(
-              rc.chassis.getPose(),
-              List.of(),
-              new Pose2d(0,0, new Rotation2d()),
-              trajectoryConfig)
-        );
-    }
+    // public Command getTwoMeterForwardTrajectory(){
+    //     return generateSwerveControllerCommand(
+    //         TrajectoryGenerator.generateTrajectory(
+    //           new Pose2d(0, 0, new Rotation2d(0)),
+    //           List.of(),
+    //           new Pose2d(2,0, new Rotation2d(Math.PI/2)),
+    //           trajectoryConfig)
+    //     );
+    // }
+    // public Command getTwoMeterBackwardTrajectory(){
+    //     return generateSwerveControllerCommand(
+    //         TrajectoryGenerator.generateTrajectory(
+    //           rc.chassis.getPose(),
+    //           List.of(),
+    //           new Pose2d(0,0, new Rotation2d()),
+    //           trajectoryConfig)
+    //     );
+    // }
 
-    public Command getModuleOneMeterPerSecond(){
-        SwerveModuleState[] moduleStates = new SwerveModuleState[]{
-            new SwerveModuleState(1,new Rotation2d(0)),
-            new SwerveModuleState(1,new Rotation2d(0)),
-            new SwerveModuleState(1,new Rotation2d(0)),
-            new SwerveModuleState(1,new Rotation2d(0))
-        };
+    // public Command getModuleOneMeterPerSecond(){
+    //     SwerveModuleState[] moduleStates = new SwerveModuleState[]{
+    //         new SwerveModuleState(1,new Rotation2d(0)),
+    //         new SwerveModuleState(1,new Rotation2d(0)),
+    //         new SwerveModuleState(1,new Rotation2d(0)),
+    //         new SwerveModuleState(1,new Rotation2d(0))
+    //     };
         
-        return new RunCommand(
-            ()->rc.chassis.setModuleStates(moduleStates), 
-            rc.chassis
-        );
-    }
+    //     return new RunCommand(
+    //         ()->rc.chassis.setModuleStates(moduleStates), 
+    //         rc.chassis
+    //     );
+    // }
 
     // public Command frSetDesiredState(double speedMetersPerSecond){
     //     return new RunCommand(
@@ -187,8 +185,12 @@ public class AutoFactory {
     //     );
     // }
 
-    public SendableChooser<Command> getAutoChooser(){
-        return autoChooser;
+    // public SendableChooser<Command> getAutoChooser(){
+    //     return autoChooser;
+    // }
+
+    public Command getTwoMeterPathPlanner(){
+        return AutoBuilder.followPath(pathPlannerPath);
     }
 
 }
