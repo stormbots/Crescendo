@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class VisionTurnToAprilTag extends Command {
+public class VisionTurnToSpeakerOpticalOnly extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
   private Chassis chassis;
@@ -36,7 +36,7 @@ public class VisionTurnToAprilTag extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public VisionTurnToAprilTag(
+  public VisionTurnToSpeakerOpticalOnly(
     DoubleSupplier xSpeed,
     DoubleSupplier ySpeed,
     DoubleSupplier rotSpeed,
@@ -65,22 +65,13 @@ public class VisionTurnToAprilTag extends Command {
   @Override
   public void execute() {
 
-    //if valid target 
-      // update target and bearing
-    //if target is "newish", pid to it
-
-    //in other cases, drive
-
     Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
 
     if (shooterData.isPresent()) {
-      targetangle = gyro.getRotation2d().getDegrees();
-      targetangle = targetangle - shooterData.get().angleHorizontal;
-      targetangle = Math.toRadians(targetangle);
-      chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetangle);
-
-      SmartDashboard.putNumber("shooterVision/targetAngle", shooterData.get().angleHorizontal);
-      SmartDashboard.putNumber("shooterVision/navxangle", gyro.getRotation2d().getDegrees());
+      //doing it pure vision way, works!
+      var tx = shooterData.get().angleHorizontal;
+      tx = 0.1/360 * tx ; //fudged value that seems to work
+      chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() -tx, true,true);
     }
     else{
       chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
