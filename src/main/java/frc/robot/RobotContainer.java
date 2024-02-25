@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import javax.swing.text.StyleContext.SmallAttributeSet;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -33,11 +31,11 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.IntakeNote;
-import frc.robot.commands.NoteTransferToDunkArm;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.VisionTurnToAprilTag;
+import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
@@ -222,7 +220,7 @@ public class RobotContainer {
     driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->-driverController.getLeftX()/2.0, ()->-driverController.getRightX()/2.0));
 
     driverController.button(6).whileTrue(
-      new VisionTurnToAprilTag(
+      new VisionTurnToSpeakerOpticalOnly(
         ()-> -driverController.getLeftY(),
         ()-> -driverController.getLeftX(),
         ()-> -driverController.getRightX(),
