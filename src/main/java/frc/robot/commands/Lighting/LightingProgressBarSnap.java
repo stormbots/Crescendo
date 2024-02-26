@@ -11,17 +11,17 @@ public class LightingProgressBarSnap extends Command {
   Leds leds;
   Color backGroundColor;
   Leds.HSVColor progressColor;
-  double timeLimt;
+  double timeLimit;
   double startTime;
   boolean finished;
   int brightness;
 
 
-  public LightingProgressBarSnap(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double brightness) {
+  public LightingProgressBarSnap(Leds leds, Color backGroundColor, Color progressColor, double timeLimit, double brightness) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = leds.new HSVColor(progressColor);
-    this.timeLimt = timeLimt;
+    this.timeLimit = timeLimit;
     this.brightness = (int)Math.round(brightness);
     addRequirements(leds);
   }
@@ -44,12 +44,12 @@ public class LightingProgressBarSnap extends Command {
     progressColor.value = (int) (progressColor.value*brightness/100.0);
     var currentTime = leds.getTime();
     var elapsedTime = currentTime-startTime;
-    double timePerLED = (timeLimt / leds.ledBuffer.getLength());
+    double timePerLED = (timeLimit / leds.ledBuffer.getLength());
     var numberOfChannelsOn = (int)((elapsedTime / timePerLED));
     if (numberOfChannelsOn > leds.ledBuffer.getLength()){
       numberOfChannelsOn = leds.ledBuffer.getLength();
     }
-    if (elapsedTime>timeLimt+.5){
+    if (elapsedTime>timeLimit+.5){
       finished =true;
     }
     for(var i = 0; i < numberOfChannelsOn; i++){

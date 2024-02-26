@@ -14,20 +14,21 @@ public class LightingProgressBarFlow extends Command {
   Leds leds;
   Color backGroundColor;
   Leds.HSVColor progressColor;
-  double timeLimt;
+  double timeLimit;
   double startTime;
   boolean finished;
   int brightness;
   int[] value;
   double percent;
 
-  public LightingProgressBarFlow(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double brightness) {
+  public LightingProgressBarFlow(Leds leds, Color backGroundColor, Color progressColor, double timeLimit, double brightness) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = leds.new HSVColor(progressColor);
-    this.timeLimt = timeLimt;
+    this.timeLimit = timeLimit;
     this.brightness = (int)Math.round(brightness);
     value = new int[leds.ledBuffer.getLength()];
+    //TODO: make normalized verisons of commands (treat it like a strip half the length and have the other half mirror)
 
     addRequirements(leds);
   }
@@ -48,12 +49,12 @@ public class LightingProgressBarFlow extends Command {
   public void execute(){
     var currentTime = leds.getTime();
     var elapsedTime = currentTime-startTime;
-    double timePerLED = (timeLimt / leds.ledBuffer.getLength());
+    double timePerLED = (timeLimit / leds.ledBuffer.getLength());
     double numberOfChannelsOn = (double)(elapsedTime / timePerLED);
     if (numberOfChannelsOn > leds.ledBuffer.getLength()){
       numberOfChannelsOn = leds.ledBuffer.getLength();
     }
-    if(elapsedTime > timeLimt){
+    if(elapsedTime > timeLimit){
       finished = true;
     }
 
@@ -77,12 +78,12 @@ public class LightingProgressBarFlow extends Command {
 
       // SmartDashboard.putNumber("leds/value", value[i]);
       // SmartDashboard.putNumber("leds/percent", percent*100);
-      // // SmartDashboard.putNumber("leds/percentTime", elapsedTime%timePerLED);
+      // SmartDashboard.putNumber("leds/percentTime", elapsedTime%timePerLED);
       // SmartDashboard.putNumber("leds/channels", numberOfChannelsOn);
-      // // SmartDashboard.putNumber("timePerLed", timePerLED);
-      // // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
-      // // SmartDashboard.putNumber("leds/currentTime", currentTime);
-      // // SmartDashboard.putNumber("leds/startTime", startTime);
+      // SmartDashboard.putNumber("timePerLed", timePerLED);
+      // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
+      // SmartDashboard.putNumber("leds/currentTime", currentTime);
+      // SmartDashboard.putNumber("leds/startTime", startTime);
 
     }
   }

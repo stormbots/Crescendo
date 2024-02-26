@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -18,6 +19,7 @@ public class Leds extends SubsystemBase {
   public AddressableLEDBuffer ledBuffer;
   boolean hasRun;
   Spark blinkin = new Spark(8);
+
 
     public class HSVColor{
     // private Color rgb;
@@ -60,11 +62,15 @@ public class Leds extends SubsystemBase {
   /** Creates a new LEDs. */
   public Leds() {
     ledStrip = new AddressableLED(9);
-    ledBuffer = new AddressableLEDBuffer(16);
+    ledBuffer = new AddressableLEDBuffer(60);
     ledStrip.setLength(ledBuffer.getLength());
     ledStrip.setData(ledBuffer);
     ledStrip.start();
     hasRun = false;
+    SmartDashboard.putNumber("leds/red", 0.0);
+    SmartDashboard.putNumber("leds/green", 0.0);
+    SmartDashboard.putNumber("leds/blue", 0.0);
+    
 
     // blinkin.setBoundsMicroseconds(2000, 1501, 1500, 1499, 1000);
     
@@ -73,6 +79,10 @@ public class Leds extends SubsystemBase {
   @Override
   public void periodic() {
     ledStrip.setData(ledBuffer);
+    int red = (int)SmartDashboard.getNumber("leds/red", 0.0);
+    int green = (int)SmartDashboard.getNumber("leds/green", 0.0);
+    int blue = (int)SmartDashboard.getNumber("leds/blue", 0.0);
+    setColorManual(red, green, blue);
 
     // This method will be called once per scheduler run
   }
@@ -114,6 +124,19 @@ public class Leds extends SubsystemBase {
     for(var i = 0; i < ledBuffer.getLength(); i++){
       ledBuffer.setRGB(i, red, green, blue);
     }
+  }
+
+  public Color getTeamColor(){
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()){
+      if (alliance.get() == DriverStation.Alliance.Red){
+        return Color.kRed;
+      }
+      if (alliance.get() == DriverStation.Alliance.Blue){
+        return Color.kBlue;
+      }
+    }
+    return Color.kPurple;
   }
 
 

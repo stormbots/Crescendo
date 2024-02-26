@@ -4,6 +4,7 @@
 
 package frc.robot.commands.Lighting;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Leds;
@@ -47,6 +48,7 @@ public class LightingRainbowFlow extends Command {
       this.startHue += ((elapsedTime)/timePerColor);
       this.startHue %= 180;
       this.startTime = leds.getTime();
+      // SmartDashboard.putNumber("leds/starthue", startHue);
     }
     
 

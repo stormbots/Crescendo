@@ -6,27 +6,31 @@ package frc.robot.commands.Lighting;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.swing.text.StyleContext.SmallAttributeSet;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Leds;
 
-public class LightingFlickerUniform extends Command {
-  double percentOutput;
+public class LightingPulse extends Command {
+  double brightness;
   double scaleValue;
   Leds leds;
-  Color color;
+  Leds.HSVColor color;
   boolean finished;
-  int[] hsv;
   int value;
   double startTime;
   double currentTime;
   double elapsedTime;
+  double cycleTime;
+  double frequency;
   /** Creates a new LightingFlicker. */
-  public LightingFlickerUniform(Leds leds, Color color, double percentOutput) {
+  public LightingPulse(Leds leds, Color color, double cycleTime, double brightness) {
     this.leds = leds;
-    this.color = color;
-    this.percentOutput = percentOutput;
-    scaleValue = percentOutput/100;
+    this.color = leds.new HSVColor(color);
+    this.brightness = brightness;
+    scaleValue = brightness/100;
     addRequirements(leds);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -34,9 +38,12 @@ public class LightingFlickerUniform extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-  //  hsv = leds.rgbToHsv(color);
-   value = (int)Math.round((ThreadLocalRandom.current().nextInt(25, 200))*scaleValue);
-   startTime = leds.getTime();
+    leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), (int)brightness);
+    value = (int)(color.value*scaleValue);
+    startTime = leds.getTime();
+    finished = false;
+    frequency = 2/cycleTime;
+
    
   }
 
@@ -45,17 +52,16 @@ public class LightingFlickerUniform extends Command {
   public void execute() {
     currentTime = leds.getTime();
     elapsedTime = currentTime-startTime;
-    if (elapsedTime <= (Math.random()/10)){
-      value = (int)Math.round((ThreadLocalRandom.current().nextInt(0, 11))*25*scaleValue);
-      
-    }
-    else if (elapsedTime >= (Math.random()*5)){
-      value = 0;
-      startTime = leds.getTime();
-    }
+    value = (int)((.5*Math.sin(frequency*elapsedTime*Math.PI)+.5)*(color.value*scaleValue));
+   
+
     
     for(var i = 0; i < leds.ledBuffer.getLength(); i++){
-      leds.ledBuffer.setHSV(i, hsv[0], hsv[1], value);
+      leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), value);
+      // SmartDashboard.putNumber("leds/value", value);
+      // SmartDashboard.putNumber("leds/startTime", startTime);
+      // SmartDashboard.putNumber("leds/currentTime", currentTime);
+      // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
     }
     
 
