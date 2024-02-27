@@ -16,6 +16,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -233,6 +234,77 @@ public class AutoFactory {
         ));
 
             //Ideally we would want to shoot this note, but shooter stuff isnt even up yet so what am i supposed to do
+    }
+
+    /*
+     * Generates a auto sequence managing start position, end position, shooting, and trajectory . 
+     * Boolean isBlue is uneccesary but added for the sake of preventing unwanted behaviors
+     */
+    public Command makeStartToNoteAutoSequence(Pose2d startPose, Pose2d endPose, boolean isBlue){
+        var path =  TrajectoryGenerator.generateTrajectory(
+            startPose,
+            List.of(),
+            endPose,
+            trajectoryConfig);
+
+        var pathCommand = generateSwerveControllerCommand(path);
+
+        double offset;
+
+        if(isBlue){
+            offset = -startPose.getRotation().getRadians();
+        }
+        else{
+            offset = Math.PI - startPose.getRotation().getRadians();
+        }
+
+        offset = Math.toDegrees(MathUtil.angleModulus(offset));
+        final double foffset = offset;
+
+        return new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(foffset))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(startPose.getX(),startPose.getY(), rc.navx.getRotation2d())))
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 50))
+        .andThen(new ParallelDeadlineGroup(
+            pathCommand.withTimeout(path.getTotalTimeSeconds()+1).andThen(new WaitCommand(1)), 
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ));
+    }
+
+    /*
+     * Generates a auto sequence managing start position, end position, shooting, and trajectory . 
+     * Boolean isBlue is uneccesary but added for the sake of preventing unwanted behaviors
+     * Overloaded constructor
+     */
+    public Command makeStartToNoteAutoSequence(Pose2d startPose, Pose2d endPose, boolean isBlue, List<Translation2d> midWaypoints){
+        var path =  TrajectoryGenerator.generateTrajectory(
+            startPose,
+            midWaypoints,
+            endPose,
+            trajectoryConfig);
+
+        var pathCommand = generateSwerveControllerCommand(path);
+
+        double offset;
+
+        if(isBlue){
+            offset = -startPose.getRotation().getRadians();
+        }
+        else{
+            offset = Math.PI - startPose.getRotation().getRadians();
+        }
+
+        offset = Math.toDegrees(MathUtil.angleModulus(offset));
+        final double foffset = offset;
+
+        return new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(foffset))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(startPose.getX(),startPose.getY(), rc.navx.getRotation2d())))
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 50))
+        .andThen(new ParallelDeadlineGroup(
+            pathCommand.withTimeout(path.getTotalTimeSeconds()+1).andThen(new WaitCommand(1)), 
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ));
     }
 
     public Command getTwoMeterPathPlanner(){
