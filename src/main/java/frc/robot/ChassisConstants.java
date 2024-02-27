@@ -115,7 +115,7 @@ public class ChassisConstants {
     // public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI;
 
   //   // Unused, from original template
-    public static final double kPDrivingP = 0.01;
+    public static final double kPDrivingP = 2/1;
     public static final double kPThetaP = 0.01/360.0; //idk, very small value so it dont break anything too much
 
   //   // Constraint for the motion profiled robot angle controller

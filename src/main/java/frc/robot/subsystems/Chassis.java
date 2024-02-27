@@ -115,6 +115,7 @@ public class Chassis extends SubsystemBase {
     var pose = swerveDrivePoseEstimator.getEstimatedPosition();
     SmartDashboard.putNumber("chassis/x",pose.getX());
     SmartDashboard.putNumber("chassis/y",pose.getY());
+    field.getObject("gyro").setPose(new Pose2d(5,5, navx.getRotation2d()));
     field.setRobotPose(pose);
     
     SmartDashboard.putData("chassis", field);
@@ -145,10 +146,10 @@ public class Chassis extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
 
-    var rot = new Rotation2d(MathUtil.angleModulus(navx.getRotation2d().getRadians()));
+    // var rot = new Rotation2d(MathUtil.angleModulus(navx.getRotation2d().getRadians()));
+    var rot = navx.getRotation2d(); 
 
     swerveDrivePoseEstimator.resetPosition(
-        // rot,
         navx.getRotation2d(),
         new SwerveModulePosition[] {
             frontLeft.getPosition(),

@@ -86,7 +86,10 @@ public class RobotContainer {
   public final DunkArmRoller dunkArmRoller = new DunkArmRoller();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
-  
+
+  public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
+  public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
+
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
   public final AutoFactory autoFactory;
@@ -95,8 +98,6 @@ public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
-  public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
-  public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -231,7 +232,7 @@ public class RobotContainer {
 
     //Reset Gyro
     driverController.button(8).onTrue(new InstantCommand()
-    .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis)));
 
     driverController
     .axisGreaterThan(3, 0.5)
@@ -383,12 +384,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     // return Autos.exampleAuto(m_exampleSubsystem);
-    // return autoFactory.getTwoMeterForwardTrajectory().andThen(chassis.getZeroOutputCommand());
-    // return autoFactory.getTwoMeterForwardTrajectory().andThen(new WaitCommand(5)).andThen(autoFactory.getTwoMeterBackwardTrajectory());
-    // return autoFactory.getModuleOneMeterPerSecond();
 
     // return autoFactory.getAutoChooser().getSelected();
-    return autoFactory.getTwoMeterPathPlanner();
+    return autoFactory.getBottomAuto();
 
   }
 
