@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.stormbots.LUT;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -99,6 +100,14 @@ public class RobotContainer {
 
   public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
   public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
+
+  LUT rollerPositon = new LUT(new double[][]{
+    {-25,2.5},
+    {-10,2.5},
+    {0,-2.5},
+    {60,-2.5},
+    {90,2.5}
+  });
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -199,6 +208,7 @@ public class RobotContainer {
       .andThen(new WaitCommand(0.2))
       .andThen(new RunCommand(()->dunkArm.setPower(0), dunkArm))
     );
+
     dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
 
     shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
@@ -267,7 +277,7 @@ public class RobotContainer {
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
 
     operatorJoystick.button(1)
-    .onTrue(new ConditionalCommand(
+    .whileTrue(new ConditionalCommand(
       new RunCommand(passthrough::intake,passthrough)
         .alongWith(new RunCommand(intake::intake,intake))
         .withTimeout(5), 
@@ -303,7 +313,7 @@ public class RobotContainer {
     //shooter at target : maybe green
     // flywheel at target : maybe green
 
-    operatorJoystick.button(4)
+    operatorJoystick.button(4) //far shooting
       .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(10000),
       new SetShooterProfiled(20, shooter).runForever()
@@ -321,9 +331,8 @@ public class RobotContainer {
           shooterFlywheel.getShooterSetRPMCommand(1500)
         )
         .until(passthrough::isBlocked)
-        .andThen(
-          sequenceFactory.getDunkArmNoteTransferSequence()
-        ),
+        .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
+        .andThen(new SetDunkArmSlew(-25, dunkArm)),
         passthrough::isBlocked
       )
     );
@@ -344,24 +353,28 @@ public class RobotContainer {
     )
     ;
 
-    operatorJoystick.button(13).whileTrue(
-      new ClimberSetPosition(climber, Units.Inches.of(0.0))
-    );
-
-    operatorJoystick.button(14).whileTrue(
-      new ClimberSetPosition(climber, climber.kMaxHeight)
-    );
-
     operatorJoystick.button(8).whileTrue(
       new SetShooterProfiled(0, shooter)
       .andThen(new IntakeNote(intake, passthrough)
       )
     );
 
-    //Testing for dunkarm
+    operatorJoystick.button(9).whileTrue(
+      new RunCommand(()->dunkArmRoller.setSpeed(operatorJoystick.getRawAxis(3)*-60*0.05*0.05*0.5), dunkArmRoller)
+    );
+
     operatorJoystick.button(10).whileTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
     );
+
+    operatorJoystick.button(13).whileTrue(
+      new ClimberSetPosition(climber, climber.kMaxHeight)
+    );
+
+    operatorJoystick.button(14).whileTrue(
+      new ClimberSetPosition(climber, Units.Inches.of(1.0))
+    );
+
     
     // Used for testing only.
     // operatorJoystick.button(11).whileTrue(
@@ -391,4 +404,10 @@ public class RobotContainer {
     return  Math.hypot(driverController.getRawAxis(4), driverController.getRawAxis(5)) > 0.5;
   }
 
+  private double driverTurnJoystickValue(){
+    var stick = driverController.getRightX();
+    stick = stick*stick*Math.signum(stick); 
+    stick /= 4;
+    return stick;
+  }
 }

@@ -10,6 +10,7 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
+import com.stormbots.LUT;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -30,7 +31,6 @@ public class DunkArm extends SubsystemBase {
   private double armSetpoint = 0.0;
 
   ArmFeedforward armff = new ArmFeedforward(.015, .035, 0.13/45);  // (0.025+0.055)/2.0;
-
 
   public DunkArm() {
     armMotor.clearFaults();

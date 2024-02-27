@@ -38,8 +38,10 @@ public class ShooterFlywheel extends SubsystemBase {
       motor.getEncoder().setAverageDepth(2);
 
       var pid = motor.getPIDController();
-      pid.setP(0.0003);
+      pid.setP(0.0003*1.5);
+      pid.setD(0.00007*45);//want about .11
       pid.setFF(1/kMaxRPM);
+      pid.setI(0.0000000003*3);
       pid.setOutputRange(-1,1); //dont know if we need this, adding just in case
       pid.setSmartMotionMaxVelocity(kMaxRPM, 0);
       pid.setSmartMotionMaxAccel(kMaxRPM*4*4, 0);
@@ -59,9 +61,11 @@ public class ShooterFlywheel extends SubsystemBase {
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("/shooterFlywheel/targetRPM", targetRPM);
     // SmartDashboard.putBoolean("/shooterFlywheel/isOnTarget", isOnTarget());
-    // SmartDashboard.putNumber("/shooterFlywheel/avgCurrentRPM", getRPM());
-    // SmartDashboard.putNumber("/shooterFlywheel/topMotorCurrentRPM", topMotor.getEncoder().getVelocity());
-    // SmartDashboard.putNumber("/shooterFlywheel/topMotorPercentOutput", topMotor.getAppliedOutput());
+    SmartDashboard.putNumber("/shooterFlywheel/avgCurrentRPM", getRPM());
+    SmartDashboard.putNumber("/shooterFlywheel/topMotorCurrentRPM", topMotor.getEncoder().getVelocity());
+    SmartDashboard.putNumber("/shooterFlywheel/botMotorCurrentRPM", botMotor.getEncoder().getVelocity());
+    SmartDashboard.putNumber("/shooterFlywheel/topMotorPercentOutput", topMotor.getAppliedOutput());
+    SmartDashboard.putNumber("/shooterFlywheel/botMotorPercentOutput", botMotor.getAppliedOutput());
 
     // leftFlywheel.set(.1);
     
