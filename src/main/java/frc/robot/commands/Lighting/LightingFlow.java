@@ -6,34 +6,32 @@ package frc.robot.commands.Lighting;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.swing.text.StyleContext.SmallAttributeSet;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Leds;
 
-public class LightingLightning extends Command {
-  double percentOutput;
+public class LightingFlow extends Command {
+  double brightness;
   double scaleValue;
   Leds leds;
-  Color color;
-  Leds.HSVColor hsvColor;
+  Leds.HSVColor color;
   boolean finished;
   int value;
   double startTime;
   double currentTime;
   double elapsedTime;
-  double brightTime;
-  double darkTime;
-  double colorValue;
+  double wavelength;
+  double speed;
+  double adjustedWavelength;
   /** Creates a new LightingFlicker. */
-  public LightingLightning(Leds leds, Color color, double brightness) {
+  public LightingFlow(Leds leds, Color color, double wavelength, double speed, double brightness) {
     this.leds = leds;
-    this.color = color;
-    this.percentOutput = brightness;
-    hsvColor = leds.new HSVColor(color);
+    this.color = leds.new HSVColor(color);
+    this.brightness = brightness;
     scaleValue = brightness/100;
-    colorValue = hsvColor.value/255;
     addRequirements(leds);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -41,12 +39,11 @@ public class LightingLightning extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    leds.setColor(color, 0);
-    value = (int)Math.round((ThreadLocalRandom.current().nextInt(25, 200))*scaleValue*colorValue);
+    leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), (int)brightness);
+    value = (int)(color.value*scaleValue);
     startTime = leds.getTime();
-    brightTime = (Math.random()+.5)/2;
-    darkTime = Math.random()+.5;
     finished = false;
+    adjustedWavelength = (2/wavelength)*Math.PI;
 
    
   }
@@ -56,31 +53,14 @@ public class LightingLightning extends Command {
   public void execute() {
     currentTime = leds.getTime();
     elapsedTime = currentTime-startTime;
-    value = (int)Math.round(((ThreadLocalRandom.current().nextInt(0, 6))*51)*scaleValue*colorValue);
-    if (elapsedTime <= brightTime){
-      
-      
-      
-    }
-    else if (elapsedTime >= brightTime){
-      value = 0;
-    }
-
-    if (elapsedTime >= darkTime+brightTime){
-      startTime = leds.getTime();
-      darkTime = Math.random()+.5;
-      brightTime = (Math.random()+.5)/3;
-    }
-
     
     for(var i = 0; i < leds.ledBuffer.getLength(); i++){
-      leds.setColor(color, value);
+      value = (int)((.5*Math.sin(adjustedWavelength*((elapsedTime*speed)+(i/wavelength)))+.5)*(color.value*scaleValue));
+      leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), value);
       // SmartDashboard.putNumber("leds/value", value);
       // SmartDashboard.putNumber("leds/startTime", startTime);
       // SmartDashboard.putNumber("leds/currentTime", currentTime);
       // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
-      // SmartDashboard.putNumber("leds/brightTime", brightTime);
-      // SmartDashboard.putNumber("leds/darkTime", darkTime);
     }
     
 
