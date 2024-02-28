@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -34,7 +35,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.ChassisConstants.AutoConstants;
@@ -73,6 +76,12 @@ public class AutoFactory {
 
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
         autoChooser.addOption("blue bottom", getBottomAuto());
+        // autoChooser.addOption("blue bottom", makeStartToNoteAutoSequence(new Pose2d(0.75, 4.55, new Rotation2d(Math.toRadians(-60))), new Pose2d(2.70, 4.10, new Rotation2d()), true));
+        // autoChooser.addOption("blue top", makeStartToNoteAutoSequence(new Pose2d(0.75, 6.50, new Rotation2d(Math.toRadians(60))), new Pose2d(2.90, 7.00, new Rotation2d()), true));
+        // autoChooser.addOption("red bottom", makeStartToNoteAutoSequence(new Pose2d(15.980-0.75, 4.55, new Rotation2d(Math.toRadians(120))), new Pose2d(15.980-2.70, 4.10, new Rotation2d()), true));
+        // autoChooser.addOption("red mid", makeStartToNoteAutoSequence(new Pose2d(15.980-1.20, 5.70, new Rotation2d()), new Pose2d(15.980-2.90, 5.55, new Rotation2d()), true));
+        // autoChooser.addOption("red top", makeStartToNoteAutoSequence(new Pose2d(15.980-0.75, 6.50, new Rotation2d()), new Pose2d(15.980-2.90, 7.00, new Rotation2d()), true));
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
     }
@@ -227,7 +236,7 @@ public class AutoFactory {
 
     public Command getBottomAuto(){
         return new InstantCommand()
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 50))
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
         .andThen(new ParallelDeadlineGroup(
             botStartToBotNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
             rc.sequenceFactory.getIntakeThenAlignCommand()
@@ -249,7 +258,7 @@ public class AutoFactory {
 
         var pathCommand = generateSwerveControllerCommand(path);
 
-        double offset;
+        double offset = 0;
 
         if(isBlue){
             offset = -startPose.getRotation().getRadians();
@@ -262,9 +271,9 @@ public class AutoFactory {
         final double foffset = offset;
 
         return new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(foffset))
-            .andThen(()->rc.chassis.resetOdometry(new Pose2d(startPose.getX(),startPose.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 50))
+        .andThen(()->rc.chassis.setFieldCentricOffset(foffset))
+
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
         .andThen(new ParallelDeadlineGroup(
             pathCommand.withTimeout(path.getTotalTimeSeconds()+1).andThen(new WaitCommand(1)), 
             rc.sequenceFactory.getIntakeThenAlignCommand()
@@ -276,36 +285,6 @@ public class AutoFactory {
      * Boolean isBlue is uneccesary but added for the sake of preventing unwanted behaviors
      * Overloaded constructor
      */
-    public Command makeStartToNoteAutoSequence(Pose2d startPose, Pose2d endPose, boolean isBlue, List<Translation2d> midWaypoints){
-        var path =  TrajectoryGenerator.generateTrajectory(
-            startPose,
-            midWaypoints,
-            endPose,
-            trajectoryConfig);
-
-        var pathCommand = generateSwerveControllerCommand(path);
-
-        double offset;
-
-        if(isBlue){
-            offset = -startPose.getRotation().getRadians();
-        }
-        else{
-            offset = Math.PI - startPose.getRotation().getRadians();
-        }
-
-        offset = Math.toDegrees(MathUtil.angleModulus(offset));
-        final double foffset = offset;
-
-        return new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(foffset))
-            .andThen(()->rc.chassis.resetOdometry(new Pose2d(startPose.getX(),startPose.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 50))
-        .andThen(new ParallelDeadlineGroup(
-            pathCommand.withTimeout(path.getTotalTimeSeconds()+1).andThen(new WaitCommand(1)), 
-            rc.sequenceFactory.getIntakeThenAlignCommand()
-        ));
-    }
 
     public Command getTwoMeterPathPlanner(){
         //reset positon
@@ -329,7 +308,7 @@ public class AutoFactory {
                     TrajectoryGenerator.generateTrajectory(
                     new Pose2d(0.75, 4.55, new Rotation2d(Math.toRadians(-60))),
                     List.of(),
-                    new Pose2d(2.70,4.10, new Rotation2d()),
+                    new Pose2d(2.80,4.25, new Rotation2d()),
                     trajectoryConfig)
                 )
             );

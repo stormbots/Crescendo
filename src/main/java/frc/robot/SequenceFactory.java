@@ -4,15 +4,20 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.IntakeNote;
 import frc.robot.commands.NoteTransferToDunkArm;
+import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
-import frc.robot.commands.IntakeNote;
-import frc.robot.commands.PassthroughAlignNote;
 
 /** 
  * A place to keep/generate useful, reusable code sequences and commands.
@@ -51,21 +56,27 @@ public class SequenceFactory {
 
     public Command getSetRPMandShootCommand(double rpm, double angle){
         return new InstantCommand()
-        .andThen(new ParallelCommandGroup(
-            rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
-            new SetShooterProfiled(angle, rc.shooter).runForever()
+        .andThen(
+            new ParallelCommandGroup(
+                rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
+                new SetShooterProfiled(angle, rc.shooter).runForever()
             )
-            // .withTimeout(5)
             .until(
                 ()->{return rc.shooterFlywheel.isOnTarget() && rc.shooter.isOnTarget();}
             )
+            .withTimeout(5)
         )
         .andThen(
-            new RunCommand(rc.passthrough::intake,rc.passthrough)
-            .alongWith(new RunCommand(rc.intake::intake,rc.intake))
+            new ParallelCommandGroup(
+                new RunCommand(rc.passthrough::intake,rc.passthrough),
+                new RunCommand(rc.intake::intake,rc.intake)
+            )
+            .withTimeout(1)
+        )
+        .andThen(
+            new SetShooterProfiled(0, rc.shooter)
             .withTimeout(1)
         );
-        // .andThen(new SetShooterProfiled(0, rc.shooter));
     }
 
     public Command getIntakeThenAlignCommand(){

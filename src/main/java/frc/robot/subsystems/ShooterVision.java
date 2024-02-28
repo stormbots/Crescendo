@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.sql.Driver;
 import java.util.Optional;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -49,6 +50,7 @@ public class ShooterVision extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if(DriverStation.isAutonomous()){return;}
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
     SmartDashboard.putData("shootervisionfield", field);
