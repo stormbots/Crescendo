@@ -75,12 +75,7 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
-        autoChooser.addOption("blue bottom", getBottomAuto());
-        // autoChooser.addOption("blue bottom", makeStartToNoteAutoSequence(new Pose2d(0.75, 4.55, new Rotation2d(Math.toRadians(-60))), new Pose2d(2.70, 4.10, new Rotation2d()), true));
-        // autoChooser.addOption("blue top", makeStartToNoteAutoSequence(new Pose2d(0.75, 6.50, new Rotation2d(Math.toRadians(60))), new Pose2d(2.90, 7.00, new Rotation2d()), true));
-        // autoChooser.addOption("red bottom", makeStartToNoteAutoSequence(new Pose2d(15.980-0.75, 4.55, new Rotation2d(Math.toRadians(120))), new Pose2d(15.980-2.70, 4.10, new Rotation2d()), true));
-        // autoChooser.addOption("red mid", makeStartToNoteAutoSequence(new Pose2d(15.980-1.20, 5.70, new Rotation2d()), new Pose2d(15.980-2.90, 5.55, new Rotation2d()), true));
-        // autoChooser.addOption("red top", makeStartToNoteAutoSequence(new Pose2d(15.980-0.75, 6.50, new Rotation2d()), new Pose2d(15.980-2.90, 7.00, new Rotation2d()), true));
+        autoChooser.addOption("blue bottom", getBlueBottomAuto());
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -194,55 +189,82 @@ public class AutoFactory {
                 )
             );
     }
-    // public Command getTwoMeterBackwardTrajectory(){
-    //     return generateSwerveControllerCommand(
-    //         TrajectoryGenerator.generateTrajectory(
-    //           rc.chassis.getPose(),
-    //           List.of(),
-    //           new Pose2d(0,0, new Rotation2d()),
-    //           trajectoryConfig)
-    //     );
-    // }
-
-    // public Command getModuleOneMeterPerSecond(){
-    //     SwerveModuleState[] moduleStates = new SwerveModuleState[]{
-    //         new SwerveModuleState(1,new Rotation2d(0)),
-    //         new SwerveModuleState(1,new Rotation2d(0)),
-    //         new SwerveModuleState(1,new Rotation2d(0)),
-    //         new SwerveModuleState(1,new Rotation2d(0))
-    //     };
-        
-    //     return new RunCommand(
-    //         ()->rc.chassis.setModuleStates(moduleStates), 
-    //         rc.chassis
-    //     );
-    // }
-
-    // public Command frSetDesiredState(double speedMetersPerSecond){
-    //     return new RunCommand(
-    //         ()->rc.chassis.frontRight.setDesiredState(new SwerveModuleState(speedMetersPerSecond, new Rotation2d())), 
-    //         rc.chassis
-    //     );
-    // }
 
     public SendableChooser<Command> getAutoChooser(){
         return autoChooser;
     }
 
 
-    // public Command getAutoCommand(){
-    //     //figure out what we want to do from the positon
-    // }
-
-    public Command getBottomAuto(){
+    public Command getBlueBottomAuto(){
         return new InstantCommand()
         .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
         .andThen(new ParallelDeadlineGroup(
-            botStartToBotNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
+            blueBotStartToBotNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
             rc.sequenceFactory.getIntakeThenAlignCommand()
-        ));
+        ))
+        .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(Math.toRadians(-25), 8000, 20))
+        ;
 
-            //Ideally we would want to shoot this note, but shooter stuff isnt even up yet so what am i supposed to do
+    }
+
+    public Command getBlueMidAuto(){
+        return new InstantCommand()
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
+        .andThen(new ParallelDeadlineGroup(
+            blueMidStartToMidNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(Math.toRadians(0), 8000, 20))
+        ;
+
+    }
+
+    public Command getBlueTopAuto(){
+        return new InstantCommand()
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
+        .andThen(new ParallelDeadlineGroup(
+            blueTopStartToTopNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(Math.toRadians(27), 8000, 20))
+        ;
+
+    }
+
+    public Command getRedBottomAuto(){
+        return new InstantCommand()
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
+        .andThen(new ParallelDeadlineGroup(
+            blueBotStartToBotNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(Math.toRadians(25), 8000, 20))
+        ;
+
+    }
+
+    public Command getRedMidAuto(){
+        return new InstantCommand()
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
+        .andThen(new ParallelDeadlineGroup(
+            blueMidStartToMidNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(Math.toRadians(0), 8000, 20))
+        ;
+
+    }
+
+    public Command getRedTopAuto(){
+        return new InstantCommand()
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
+        .andThen(new ParallelDeadlineGroup(
+            blueTopStartToTopNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(Math.toRadians(-27), 8000, 20))
+        ;
+
     }
 
     /*
@@ -299,7 +321,7 @@ public class AutoFactory {
         // return AutoBuilder.followPath(pathPlannerPath);
     }
 
-    public Command botStartToBotNotePathCommand(){
+    public Command blueBotStartToBotNotePathCommand(){
         return new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(60))
             .andThen(()->rc.chassis.resetOdometry(new Pose2d(0.75,4.55, rc.navx.getRotation2d())))
@@ -314,7 +336,7 @@ public class AutoFactory {
             );
     }
 
-    public Command botNoteToBotSharePathCommand(){
+    public Command blueBotNoteToBotSharePathCommand(){
         return new InstantCommand()
             .andThen(
                 generateSwerveControllerCommand(
@@ -326,6 +348,81 @@ public class AutoFactory {
                 )
             );
     }
-    
+
+    public Command blueMidStartToMidNotePathCommand(){
+        return new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(1.2,5.7, rc.navx.getRotation2d())))
+            .andThen(
+                generateSwerveControllerCommand(
+                    TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(1.2,5.7, new Rotation2d(Math.toRadians(0))),
+                    List.of(),
+                    new Pose2d(2.90,5.55, new Rotation2d()),
+                    trajectoryConfig)
+                )
+            );
+    }
+
+    public Command blueTopStartToTopNotePathCommand(){
+        return new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-60))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(0.75,6.55, rc.navx.getRotation2d())))
+            .andThen(
+                generateSwerveControllerCommand(
+                    TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(0.75, 6.55, new Rotation2d(Math.toRadians(60))),
+                    List.of(),
+                    new Pose2d(2.90,7.00, new Rotation2d()),
+                    trajectoryConfig)
+                )
+            );
+    }
+
+    public Command redBotStartToBotNotePathCommand(){
+        return new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(120))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(16-0.75,4.55, rc.navx.getRotation2d())))
+            .andThen(
+                generateSwerveControllerCommand(
+                    TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(16-0.75, 4.55, new Rotation2d(Math.toRadians(-120))),
+                    List.of(),
+                    new Pose2d(16-2.80,4.25, new Rotation2d()),
+                    trajectoryConfig)
+                )
+            );
+    }
+
+    public Command redMidStartToMidNotePathCommand(){
+        return new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-180))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(16-1.2,5.7, rc.navx.getRotation2d())))
+            .andThen(
+                generateSwerveControllerCommand(
+                    TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(16-1.2,5.7, new Rotation2d(Math.toRadians(180))),
+                    List.of(),
+                    new Pose2d(16-2.90,5.55, new Rotation2d()),
+                    trajectoryConfig)
+                )
+            );
+    }
+
+    public Command redTopStartToTopNotePathCommand(){
+        return new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-120))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(16-0.75,6.55, rc.navx.getRotation2d())))
+            .andThen(
+                generateSwerveControllerCommand(
+                    TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(16-0.75, 6.55, new Rotation2d(Math.toRadians(120))),
+                    List.of(),
+                    new Pose2d(16-2.90,7.00, new Rotation2d()),
+                    trajectoryConfig)
+                )
+            );
+    }
+
 
 }

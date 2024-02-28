@@ -79,6 +79,38 @@ public class SequenceFactory {
         );
     }
 
+    //This one is sequenced slightly differently as we would like to turn while we are spinning up
+    //Note that there might be issues with the the angles at edge cases, likely will never use it for that though
+    public Command getTurnSetRPMandShootCommand(double targetBearing, double rpm, double shooterAngle){
+        return new InstantCommand()
+        .andThen(
+            new ParallelCommandGroup(
+                new RunCommand(()->rc.chassis.driveToBearing(targetBearing), rc.chassis),
+                rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
+                new SetShooterProfiled(shooterAngle, rc.shooter).runForever()
+            )
+            .until(
+                ()->{return 
+                    rc.shooterFlywheel.isOnTarget() && 
+                    rc.shooter.isOnTarget() && 
+                    Clamp.bounded(rc.navx.getRotation2d().getRadians(), targetBearing-Math.PI/18, targetBearing+Math.PI/18) &&
+                    Clamp.bounded(rc.navx.getRate(), -5, 5);}
+            )
+            .withTimeout(5)
+        )
+        .andThen(
+            new ParallelCommandGroup(
+                new RunCommand(rc.passthrough::intake,rc.passthrough),
+                new RunCommand(rc.intake::intake,rc.intake)
+            )
+            .withTimeout(1)
+        )
+        .andThen(
+            new SetShooterProfiled(0, rc.shooter)
+            .withTimeout(1)
+        );
+    }
+
     public Command getIntakeThenAlignCommand(){
         return new InstantCommand()
             .andThen(new IntakeNote(rc.intake, rc.passthrough))

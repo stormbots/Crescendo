@@ -321,7 +321,7 @@ public class Chassis extends SubsystemBase {
   public Command getZeroOutputCommand(){
     return new RunCommand(()->drive(0,0,0, false, false), this);
   }
-  
+
   public void driveToBearing(double xSpeed, double ySpeed, double bearingRad){
     //move elsewhere
     // turnpid.atSetpoint();
@@ -348,6 +348,11 @@ public class Chassis extends SubsystemBase {
     drive(xSpeed, ySpeed, output, true, true);
     // SmartDashboard.putNumber("bearing", bearingRad);
   }
+  
+  public void driveToBearing(double radians){
+    driveToBearing(0, 0, radians);
+  }
+  
 
   //TODO: not working
   /**
