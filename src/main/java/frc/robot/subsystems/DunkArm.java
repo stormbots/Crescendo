@@ -57,6 +57,7 @@ public class DunkArm extends SubsystemBase {
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     armMotor.setSmartCurrentLimit(40);
+    armMotor.burnFlash();
   }
 
   @Override
@@ -66,11 +67,12 @@ public class DunkArm extends SubsystemBase {
     // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
 
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
-    SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
+    // SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/output", armMotor.getAppliedOutput());
     // SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
-    // SmartDashboard.putNumber("dunkArm/position", getState().position);
+    SmartDashboard.putNumber("dunkArm/position", armMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("dunkArm/setpoint", armSetpoint);
     SmartDashboard.putNumber("dunkArm/current", armMotor.getOutputCurrent());
   }
 
@@ -115,12 +117,12 @@ public class DunkArm extends SubsystemBase {
     return kCosFFGain*Math.cos(Math.toRadians(getAngle()));
   }
 
-  public double getArmFFProperly(double position, double velocity){
-    //TODO: Manage feed forward and implement f a new setArmAngle profiler
-    var pos = Math.toRadians(position);
-    var vel = Math.toRadians(velocity);
-    return armff.calculate(pos, vel); //NOTE: must be in rad + rad/s
-  }
+  // public double getArmFFProperly(double position, double velocity){
+  //   //TODO: Manage feed forward and implement f a new setArmAngle profiler
+  //   var pos = Math.toRadians(position);
+  //   var vel = Math.toRadians(velocity);
+  //   return armff.calculate(pos, vel); //NOTE: must be in rad + rad/s
+  // }
 
   public void setArmAngle(double degrees) {
     this.armSetpoint = degrees;

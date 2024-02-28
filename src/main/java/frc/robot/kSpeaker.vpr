@@ -5,9 +5,8 @@ aspect_max:20.000000
 aspect_min:0.000000
 black_level:0
 blue_balance:1975
-botfloorsnap:1
+botfloorsnap:0
 botlength:0.7112
-bottype:swerve
 botwidth:0.7112
 calibration_type:0
 classifier_conf:0.100000
@@ -16,10 +15,10 @@ contour_sort_final:0
 convexity_max:100
 convexity_min:10
 corner_approx:5.000000
-crop_x_max:1.000000
-crop_x_min:-1.000000
-crop_y_max:1.000000
-crop_y_min:-1.000000
+crop_x_max:1
+crop_x_min:-1
+crop_y_max:0.57
+crop_y_min:-0.42
 cross_a_a:1
 cross_a_x:0
 cross_a_y:0
@@ -27,7 +26,7 @@ cross_b_a:1
 cross_b_x:0
 cross_b_y:0
 debugpipe:0
-desc:kNoZoom
+desc:kSpeaker
 desired_contour_region:0
 detector_conf:0.800000
 detector_idfilters:
@@ -35,11 +34,11 @@ dilation_steps:0
 direction_filter:0
 dual_close_sort_origin:0
 erosion_steps:0
-exposure:1468
+exposure:532
 fiducial_backend:umich
 fiducial_decoder_strictness:strict
 fiducial_denoise:0.000000
-fiducial_idfilters:
+fiducial_idfilters:4,7
 fiducial_locfilters:
 fiducial_method:sqpnp
 fiducial_qualitythreshold:2.0
@@ -63,7 +62,7 @@ multigroup_max:7
 multigroup_min:1
 multigroup_rejector:0
 pipeline_led_enabled:0
-pipeline_led_power:100
+pipeline_led_power:0
 pipeline_res:3
 pipeline_type:4
 python_snapscript_name:

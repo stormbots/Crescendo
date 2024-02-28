@@ -59,6 +59,8 @@ public class Climber extends SubsystemBase {
     rightMotor.setInverted(true);
     setIdleMode(IdleMode.kCoast);  
 
+    leftMotor.burnFlash();
+    rightMotor.burnFlash();
 
     // SmartDashboard.putData("climber/home", new ClimberGoHome(this));
 

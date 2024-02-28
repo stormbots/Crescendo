@@ -31,7 +31,6 @@ public class Shooter extends SubsystemBase {
   private double reverseSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kReverse);
   private double forwardSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kForward);
 
-
   public Shooter() {
     shooterMotor.clearFaults();
     shooterMotor.restoreFactoryDefaults();
@@ -62,6 +61,8 @@ public class Shooter extends SubsystemBase {
     pidController.setP(6.0/1.2/360.0);
 
     shooterMotor.setIdleMode(IdleMode.kCoast);
+
+    shooterMotor.burnFlash();
   }
 
   @Override

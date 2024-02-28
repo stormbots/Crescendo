@@ -31,6 +31,7 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
+import frc.robot.commands.DunkArmRollerHoldNote;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
@@ -101,13 +102,6 @@ public class RobotContainer {
   public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
   public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
 
-  LUT rollerPositon = new LUT(new double[][]{
-    {-25,2.5},
-    {-10,2.5},
-    {0,-2.5},
-    {60,-2.5},
-    {90,2.5}
-  });
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -166,7 +160,7 @@ public class RobotContainer {
   chassis.setDefaultCommand(chassis.getFCDriveCommand( 
     ()-> -driverController.getLeftY(), 
     ()-> -driverController.getLeftX(), 
-    ()-> -driverController.getRightX()// divide by 4 is still not enough
+    ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
   ));
 
     //default, but only runs once
@@ -209,7 +203,8 @@ public class RobotContainer {
       .andThen(new RunCommand(()->dunkArm.setPower(0), dunkArm))
     );
 
-    dunkArmRoller.setDefaultCommand(new RunCommand(()->{dunkArmRoller.stop();}, dunkArmRoller));
+    //TODO: Have dunkarm hold note.
+    dunkArmRoller.setDefaultCommand(new DunkArmRollerHoldNote(dunkArm,dunkArmRoller)); 
 
     shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
@@ -227,13 +222,13 @@ public class RobotContainer {
     driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
     driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
     driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
-    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->-driverController.getLeftX()/2.0, ()->-driverController.getRightX()/2.0));
+    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->-driverController.getLeftX()/2.0, ()->-driverTurnJoystickValue()/2.0));
 
     driverController.button(6).whileTrue(
       new VisionTurnToSpeakerOpticalOnly(
         ()-> -driverController.getLeftY(),
         ()-> -driverController.getLeftX(),
-        ()-> -driverController.getRightX(),
+        ()-> -driverTurnJoystickValue(),
         shooterVision, chassis, navx)
     );
 
@@ -276,16 +271,21 @@ public class RobotContainer {
     // );
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
 
+    //score button
     operatorJoystick.button(1)
     .whileTrue(new ConditionalCommand(
-      new RunCommand(passthrough::intake,passthrough)
-        .alongWith(new RunCommand(intake::intake,intake))
-        .withTimeout(5), 
+      //Shoot using whatever shooter position/speed is set up elsewhere
+      new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
+        .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
+        .withTimeout(5),
+      //score out of rollers
       new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
-        .withTimeout(3),//dunk arm roller for amp
+        .withTimeout(3)
+        .finallyDo(()->dunkArmRoller.setPosition(30)),//dunk arm roller for amp
       passthrough::isBlocked
     ));
 
+    //defense position
     operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
       new SetDunkArmSlew(-25, dunkArm)
@@ -293,7 +293,8 @@ public class RobotContainer {
       )
       ;
 
-     operatorJoystick.button(3)
+    //speaker shot
+    operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(6000),
       new SetShooterProfiled(45, shooter).runForever()
@@ -313,6 +314,7 @@ public class RobotContainer {
     //shooter at target : maybe green
     // flywheel at target : maybe green
 
+    //podium/far shot
     operatorJoystick.button(4) //far shooting
       .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(10000),
@@ -321,9 +323,11 @@ public class RobotContainer {
     )
     ;
 
+    //load rollers / intake to rollers
     operatorJoystick.button(5).whileTrue(
       new ConditionalCommand(
         sequenceFactory.getDunkArmNoteTransferSequence(),
+
         new ParallelCommandGroup(
           new IntakeNote(intake, passthrough),
           new SetShooterProfiled(0, shooter),
@@ -333,44 +337,52 @@ public class RobotContainer {
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
         .andThen(new SetDunkArmSlew(-25, dunkArm)),
+        
         passthrough::isBlocked
       )
     );
 
-    operatorJoystick.button(6).onTrue(
+    //arm to amp
+    //TODO: This should be whileHeld, need to validate control issues with operator 
+    operatorJoystick.button(6).whileTrue(
       new SetDunkArmSlew(105, dunkArm).runForever()
     );
 
+    //eject note
     operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
       new RunCommand(intake::eject, intake),
       new RunCommand(passthrough::eject, passthrough),
       new SetShooterProfiled(0, shooter), 
       shooterFlywheel.getShooterSetRPMCommand(-3000),
       new RunCommand(dunkArmRoller::eject, dunkArmRoller)
-
     )//TODO: set shooter/intake eject RPM properly
     .finallyDo((e)->passthrough.stop())
     )
     ;
 
+    //intake note
     operatorJoystick.button(8).whileTrue(
       new SetShooterProfiled(0, shooter)
       .andThen(new IntakeNote(intake, passthrough)
       )
     );
 
+    //DEBUG CODE: manually adjust rollers
     operatorJoystick.button(9).whileTrue(
       new RunCommand(()->dunkArmRoller.setSpeed(operatorJoystick.getRawAxis(3)*-60*0.05*0.05*0.5), dunkArmRoller)
     );
 
-    operatorJoystick.button(10).whileTrue(
+    //move dunkarm manually
+    operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
     );
 
+    //climbers up
     operatorJoystick.button(13).whileTrue(
       new ClimberSetPosition(climber, climber.kMaxHeight)
     );
 
+    //climbers down
     operatorJoystick.button(14).whileTrue(
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
@@ -407,7 +419,7 @@ public class RobotContainer {
   private double driverTurnJoystickValue(){
     var stick = driverController.getRightX();
     stick = stick*stick*Math.signum(stick); 
-    stick /= 4;
+    stick /= 3;
     return stick;
   }
 }

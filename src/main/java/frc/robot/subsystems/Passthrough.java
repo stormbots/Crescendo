@@ -52,6 +52,8 @@ public class Passthrough extends SubsystemBase {
     motor.getPIDController().setP(0.1);
     motor.setClosedLoopRampRate(0.05);
 
+    motor.burnFlash();
+    motorB.burnFlash();
     try {
       lasercan.setRangingMode(RangingMode.SHORT);
       SmartDashboard.putBoolean("passthrough/LaserConfig'd", true);

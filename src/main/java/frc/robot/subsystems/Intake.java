@@ -21,6 +21,7 @@ public class Intake extends SubsystemBase {
     motor.clearFaults();
     //Safety
     motor.setSmartCurrentLimit(40);
+    motor.burnFlash();
   }
   
   public void setPower(double speed) {

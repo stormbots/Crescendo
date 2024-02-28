@@ -52,6 +52,9 @@ public class ShooterFlywheel extends SubsystemBase {
     botMotor.setInverted(true);
 
     setIdleMode(IdleMode.kCoast);
+
+    topMotor.burnFlash();
+    botMotor.burnFlash();
   }
 
   @Override

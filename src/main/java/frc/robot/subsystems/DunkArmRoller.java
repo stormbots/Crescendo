@@ -25,6 +25,7 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.getEncoder().setPositionConversionFactor(1.375*Math.PI/3.0);
         rollerMotor.getEncoder().setVelocityConversionFactor(rollerMotor.getEncoder().getPositionConversionFactor()/60.0);
         rollerMotor.getPIDController().setP(0.05);
+        rollerMotor.burnFlash();
     }
 
     @Override
