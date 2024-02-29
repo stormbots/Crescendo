@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.stormbots.BlinkenPattern;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -81,21 +83,21 @@ public class Leds extends SubsystemBase {
     // This method will be called once per scheduler run
   }
   
-  public double getTime(){
+  public double getTime() {
     double time = Timer.getFPGATimestamp();
     return time;
   }
 
   
 
-  public int matchBrightnessScaling(int disabledBrightness, int enabledBrightness){
+  public int matchBrightnessScaling(int disabledBrightness, int enabledBrightness) {
     if (DriverStation.isDisabled()){
       return disabledBrightness;
     }
     return enabledBrightness;
   }
 
-  public void setColor(Color color){
+  public void setColor(Color color) {
     int red = (int)(color.red*255);
     int green = (int)(color.green*255);
     int blue = (int)(color.blue*255);
@@ -108,7 +110,7 @@ public class Leds extends SubsystemBase {
    * @param color
    * @param brightness between 0 and 100
    */
-  public void setColor(Color color, int brightness){
+  public void setColor(Color color, int brightness) {
     var hsv = new HSVColor(color);
     hsv.value = (int) (hsv.value*brightness/100.0);
     for(var i = 0; i < ledBuffer.getLength(); i++){
@@ -116,34 +118,34 @@ public class Leds extends SubsystemBase {
     }
   }
 
-  private void setColorManual(int red, int green, int blue){
+  private void setColorManual(int red, int green, int blue) {
     for(var i = 0; i < ledBuffer.getLength(); i++){
       ledBuffer.setRGB(i, red, green, blue);
     }
   }
 
-  public void preparing(){
+  public void preparing() {
     setColor(Color.kOrange);
     blinkin1.set(BlinkenPattern.solidOrange.pwm());
     blinkin2.set(BlinkenPattern.solidOrange.pwm());
   }
 
-  public void ready(){
+  public void ready() {
     setColor(Color.kGreen);
     blinkin1.set(BlinkenPattern.solidGreen.pwm());
     blinkin2.set(BlinkenPattern.solidGreen.pwm());
   }
 
-  public Command showTeamColor(){
+  public Command showTeamColor() {
     return new RunCommand(()->{
       var color = DriverStation.getAlliance();
-      if (color.isPresent()){
-        if (color.get() == DriverStation.Alliance.Red){
+      if (color.isPresent()) {
+        if (color.get() == DriverStation.Alliance.Red) {
           this.setColor(Color.kRed, this.matchBrightnessScaling(10, 100));
           blinkin1.set(BlinkenPattern.solidRed.pwm());
           blinkin2.set(BlinkenPattern.solidRed.pwm());
         }
-        if (color.get() == DriverStation.Alliance.Blue){
+        if (color.get() == DriverStation.Alliance.Blue) {
           this.setColor(Color.kBlue, this.matchBrightnessScaling(10, 100));
           blinkin1.set(BlinkenPattern.solidBlue.pwm());
           blinkin2.set(BlinkenPattern.solidBlue.pwm());
@@ -158,11 +160,22 @@ public class Leds extends SubsystemBase {
     ;
   }
 
-  public Command showNoteIntake(){
+  public Command showNoteIntake() {
     return new RunCommand(()->{this.setColor(Color.kOrangeRed);
     this.blinkin1.set(BlinkenPattern.solidRedOrange.pwm());this.blinkin2.set(BlinkenPattern.solidRedOrange.pwm());},this).withTimeout(2);
-    
   }
     
-  }
+  public Command readyLights(BooleanSupplier ...  conditions) {
+    return new RunCommand(()->{
+      for (BooleanSupplier condition : conditions) {
+        if (!condition.getAsBoolean()) {
+          preparing();
+          return;
+        }
+      }
+      ready();
+    }, this);
+  } 
 
+
+}

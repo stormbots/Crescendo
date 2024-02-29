@@ -5,7 +5,6 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.stormbots.LUT;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -297,31 +296,18 @@ public class RobotContainer {
     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(6000),
-      new SetShooterProfiled(45, shooter).runForever()
-    ))
-    .whileTrue(new RunCommand(
-      ()->{
-        if( shooterFlywheel.isOnTarget() && shooter.isOnTarget() ){
-          leds.ready();
-        }else{
-          leds.preparing();
-        }
-      },leds)
-      )
-    ;
-
-    //shooter started : leds:preparing
-    //shooter at target : maybe green
-    // flywheel at target : maybe green
+      new SetShooterProfiled(45, shooter).runForever())
+    )
+    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
     //podium/far shot
     operatorJoystick.button(4) //far shooting
       .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(10000),
-      new SetShooterProfiled(20, shooter).runForever()
-      )
+      new SetShooterProfiled(20, shooter).runForever())
     )
-    ;
+    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
+    );
 
     //load rollers / intake to rollers
     operatorJoystick.button(5).whileTrue(
@@ -408,12 +394,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return Autos.exampleAuto(m_exampleSubsystem);
-  }
-
-  //NOTE: There's a built in function for this! Let's use that.
-  // BooleanSupplier inDeadzone = ()->{return (Math.sqrt(Math.pow(driverController.getRawAxis(2), 2) + Math.pow(driverController.getRawAxis(3), 2))) > 0.5;};
-  private boolean isRightStickInDeadzone(){
-    return  Math.hypot(driverController.getRawAxis(4), driverController.getRawAxis(5)) > 0.5;
   }
 
   private double driverTurnJoystickValue(){
