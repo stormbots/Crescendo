@@ -16,6 +16,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -29,8 +32,7 @@ public class ShooterVision extends SubsystemBase {
     kNoVision, kNoZoom, kZoom, kSpeaker
   }
   public class LimelightReadings {
-    public Optional<Double> targetID;
-    public double distance; //meters
+    public Measure<Distance> distance; //inches
     public double angleHorizontal; //degrees
     public double angleVertical; //degrees
     public double time;
@@ -51,6 +53,7 @@ public class ShooterVision extends SubsystemBase {
   public void periodic() {
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
+    SmartDashboard.putNumber("shootervision/distance", getVisibleTargetData().get().distance.in(Units.Inches));
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
   }
@@ -63,11 +66,11 @@ public class ShooterVision extends SubsystemBase {
   public Optional<LimelightReadings> getVisibleTargetData() {
     if (hasValidTarget()==false) {return Optional.empty();}
 
-    double[] bp = camera.getEntry("targetpose_botspace").getDoubleArray(new double[]{0,0,0,0,0,0});
+    double[] bp = camera.getEntry("targetpose_robotspace").getDoubleArray(new double[]{0,0,0,0,0,0});
 
+    if (bp.length<6) {return Optional.empty();}
     var target = new LimelightReadings();
-    target.targetID = Optional.of(camera.getEntry("tid").getDouble(0.0));
-    target.distance = 0;//bp[2]; //meters
+    target.distance = Units.Meters.of(bp[2]);
     target.angleHorizontal = camera.getEntry("tx").getDouble(0.0);
     target.angleVertical = camera.getEntry("ty").getDouble(0.0);
     target.time = Timer.getFPGATimestamp();
@@ -120,8 +123,7 @@ public class ShooterVision extends SubsystemBase {
     double angleOffset = botPoseAngle - orthogonalAngle;
 
     targetData.angleHorizontal = angleOffset; //degrees
-    targetData.distance = Math.hypot(dx, dy); //meters
-    targetData.targetID = Optional.empty();
+    targetData.distance = Units.Meters.of(Math.hypot(dx, dy)); //meters
     targetData.angleVertical = 0;
     targetData.time = Timer.getFPGATimestamp();
 

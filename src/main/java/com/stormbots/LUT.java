@@ -9,6 +9,7 @@ public class LUT {
 
     /** Create a look up table using a nested list
      *  Assumes key values are in increasing order
+     * @param table of interpolated values; Does not return key
      */
     public LUT(double[][] table){
         this.table = table;

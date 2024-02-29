@@ -35,6 +35,7 @@ import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.Chassis;
@@ -373,6 +374,9 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
 
+    // operatorJoystick.button(15).whileTrue(
+    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
+    // );
     
     // Used for testing only.
     // operatorJoystick.button(11).whileTrue(
