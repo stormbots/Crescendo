@@ -1,0 +1,68 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.7,
+        "y": 4.1
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.334796698198934,
+        "y": 3.567342324668719
+      },
+      "isLocked": false,
+      "linkedName": "botNoteWaypoint"
+    },
+    {
+      "anchor": {
+        "x": 2.7,
+        "y": 1.8357102903830147
+      },
+      "prevControl": {
+        "x": 1.4790884552925219,
+        "y": 1.8357102903830147
+      },
+      "nextControl": {
+        "x": 3.9209115447074825,
+        "y": 1.8357102903830147
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.3,
+        "y": 0.8
+      },
+      "prevControl": {
+        "x": 7.300000000000001,
+        "y": 0.8
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "botShareWaypoint"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 180.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
