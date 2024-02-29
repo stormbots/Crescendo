@@ -56,7 +56,7 @@ public class AutoFactory {
         Units.MetersPerSecondPerSecond.of(AutoConstants.kMaxAccelerationMetersPerSecondSquared)
     );
 
-    ProfiledPIDController thetaController = new ProfiledPIDController(1/Math.PI/10, 0, 0, new TrapezoidProfile.Constraints(
+    ProfiledPIDController thetaController = new ProfiledPIDController(1/Math.PI/5*2, 0, 0, new TrapezoidProfile.Constraints(
         Math.PI, Math.PI));
 
     AutoBuilder autoBuilder;
@@ -75,7 +75,12 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
-        autoChooser.addOption("blue bottom", getBlueBottomAuto());
+        autoChooser.addOption("blue center", makeBasicAuto(new Pose2d(1.2, 5.55, new Rotation2d(0)), new Pose2d(2.9, 5.55, new Rotation2d(0))));
+        autoChooser.addOption("blue source", makeBasicAuto(new Pose2d(0.8, 4.4, new Rotation2d(-60)),List.of(new Translation2d(0.8, 4.2)), new Pose2d(2.9, 4.1, new Rotation2d(0))));
+        autoChooser.addOption("blue amp", makeBasicAuto(new Pose2d(0.80, 6.60, new Rotation2d(60)), List.of(new Translation2d(0.9, 6.8)), new Pose2d(2.9, 7, new Rotation2d(0))));
+        autoChooser.addOption("shootandrpm", rc.sequenceFactory.getSetRPMandShootCommand(6000, 45));
+        autoChooser.addOption("turnandshootandrpm", rc.sequenceFactory.getTurnSetRPMandShootCommand(-20, 6000, 45));
+
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -140,7 +145,6 @@ public class AutoFactory {
     }
 
 
-    //trajectory lib: Currently not used
     SwerveControllerCommand generateSwerveControllerCommand(Trajectory trajectory){
         // Example Trajectory
         // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
@@ -163,6 +167,41 @@ public class AutoFactory {
         );
     
         return swerveControllerCommand;
+    }
+
+    SwerveControllerCommand generateSwerveControllerCommand(Pose2d start, List<Translation2d> midpoints, Pose2d end){
+        return generateSwerveControllerCommand(
+            TrajectoryGenerator.generateTrajectory(start, midpoints, end, trajectoryConfig)
+        );
+    }
+
+    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end){
+        //Setting gyro offset + odometry
+        //Preparing shooting
+        //Shooting
+        //Running path to note + intake
+
+        //todo Shooting for the second time
+        double gyroOffset = 0;
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){//Checking if blue
+            gyroOffset = -start.getRotation().getRadians();
+        }
+        final double fgyroOffset = gyroOffset;
+
+        return new InstantCommand()
+        .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
+        .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
+        .andThen(new ParallelDeadlineGroup(
+            generateSwerveControllerCommand(start, midpoints, end).withTimeout(5),
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        ;
+
+    }
+
+    public Command makeBasicAuto(Pose2d start, Pose2d end){
+        return makeBasicAuto(start, List.of(), end);
     }
 
     public Command getTwoMeterForwardTrajectory(){

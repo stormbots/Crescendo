@@ -18,6 +18,7 @@ import frc.robot.commands.NoteTransferToDunkArm;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.subsystems.Shooter;
 
 /** 
  * A place to keep/generate useful, reusable code sequences and commands.
@@ -58,13 +59,14 @@ public class SequenceFactory {
         return new InstantCommand()
         .andThen(
             new ParallelCommandGroup(
+                new RunCommand(rc.passthrough::stop, rc.passthrough),
                 rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
                 new SetShooterProfiled(angle, rc.shooter).runForever()
             )
-            .until(
-                ()->{return rc.shooterFlywheel.isOnTarget() && rc.shooter.isOnTarget();}
-            )
-            .withTimeout(5)
+            // .until(
+            //     ()->{return rc.shooterFlywheel.isOnTarget() && rc.shooter.isOnTarget();}
+            // )
+            .withTimeout(3)
         )
         .andThen(
             new ParallelCommandGroup(
@@ -74,7 +76,10 @@ public class SequenceFactory {
             .withTimeout(1)
         )
         .andThen(
-            new SetShooterProfiled(0, rc.shooter)
+            new ParallelCommandGroup(
+                new SetShooterProfiled(0, rc.shooter),
+                rc.shooterFlywheel.getShooterSetRPMCommand(0)
+            )
             .withTimeout(1)
         );
     }
@@ -85,18 +90,19 @@ public class SequenceFactory {
         return new InstantCommand()
         .andThen(
             new ParallelCommandGroup(
-                new RunCommand(()->rc.chassis.driveToBearing(targetBearing), rc.chassis),
+                new RunCommand(rc.passthrough::stop, rc.passthrough),
+                new RunCommand(()->rc.chassis.driveToBearing(Math.toRadians(targetBearing)), rc.chassis),
                 rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
                 new SetShooterProfiled(shooterAngle, rc.shooter).runForever()
             )
-            .until(
-                ()->{return 
-                    rc.shooterFlywheel.isOnTarget() && 
-                    rc.shooter.isOnTarget() && 
-                    Clamp.bounded(rc.navx.getRotation2d().getRadians(), targetBearing-Math.PI/18, targetBearing+Math.PI/18) &&
-                    Clamp.bounded(rc.navx.getRate(), -5, 5);}
-            )
-            .withTimeout(5)
+            // .until(
+            //     ()->{return 
+            //         rc.shooterFlywheel.isOnTarget() && 
+            //         rc.shooter.isOnTarget() && 
+            //         Clamp.bounded(rc.navx.getRotation2d().getDegrees(), targetBearing-10, targetBearing+10) &&
+            //         Clamp.bounded(rc.navx.getRate(), -5, 5);}
+            // )
+            .withTimeout(3)
         )
         .andThen(
             new ParallelCommandGroup(
@@ -106,7 +112,10 @@ public class SequenceFactory {
             .withTimeout(1)
         )
         .andThen(
-            new SetShooterProfiled(0, rc.shooter)
+            new ParallelCommandGroup(
+                new SetShooterProfiled(0, rc.shooter),
+                rc.shooterFlywheel.getShooterSetRPMCommand(0)
+            )
             .withTimeout(1)
         );
     }

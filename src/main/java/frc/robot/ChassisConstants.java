@@ -107,8 +107,8 @@ public class ChassisConstants {
   }
 
   public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 1;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1; //4.375
+    public static final double kMaxSpeedMetersPerSecond = 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3; //4.375
     //NOTE: Half of these are only used once, only use for them would be to improve code understanding, as to which these names rev provided are actually HORRIBLE
 
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
