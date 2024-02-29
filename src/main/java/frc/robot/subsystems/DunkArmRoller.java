@@ -1,10 +1,11 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
-import com.stormbots.LUT;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,7 +15,7 @@ import frc.robot.Robot;
 public class DunkArmRoller extends SubsystemBase{
     private CANSparkMax rollerMotor = new CANSparkMax(Robot.isCompbot?16:15, MotorType.kBrushless);
 
-    SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.04, 0);
+    SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.03, 0);
 
     public DunkArmRoller() {
         rollerMotor.clearFaults();
@@ -25,6 +26,10 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.getEncoder().setPositionConversionFactor(1.375*Math.PI/3.0);
         rollerMotor.getEncoder().setVelocityConversionFactor(rollerMotor.getEncoder().getPositionConversionFactor()/60.0);
         rollerMotor.getPIDController().setP(0.05);
+
+        rollerMotor.setSoftLimit(SoftLimitDirection.kForward, (float) 3.2);
+        rollerMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) -4.5);
+
         rollerMotor.burnFlash();
     }
 
@@ -71,6 +76,15 @@ public class DunkArmRoller extends SubsystemBase{
     public double getVelocity(){
         return rollerMotor.getEncoder().getVelocity();
 
+    }
+
+    public void setIdleMode(IdleMode mode){
+        rollerMotor.setIdleMode(mode);
+    }
+
+    public void enableSoftLimit(boolean enable){
+        rollerMotor.enableSoftLimit(SoftLimitDirection.kReverse, enable);
+        rollerMotor.enableSoftLimit(SoftLimitDirection.kForward, enable);
     }
 
 }

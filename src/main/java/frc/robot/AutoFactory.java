@@ -76,26 +76,32 @@ public class AutoFactory {
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
         autoChooser.addOption("blue center", makeBasicAuto(
             new Pose2d(1.2, 5.55, new Rotation2d(Math.toRadians(0))), 
-            new Pose2d(2.9, 5.55, new Rotation2d(Math.toRadians(0)))));
+            new Pose2d(2.9, 5.55, new Rotation2d(Math.toRadians(0))))
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 25)));
         autoChooser.addOption("blue source", makeBasicAuto(
             new Pose2d(0.8, 4.4, new Rotation2d(Math.toRadians(-60))),
-            List.of(new Translation2d(0.8, 4.2)), new Pose2d(2.9, 4.1, 
-            new Rotation2d(0))));
+            List.of(new Translation2d(1.0, 4.4-0.34)), 
+            new Pose2d(2.9, 4.1, new Rotation2d(0)))
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 20)));
         autoChooser.addOption("blue amp", makeBasicAuto(
             new Pose2d(0.80, 6.60, new Rotation2d(Math.toRadians(60))), 
-            List.of(new Translation2d(0.9, 6.8)), 
-            new Pose2d(2.9, 7, new Rotation2d(Math.toRadians(0)))));
+            List.of(new Translation2d(1.0, 6.6+0.34)), 
+            new Pose2d(2.9, 7, new Rotation2d(Math.toRadians(0))))
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 20)));
         autoChooser.addOption("red center", makeBasicAuto(
             new Pose2d(16.6-1.2, 5.55, new Rotation2d(Math.toRadians(180))), 
-            new Pose2d(16.6-2.9, 5.55, new Rotation2d(Math.toRadians(180)))));
+            new Pose2d(16.6-2.9, 5.55, new Rotation2d(Math.toRadians(180))))
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 25)));
         autoChooser.addOption("red source", makeBasicAuto(
             new Pose2d(16.6-0.8, 4.4, new Rotation2d(Math.toRadians(-120))),
             List.of(new Translation2d(16.6-1.0, 4.4-0.34)), 
-            new Pose2d(16.6-2.9, 4.1, new Rotation2d(Math.toRadians(180)))));
+            new Pose2d(16.6-2.9, 4.1, new Rotation2d(Math.toRadians(180))))
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 20)));
         autoChooser.addOption("red amp", makeBasicAuto(
             new Pose2d(16.6-0.80, 6.60, new Rotation2d(Math.toRadians(120))), 
             List.of(new Translation2d(16.6-1.0, 6.6+0.34)), 
-            new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180)))));
+            new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))))
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 20)));
         
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -212,7 +218,7 @@ public class AutoFactory {
         // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
         .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
         .andThen(new ParallelDeadlineGroup(
-            generateSwerveControllerCommand(start, midpoints, end).withTimeout(5),
+            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
             rc.sequenceFactory.getIntakeThenAlignCommand()
         ))
         ;

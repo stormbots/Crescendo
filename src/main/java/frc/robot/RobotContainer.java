@@ -5,7 +5,6 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.stormbots.LUT;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -205,7 +204,7 @@ public class RobotContainer {
     );
 
     //TODO: Have dunkarm hold note.
-    dunkArmRoller.setDefaultCommand(new DunkArmRollerHoldNote(dunkArm,dunkArmRoller)); 
+    dunkArmRoller.setDefaultCommand(new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)); 
 
     shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
@@ -376,6 +375,14 @@ public class RobotContainer {
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
+    )
+    .onTrue( 
+      new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
+    )
+    ;
+
+    operatorJoystick.button(11).onTrue(
+      new InstantCommand(()->dunkArm.syncEncoders())
     );
 
     //climbers up

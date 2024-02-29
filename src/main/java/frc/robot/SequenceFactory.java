@@ -66,7 +66,7 @@ public class SequenceFactory {
             // .until(
             //     ()->{return rc.shooterFlywheel.isOnTarget() && rc.shooter.isOnTarget();}
             // )
-            .withTimeout(3)
+            .withTimeout(2)
         )
         .andThen(
             new ParallelCommandGroup(
@@ -102,7 +102,7 @@ public class SequenceFactory {
             //         Clamp.bounded(rc.navx.getRotation2d().getDegrees(), targetBearing-10, targetBearing+10) &&
             //         Clamp.bounded(rc.navx.getRate(), -5, 5);}
             // )
-            .withTimeout(3)
+            .withTimeout(2)
         )
         .andThen(
             new ParallelCommandGroup(
@@ -123,7 +123,9 @@ public class SequenceFactory {
     public Command getIntakeThenAlignCommand(){
         return new InstantCommand()
             .andThen(new IntakeNote(rc.intake, rc.passthrough))
-            .andThen(new PassthroughAlignNote(rc.passthrough, rc.intake));
+            .andThen(new PassthroughAlignNote(rc.passthrough, rc.intake)
+                .withTimeout(1)
+            );
     }
 
 }
