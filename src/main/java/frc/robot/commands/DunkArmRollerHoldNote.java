@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.stormbots.LUT;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,9 +19,9 @@ public class DunkArmRollerHoldNote extends Command {
   LUT lut = new LUT(new double[][]{
     {-25,1.7}, //out to clear rollers
     {-10,1.7},
-    {0,-5.0}, //in to clear chains
-    {60,-5.0},
-    {90,3.7} //out to clear wall
+    {0,-4.8}, //in to clear chains
+    {60,-4.8},
+    {90,2.0} //out to clear wall
   });
 
 
@@ -34,7 +35,12 @@ public class DunkArmRollerHoldNote extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    //brake
+    roller.setIdleMode(IdleMode.kBrake);
+    roller.enableSoftLimit(true);
+    //soft  limits
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -55,6 +61,10 @@ public class DunkArmRollerHoldNote extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    //undo limits
+    //coast
+    roller.setIdleMode(IdleMode.kCoast);
+    roller.enableSoftLimit(false);
     roller.stop();
   }
 

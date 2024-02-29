@@ -75,6 +75,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
     // SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
     // SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
+    // SmartDashboard.putBoolean("shooter/isOnTarget", isOnTarget());
   }
 
   /** Align the absolute and relative encoders, should the need arise */

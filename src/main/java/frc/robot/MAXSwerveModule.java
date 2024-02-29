@@ -108,12 +108,12 @@ public class MAXSwerveModule implements Sendable{
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
-    drivingSparkFlex.burnFlash();
-    turningSparkMax.burnFlash();
 
     this.chassisAngularOffset = chassisAngularOffset;
     desiredState.angle = new Rotation2d(turningEncoder.getPosition());
     drivingEncoder.setPosition(0);
+    drivingSparkFlex.burnFlash();
+    turningSparkMax.burnFlash();
   }
 
   /**

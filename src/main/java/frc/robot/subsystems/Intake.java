@@ -20,7 +20,7 @@ public class Intake extends SubsystemBase {
     motor.restoreFactoryDefaults();
     motor.clearFaults();
     //Safety
-    motor.setSmartCurrentLimit(40);
+    motor.setSmartCurrentLimit(60);
     motor.burnFlash();
   }
   

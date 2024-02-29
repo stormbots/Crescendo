@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.DunkArmRollerHoldNote;
@@ -90,7 +89,10 @@ public class RobotContainer {
   public final DunkArmRoller dunkArmRoller = new DunkArmRoller();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
-  
+
+  public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
+  public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
+
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
   public final AutoFactory autoFactory;
@@ -99,8 +101,6 @@ public class RobotContainer {
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
-  public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
-  public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -113,7 +113,6 @@ public class RobotContainer {
     // Sensor Driven triggers/commands
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
-
 
     // Configure the trigger bindings
     configureDefaultCommands();
@@ -148,9 +147,12 @@ public class RobotContainer {
     // SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
-    SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
-    SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
-    SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
+    // SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
+    // SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
+    // SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
+
+    SmartDashboard.putData("restTo0,0", new InstantCommand(()->chassis.resetOdometry(new Pose2d())));
+    SmartDashboard.putData("restToSpeaker", new InstantCommand(()->chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
   }
 
   private void configureDefaultCommands() {
@@ -204,7 +206,7 @@ public class RobotContainer {
     );
 
     //TODO: Have dunkarm hold note.
-    dunkArmRoller.setDefaultCommand(new DunkArmRollerHoldNote(dunkArm,dunkArmRoller)); 
+    dunkArmRoller.setDefaultCommand(new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)); 
 
     shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
@@ -236,7 +238,7 @@ public class RobotContainer {
 
     //Reset Gyro
     driverController.button(8).onTrue(new InstantCommand()
-    .andThen(new InstantCommand(()-> chassis.zeroHeading(), chassis)));
+    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis)));
 
     driverController
     .axisGreaterThan(3, 0.5)
@@ -362,6 +364,14 @@ public class RobotContainer {
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
+    )
+    .onTrue( 
+      new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
+    )
+    ;
+
+    operatorJoystick.button(11).onTrue(
+      new InstantCommand(()->dunkArm.syncEncoders())
     );
 
     //climbers up
@@ -397,7 +407,11 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // return Autos.exampleAuto(m_exampleSubsystem);
+
+    return autoFactory.getAutoChooser().getSelected();
+    // return autoFactory.getBlueBottomAuto();
+
   }
 
   private double driverTurnJoystickValue(){
