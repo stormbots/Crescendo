@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 1.2,
-        "y": 5.5
+        "y": 5.7
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.200000000000003,
-        "y": 5.5
+        "y": 5.7
       },
       "isLocked": false,
       "linkedName": "midStartWaypoint"
