@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController.AccelStrategy;
 import com.stormbots.Clamp;
@@ -47,12 +48,21 @@ public class ShooterFlywheel extends SubsystemBase {
       pid.setSmartMotionMaxAccel(kMaxRPM*4*4, 0);
       pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 200);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
+
     }
     topMotor.setInverted(false);
     botMotor.setInverted(true);
 
     setIdleMode(IdleMode.kCoast);
 
+    
     topMotor.burnFlash();
     botMotor.burnFlash();
   }

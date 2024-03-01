@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -91,20 +92,24 @@ public class AutoFactory {
         autoChooser.addOption("red center", makeBasicAuto(
             new Pose2d(16.6-1.2, 5.55, new Rotation2d(Math.toRadians(180))), 
             new Pose2d(16.6-2.9, 5.55, new Rotation2d(Math.toRadians(180))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 25)));
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 20)));
         autoChooser.addOption("red source", makeBasicAuto(
             new Pose2d(16.6-0.8, 4.4, new Rotation2d(Math.toRadians(-120))),
             List.of(new Translation2d(16.6-1.0, 4.4-0.34)), 
             new Pose2d(16.6-2.9, 4.1, new Rotation2d(Math.toRadians(180))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 20)));
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 18)));
         autoChooser.addOption("red amp", makeBasicAuto(
             new Pose2d(16.6-0.80, 6.60, new Rotation2d(Math.toRadians(120))), 
             List.of(new Translation2d(16.6-1.0, 6.6+0.34)), 
             new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 20)));
-        
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 18)));
 
+        autoChooser.addOption("vv Test Autos vv", new InstantCommand());
+
+        autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
+
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     void initPathPlannerStuff(){
@@ -216,7 +221,7 @@ public class AutoFactory {
         .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
         .andThen(()->rc.chassis.resetOdometry(start))
         // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(5500, 50))
         .andThen(new ParallelDeadlineGroup(
             generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
             rc.sequenceFactory.getIntakeThenAlignCommand()

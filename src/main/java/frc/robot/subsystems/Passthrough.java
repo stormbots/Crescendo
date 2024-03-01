@@ -7,7 +7,9 @@ package frc.robot.subsystems;
 import java.util.Optional;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
@@ -46,11 +48,29 @@ public class Passthrough extends SubsystemBase {
 
     motorB.follow(motor,true);//TODO: Check invert
     motor.setInverted(false);
+
+    motor.setIdleMode(IdleMode.kBrake);
+    motorB.setIdleMode(IdleMode.kBrake);
+
     //Safety inplace
     motor.setSmartCurrentLimit(15);
 
     motor.getPIDController().setP(0.1);
     motor.setClosedLoopRampRate(0.05);
+
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
+    
+    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
+    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
 
     motor.burnFlash();
     motorB.burnFlash();

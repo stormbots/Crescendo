@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
@@ -51,7 +52,7 @@ public class Shooter extends SubsystemBase {
     syncEncoders();
 
     shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 5);
-    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,45);
+    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,50);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
@@ -61,6 +62,12 @@ public class Shooter extends SubsystemBase {
     pidController.setP(6.0/1.2/360.0);
 
     shooterMotor.setIdleMode(IdleMode.kCoast);
+
+    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 50);
+    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
 
     shooterMotor.burnFlash();
   }

@@ -9,16 +9,15 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
 
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -52,6 +51,13 @@ public class Climber extends SubsystemBase {
       motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
       motor.setSmartCurrentLimit(5);
       motor.getPIDController().setP(0.3);
+
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 200);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
     }
 
     //set soft limits

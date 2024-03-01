@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
@@ -57,6 +58,10 @@ public class DunkArm extends SubsystemBase {
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     armMotor.setSmartCurrentLimit(40);
+
+    armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    
     armMotor.burnFlash();
   }
 

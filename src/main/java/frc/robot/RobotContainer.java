@@ -187,7 +187,7 @@ public class RobotContainer {
     );
     
     //align a note if nothing else is using passthrough
-    new Trigger(DriverStation::isEnabled)
+    new Trigger(DriverStation::isTeleop)
     .and(passthrough::isBlocked)
     .and(()->passthrough.getCurrentCommand()==null)
     .whileTrue(new PassthroughAlignNote(passthrough, intake))
