@@ -55,7 +55,7 @@ public class ShooterVision extends SubsystemBase {
     if(DriverStation.isAutonomous()){return;}
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
-    //SmartDashboard.putNumber("shootervision/distance", getVisibleTargetData().get().distance.in(Units.Inches));
+    if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("shootervision/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
   }

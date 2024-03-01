@@ -183,7 +183,7 @@ public class RobotContainer {
 
     shooterFlywheel.setDefaultCommand(
       new WaitCommand(0.5)
-      .andThen(shooterFlywheel.getShooterSetRPMCommand(0))
+      .andThen(new RunCommand(shooterFlywheel::stop, shooterFlywheel))
     );
     
     //align a note if nothing else is using passthrough

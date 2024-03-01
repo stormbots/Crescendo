@@ -93,6 +93,11 @@ public class ShooterFlywheel extends SubsystemBase {
 
   }
 
+  public void stop(){
+    topMotor.set(0.0);
+    botMotor.set(0.0);
+  }
+
   public boolean isOnTarget(){
     double leftSetRPM = targetRPM;
     double tolerance = leftSetRPM * .05;
