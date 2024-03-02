@@ -14,8 +14,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -175,6 +177,11 @@ public class RobotContainer {
     .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(0.1)))
     .onFalse(new InstantCommand(()->climber.setReverseSoftLimit(9.5)))
     ;
+
+    new Trigger(()-> Timer.getMatchTime()<20)
+    .onTrue(
+      new RunCommand(()->leds.setColor(Color.kPurple),leds).withTimeout(2)
+    );
     
     leds.setDefaultCommand(leds.showTeamColor());
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
@@ -208,7 +215,7 @@ public class RobotContainer {
     //TODO: Have dunkarm hold note.
     dunkArmRoller.setDefaultCommand(new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)); 
 
-    shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
+    // shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
 
   private void configureDriverBindings() {
@@ -306,7 +313,7 @@ public class RobotContainer {
     //podium/far shot
     operatorJoystick.button(4) //far shooting
       .whileTrue(new ParallelCommandGroup(
-      shooterFlywheel.getShooterSetRPMCommand(10000),
+      shooterFlywheel.getShooterSetRPMCommand(9900),
       new SetShooterProfiled(20, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
@@ -417,7 +424,7 @@ public class RobotContainer {
   private double driverTurnJoystickValue(){
     var stick = driverController.getRightX();
     stick = stick*stick*Math.signum(stick); 
-    stick /= 3;
+    stick /= 40;
     return stick;
   }
 }

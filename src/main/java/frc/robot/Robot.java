@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -114,6 +115,7 @@ public class Robot extends TimedRobot {
 
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
+    // robotContainer.climber.setIdleMode(IdleMode.kBrake);
 
     // robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();

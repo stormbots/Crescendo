@@ -130,7 +130,20 @@ public class AutoFactory {
             .andThen(
                 makeNoteToMidIntake(
                     new Pose2d(2.9, 7, new Rotation2d()), 
-                    new Pose2d(8.3, 7.45, new Rotation2d()))
+                    new Pose2d(8.3, 7.2, new Rotation2d())) //originally 7.45 for y
+            )
+        );
+
+        autoChooser.addOption("red amp drive to mid", 
+            makeBasicAuto(
+                new Pose2d(16.6-0.80, 6.60, new Rotation2d(Math.toRadians(120))), 
+                List.of(new Translation2d(16.6-1.0, 6.6+0.34)), 
+                new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))))
+            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 18))
+            .andThen(
+                makeNoteToMidIntake(
+                    new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))), 
+                    new Pose2d(16.6-8.3, 7.2, new Rotation2d(Math.toRadians(180))))//y is originally 7.45, temp change
             )
         );
 
@@ -231,7 +244,7 @@ public class AutoFactory {
         );
     }
 
-    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end){
+    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end, double rpm, double angle){
         //Setting gyro offset + odometry
         //Preparing shooting
         //Shooting
@@ -251,12 +264,16 @@ public class AutoFactory {
         .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
         .andThen(()->rc.chassis.resetOdometry(start))
         // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(5500, 50))
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(rpm, angle))
         .andThen(new ParallelDeadlineGroup(
             generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
             rc.sequenceFactory.getIntakeThenAlignCommand()
         ))
         ;
+    }
+
+    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end){
+        return makeBasicAuto(start, midpoints, end, 5500, 50);
 
     }
 
@@ -264,6 +281,19 @@ public class AutoFactory {
         return makeBasicAuto(start, List.of(), end);
     }
 
+    public Command makeNoteToMidIntake(Pose2d start, List<Translation2d> midpoints, Pose2d end){
+        return new InstantCommand()
+        .andThen(new ParallelDeadlineGroup(
+            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        .andThen(generateSwerveControllerCommand(end, midpoints, start).withTimeout(6))
+        ;
+    }
+
+    public Command makeNoteToMidIntake(Pose2d start, Pose2d end){
+        return makeNoteToMidIntake(start, List.of(), end);
+    }
 
 
     public SendableChooser<Command> getAutoChooser(){

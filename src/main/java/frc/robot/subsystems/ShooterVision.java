@@ -46,8 +46,8 @@ public class ShooterVision extends SubsystemBase {
 
   public ShooterVision(SwerveDrivePoseEstimator poseEstimator){ //need to add pose estimator
     this.poseEstimator = poseEstimator;
-    
-    setPipeline(LimelightPipeline.kNoZoom);
+
+    setPipeline(LimelightPipeline.kSpeaker);
   }
 
   @Override
@@ -55,14 +55,15 @@ public class ShooterVision extends SubsystemBase {
     if(DriverStation.isAutonomous()){return;}
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
-    if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("shootervision/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
+    // if (hasValidTarget()) {SmartDashboard.putBoolean("shootervision/validtarget", true);}
+    // if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("shootervision/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
   }
 
   public boolean hasValidTarget() {
     double tv = camera.getEntry("tv").getDouble(0.0);
-    return tv >= 1;
+    return (tv >= 1);
   }
 
   public Optional<LimelightReadings> getVisibleTargetData() {
