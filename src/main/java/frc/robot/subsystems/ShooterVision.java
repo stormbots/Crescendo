@@ -86,6 +86,7 @@ public class ShooterVision extends SubsystemBase {
 
     double[] bp = camera.getEntry("botpose").getDoubleArray(new double[]{0,0,0,0,0,0});
 
+    if (bp.length<6) {return;}
     Rotation2d rot = new Rotation2d(Math.toRadians(bp[5]));
     Pose2d botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
     poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());

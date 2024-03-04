@@ -92,7 +92,7 @@ public class RobotContainer {
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
 
-  public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
+  // public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
   public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
 
   //Keep Sequences and Autos in a single place 
@@ -178,7 +178,8 @@ public class RobotContainer {
     .onFalse(new InstantCommand(()->climber.setReverseSoftLimit(9.5)))
     ;
 
-    new Trigger(()-> Timer.getMatchTime()<20)
+    new Trigger(DriverStation::isTeleop)
+    .and(()-> Timer.getMatchTime()<20)
     .onTrue(
       new RunCommand(()->leds.setColor(Color.kPurple),leds).withTimeout(2)
     );

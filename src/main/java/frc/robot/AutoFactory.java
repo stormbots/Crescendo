@@ -121,6 +121,9 @@ public class AutoFactory {
             .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 18))
         );
 
+
+        autoChooser.addOption("untested autos", new InstantCommand());
+
         autoChooser.addOption("blue amp drive to mid", 
             makeBasicAuto(
                 new Pose2d(0.80, 6.60, new Rotation2d(Math.toRadians(60))), 
@@ -273,12 +276,42 @@ public class AutoFactory {
     }
 
     public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end){
-        return makeBasicAuto(start, midpoints, end, 5500, 50);
+        return makeBasicAuto(start, midpoints, end, 5500, 47);
 
     }
 
     public Command makeBasicAuto(Pose2d start, Pose2d end){
         return makeBasicAuto(start, List.of(), end);
+    }
+
+
+    public Command makeBasicAutoWithTurn(Pose2d start, List<Translation2d> midpoints,Pose2d end, double gyroAngleDegrees){
+        //Setting gyro offset + odometry
+        //Preparing shooting
+        //Shooting
+        //Running path to note + intake
+
+        //todo Shooting for the second time
+        double gyroOffset = 0;
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){//Checking if blue
+            gyroOffset = -start.getRotation().getRadians();
+        }
+        else{
+            gyroOffset = MathUtil.angleModulus(Math.PI-start.getRotation().getRadians());
+        }
+        final double fgyroOffset = Math.toDegrees(gyroOffset);
+
+        return new InstantCommand()
+        .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
+        .andThen(()->rc.chassis.resetOdometry(start))
+        .andThen(()->rc.chassis.driveToBearing(Math.toRadians(gyroAngleDegrees)))
+        // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
+        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(5500,50))
+        .andThen(new ParallelDeadlineGroup(
+            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
+            rc.sequenceFactory.getIntakeThenAlignCommand()
+        ))
+        ;
     }
 
     public Command makeNoteToMidIntake(Pose2d start, List<Translation2d> midpoints, Pose2d end){

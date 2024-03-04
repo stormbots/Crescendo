@@ -60,6 +60,7 @@ public class SequenceFactory {
         .andThen(
             new ParallelCommandGroup(
                 new RunCommand(rc.passthrough::stop, rc.passthrough),
+                new RunCommand(rc.intake::stop, rc.intake),
                 rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
                 new SetShooterProfiled(angle, rc.shooter).runForever()
             )
