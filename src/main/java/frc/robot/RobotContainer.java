@@ -290,8 +290,7 @@ public class RobotContainer {
         .withTimeout(5),
       //score out of rollers
       new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
-        .withTimeout(3)
-        .finallyDo(()->dunkArmRoller.setPosition(30)),//dunk arm roller for amp
+        .withTimeout(3),
       passthrough::isBlocked
     ));
 
@@ -359,7 +358,10 @@ public class RobotContainer {
 
     //intake note
     operatorJoystick.button(8).whileTrue(
-      new SetShooterProfiled(0, shooter)
+      new ParallelCommandGroup(
+        new SetShooterProfiled(0, shooter),
+        shooterFlywheel.getShooterSetRPMCommand(0)
+      )
       .andThen(new IntakeNote(intake, passthrough)
       )
     );
@@ -372,8 +374,7 @@ public class RobotContainer {
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
-    )
-    .onTrue( 
+    ).whileTrue( 
       new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
     )
     ;
@@ -392,9 +393,9 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
 
-    // operatorJoystick.button(16).whileTrue(
-    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
-    // );
+    operatorJoystick.button(16).whileTrue(
+      new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
+    );
 
     // operatorJoystick.button(15).whileTrue(
     //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
