@@ -55,8 +55,8 @@ public class ShooterVision extends SubsystemBase {
     if(DriverStation.isAutonomous()){return;}
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
-    // if (hasValidTarget()) {SmartDashboard.putBoolean("shootervision/validtarget", true);}
-    // if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("shootervision/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
+    if (hasValidTarget()) {SmartDashboard.putBoolean("shootervision/validtarget", true);}
+    if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("shootervision/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
   }
@@ -72,6 +72,7 @@ public class ShooterVision extends SubsystemBase {
     double[] bp = camera.getEntry("targetpose_robotspace").getDoubleArray(new double[]{0,0,0,0,0,0});
 
     if (bp.length<6) {return Optional.empty();}
+    SmartDashboard.putNumber("shootervision/testingdistance", bp[2]);
     var target = new LimelightReadings();
     target.distance = Units.Meters.of(bp[2]);
     target.angleHorizontal = camera.getEntry("tx").getDouble(0.0);

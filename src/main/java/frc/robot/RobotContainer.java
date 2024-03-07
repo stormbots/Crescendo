@@ -392,6 +392,10 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
 
+    // operatorJoystick.button(16).whileTrue(
+    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
+    // );
+
     // operatorJoystick.button(15).whileTrue(
     //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
     // );
@@ -425,7 +429,7 @@ public class RobotContainer {
   private double driverTurnJoystickValue(){
     var stick = driverController.getRightX();
     stick = stick*stick*Math.signum(stick); 
-    stick /= 40;
+    // stick /= 40;
     return stick;
   }
 }

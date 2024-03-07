@@ -24,15 +24,15 @@ public class ShooterSetVision extends Command {
     double targetAngle = 0.0;
     double rpm = 0.0;
     LUT lut = new LUT(new double[][]{
-        {53.5, 45.0, 6000},
-        {65.50, 38.0, 6500},
-        {77.5, 31.0, 6500},
-        {89.5, 28.0, 6500},
+        {53.5, 40.0, 5400},
+        {65.50, 30.0, 5500}, //5500
+        {77.5, 31.0, 5600},
+        {89.5, 30.0, 5700},
         {101.5, 24.0, 6500},
         {113.5, 20.0, 6500},
-        {125.5, 20.0, 6500},
-        {137.5, 17.0, 6500},
-        {149.5, 18.0, 6750}
+        {125.5, 19.0, 6500},
+        {137.5, 16.0, 6500},
+        {149.5, 17.0, 6750}
     });
 
     public ShooterSetVision(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
@@ -53,10 +53,15 @@ public class ShooterSetVision extends Command {
     public void execute() {
         Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
         if (visionData.isPresent()) {
+            SmartDashboard.putBoolean("shootersetvision/running", true);
             double distance = -visionData.get().distance.in(Units.Inches);
 
             targetAngle = lut.get(distance)[0];
             rpm = lut.get(distance)[1];
+            shooter.setAngle(targetAngle);
+            flywheel.setRPM(rpm);
+        }
+        else {
             shooter.setAngle(targetAngle);
             flywheel.setRPM(rpm);
         }

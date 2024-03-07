@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.text.FieldPosition;
 import java.util.Optional;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -37,7 +38,7 @@ public class IntakeVision extends SubsystemBase {
 
   public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight-intake");
   Field2d field = new Field2d();
-  FieldPosition fieldPos = new FieldPosition();
+  //FieldPosition fieldPos = new FieldPosition();
   public SwerveDrivePoseEstimator poseEstimator;
 
   public IntakeVision(SwerveDrivePoseEstimator poseEstimator) { //need to add pose estimator
@@ -52,7 +53,7 @@ public class IntakeVision extends SubsystemBase {
     if(true)return;
     updateOdometry();
     SmartDashboard.putData("intakevisionfield", field);
-    FieldPosition.ShowOnGlassDashboard(field);
+    SmartDashboard.putData(field);
     SmartDashboard.putNumber("intakevision/tv", camera.getEntry("tv").getDouble(0.0));
   }
 

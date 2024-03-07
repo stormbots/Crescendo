@@ -87,7 +87,7 @@ public class Chassis extends SubsystemBase {
    * 1/pi is good
    * 2/pi is too much, cause backlash 
    */
-  PIDController turnpid = new PIDController(1/Math.PI/40.0*1.2,0,0);
+  PIDController turnpid = new PIDController(1/Math.PI,0,0);
 
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
