@@ -416,11 +416,11 @@ public class RobotContainer {
     //   new VisionTurnToTargetPose(TargetType.Speaker, shooterVision, chassis)
     // );
 
-    operatorJoystick.button(12).whileTrue(
-      new ShooterSetOdometry(shooter, shooterFlywheel, swerveDrivePoseEstimator).runForever()
-    )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    );
+    // operatorJoystick.button(12).whileTrue(
+    //   new ShooterSetOdometry(shooter, shooterFlywheel, swerveDrivePoseEstimator).runForever()
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
+    // );
 
     // operatorJoystick.button(12).onTrue(
     //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)

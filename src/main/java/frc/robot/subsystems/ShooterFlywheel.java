@@ -103,8 +103,7 @@ public class ShooterFlywheel extends SubsystemBase {
 
   public boolean isOnTarget(){
     double leftSetRPM = targetRPM;
-    // double tolerance = leftSetRPM * .005;
-    double tolerance = 50;
+    double tolerance = leftSetRPM * .005;
     //ADD RIGHT
     if ( ! Clamp.bounded(topMotor.getEncoder().getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;
     if ( ! Clamp.bounded(botMotor.getEncoder().getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;
