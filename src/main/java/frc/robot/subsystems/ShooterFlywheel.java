@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
@@ -18,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 public class ShooterFlywheel extends SubsystemBase {
-  public CANSparkMax topMotor = new CANSparkMax(Robot.isCompbot?12:11, MotorType.kBrushless);
-  public CANSparkMax botMotor = new CANSparkMax(Robot.isCompbot?13:12, MotorType.kBrushless);
+  public CANSparkFlex topMotor = new CANSparkFlex(Robot.isCompbot?12:11, MotorType.kBrushless);
+  public CANSparkFlex botMotor = new CANSparkFlex(Robot.isCompbot?13:12, MotorType.kBrushless);
 
   private final double kGearing = 2.0;
   private final double kMaxRPM = 6784 * kGearing;
@@ -29,10 +30,12 @@ public class ShooterFlywheel extends SubsystemBase {
   /** Creates a new Flywheel. */
   public ShooterFlywheel() {
 
-    for(CANSparkMax motor : new CANSparkMax[]{topMotor,botMotor} ){
+    for(CANSparkFlex motor : new CANSparkFlex[]{topMotor,botMotor} ){
       motor.restoreFactoryDefaults();
       motor.clearFaults();
       motor.getEncoder().setVelocityConversionFactor(kGearing);
+
+      motor.enableVoltageCompensation(10);
 
       motor.setSmartCurrentLimit(40);
       motor.getEncoder().setMeasurementPeriod(8);
@@ -100,7 +103,8 @@ public class ShooterFlywheel extends SubsystemBase {
 
   public boolean isOnTarget(){
     double leftSetRPM = targetRPM;
-    double tolerance = leftSetRPM * .05;
+    // double tolerance = leftSetRPM * .005;
+    double tolerance = 50;
     //ADD RIGHT
     if ( ! Clamp.bounded(topMotor.getEncoder().getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;
     if ( ! Clamp.bounded(botMotor.getEncoder().getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;

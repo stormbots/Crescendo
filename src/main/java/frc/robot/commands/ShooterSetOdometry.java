@@ -4,8 +4,10 @@
 
 package frc.robot.commands;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
+import com.stormbots.Clamp;
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -13,17 +15,18 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
 
-public class ShooterSetVision extends Command {
-    private ShooterVision shooterVision;
+public class ShooterSetOdometry extends Command {
     private Shooter shooter;
     private ShooterFlywheel flywheel;
     Boolean exitsOnCompletion = true;
     double targetAngle = 0.0;
     double rpm = 0.0;
+    SwerveDrivePoseEstimator pe;
     LUT lut = new LUT(new double[][]{
         {53.5, 40.0, 5400},
         {65.50, 30.0, 5500}, //5500
@@ -36,36 +39,31 @@ public class ShooterSetVision extends Command {
         {149.5, 17.0, 6750}
     });
 
-    public ShooterSetVision(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
+    public ShooterSetOdometry(Shooter shooter, ShooterFlywheel flywheel, SwerveDrivePoseEstimator pe) {
         this.shooter = shooter;
-        this.shooterVision = shooterVision;
         this.flywheel = flywheel;
+        this.pe = pe;
+
         addRequirements(shooter);
         addRequirements(flywheel);
     }
 
     @Override
     public void initialize() {
-        shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
+        
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
-        if (visionData.isPresent()) {
-            SmartDashboard.putBoolean("shootersetvision/running", true);
-            double distance = -visionData.get().distance.in(Units.Inches);
+        double x = pe.getEstimatedPosition().getX()-FieldPosition.BlueSpeaker.getX();
+        double y = pe.getEstimatedPosition().getY()-FieldPosition.BlueSpeaker.getY();
+        double distance = Math.hypot(x, y);
 
-            targetAngle = lut.get(distance)[0];
-            rpm = lut.get(distance)[1];
-            shooter.setAngle(targetAngle);
-            flywheel.setRPM(rpm);
-        }
-        else {
-            shooter.setAngle(targetAngle);
-            flywheel.setRPM(rpm);
-        }
+        targetAngle = lut.get(distance)[0];
+        rpm = lut.get(distance)[1];
+        shooter.setAngle(targetAngle);
+        flywheel.setRPM(rpm);
     }
 
     // Called once the command ends or is interrupted.
@@ -83,7 +81,7 @@ public class ShooterSetVision extends Command {
         return exitsOnCompletion && shooter.isOnTarget() && flywheel.isOnTarget();
     }
 
-    public ShooterSetVision runForever(){
+    public ShooterSetOdometry runForever(){
         this.exitsOnCompletion = false;
         return this;
     }

@@ -30,7 +30,7 @@ import frc.robot.Clamp;
 public class ShooterVision extends SubsystemBase {
   /** Creates a new Vision. */
   public enum LimelightPipeline {
-    kNoVision, kNoZoom, kZoom, kSpeaker
+    kNoVision, kOdometry, kZoom, kSpeaker
   }
   public class LimelightReadings {
     public Measure<Distance> distance; //inches
@@ -109,7 +109,7 @@ public class ShooterVision extends SubsystemBase {
       setPipeline(LimelightPipeline.kZoom);
     }
     else {
-      setPipeline(LimelightPipeline.kNoZoom);
+      setPipeline(LimelightPipeline.kOdometry);
     }
   }
 
@@ -140,7 +140,7 @@ public class ShooterVision extends SubsystemBase {
       case kNoVision:
       camera.getEntry("pipeline").setNumber(0);
       break;
-      case kNoZoom:
+      case kOdometry:
       camera.getEntry("pipeline").setNumber(1);
       break;
       case kZoom:

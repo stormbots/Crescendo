@@ -120,8 +120,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isOnTarget(){
+    var tolerance = 0.5;
     //TODO figure out better tolerances that make sense
-    return Clamp.bounded(shooterMotor.getEncoder().getPosition(), shooterSetPoint-3, shooterSetPoint+3);
+    return Clamp.bounded(shooterMotor.getEncoder().getPosition(), shooterSetPoint-tolerance, shooterSetPoint+tolerance);
   }
 
   public double getShooterFFPercent(){

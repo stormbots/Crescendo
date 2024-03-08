@@ -36,14 +36,17 @@ import frc.robot.commands.IntakeNote;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.ShooterSetOdometry;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
+import frc.robot.commands.VisionTurnToTargetPose;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Leds;
@@ -51,6 +54,7 @@ import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.FieldPosition.TargetType;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -312,12 +316,13 @@ public class RobotContainer {
 
     //podium/far shot
     operatorJoystick.button(4) //far shooting
-      .whileTrue(new ParallelCommandGroup(
+    .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(9900),
       new SetShooterProfiled(20, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    );
+    )
+    ;
 
     //load rollers / intake to rollers
     operatorJoystick.button(5).whileTrue(
@@ -360,7 +365,7 @@ public class RobotContainer {
     operatorJoystick.button(8).whileTrue(
       new ParallelCommandGroup(
         new SetShooterProfiled(0, shooter),
-        shooterFlywheel.getShooterSetRPMCommand(0)
+        new InstantCommand(()->shooterFlywheel.setRPM(0))
       )
       .andThen(new IntakeNote(intake, passthrough)
       )
@@ -402,10 +407,20 @@ public class RobotContainer {
     // );
     
     // Used for testing only.
-    // operatorJoystick.button(11).whileTrue(
-    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
-    //   shooterFlywheel.getShooterSetRPMCommand(10000)
+    // operatorJoystick.button(12).whileTrue(
+    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60/2), shooter))
+    //   .whileTrue(shooterFlywheel.getShooterSetRPMCommand(12000)
     // );
+
+    // operatorJoystick.button(12).whileTrue(
+    //   new VisionTurnToTargetPose(TargetType.Speaker, shooterVision, chassis)
+    // );
+
+    operatorJoystick.button(12).whileTrue(
+      new ShooterSetOdometry(shooter, shooterFlywheel, swerveDrivePoseEstimator).runForever()
+    )
+    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
+    );
 
     // operatorJoystick.button(12).onTrue(
     //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
