@@ -4,15 +4,11 @@
 
 package frc.robot.commands;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
-
-import com.stormbots.Clamp;
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FieldPosition;
@@ -27,22 +23,26 @@ public class ShooterSetOdometry extends Command {
     double targetAngle = 0.0;
     double rpm = 0.0;
     SwerveDrivePoseEstimator pe;
-    LUT lut = new LUT(new double[][]{
-        {53.5, 40.0, 5400},
-        {65.50, 30.0, 5500}, //5500
-        {77.5, 31.0, 5600},
-        {89.5, 30.0, 5700},
-        {101.5, 24.0, 6500},
-        {113.5, 20.0, 6500},
-        {125.5, 19.0, 6500},
-        {137.5, 16.0, 6500},
-        {149.5, 17.0, 6750}
-    });
+    Optional<Pose2d> manualPose = Optional.empty();
+
+    LUT lut = Shooter.lut;
+    double x = 0;
+    double y = 0;
+    double distance = 0;
 
     public ShooterSetOdometry(Shooter shooter, ShooterFlywheel flywheel, SwerveDrivePoseEstimator pe) {
         this.shooter = shooter;
         this.flywheel = flywheel;
         this.pe = pe;
+
+        addRequirements(shooter);
+        addRequirements(flywheel);
+    }
+
+    public ShooterSetOdometry(Shooter shooter, ShooterFlywheel flywheel, Pose2d pose) {
+        this.shooter = shooter;
+        this.flywheel = flywheel;
+        this.manualPose = Optional.of(pose);
 
         addRequirements(shooter);
         addRequirements(flywheel);
@@ -56,12 +56,15 @@ public class ShooterSetOdometry extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        double x = pe.getEstimatedPosition().getX()-FieldPosition.BlueSpeaker.getX();
-        double y = pe.getEstimatedPosition().getY()-FieldPosition.BlueSpeaker.getY();
-        double distance = Math.hypot(x, y);
-
+        var pose = manualPose.orElse(pe.getEstimatedPosition());
+        
+        x = pose.getX()-FieldPosition.BlueSpeaker.getX();
+        y = pose.getY()-FieldPosition.BlueSpeaker.getY();
+        distance = Math.hypot(x, y);
+        
         targetAngle = lut.get(distance)[0];
         rpm = lut.get(distance)[1];
+
         shooter.setAngle(targetAngle);
         flywheel.setRPM(rpm);
     }

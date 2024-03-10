@@ -33,6 +33,7 @@ import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.DunkArmRollerHoldNote;
 import frc.robot.commands.IntakeNote;
+import frc.robot.commands.LogOutgoingShot;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
@@ -296,7 +297,10 @@ public class RobotContainer {
       new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
         .withTimeout(3),
       passthrough::isBlocked
-    ));
+    ))
+    .onTrue(
+      new LogOutgoingShot(swerveDrivePoseEstimator, shooter, shooterFlywheel)
+    );
 
     //defense position
     operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
@@ -400,26 +404,28 @@ public class RobotContainer {
 
     operatorJoystick.button(16).whileTrue(
       new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
-    );
-
-    // operatorJoystick.button(15).whileTrue(
-    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
-    // );
+    );   
     
     // Used for testing only.
-    // operatorJoystick.button(12).whileTrue(
-    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60/2), shooter))
-    //   .whileTrue(shooterFlywheel.getShooterSetRPMCommand(12000)
-    // );
 
     // operatorJoystick.button(12).whileTrue(
     //   new VisionTurnToTargetPose(TargetType.Speaker, shooterVision, chassis)
     // );
 
-    // operatorJoystick.button(12).whileTrue(
+    // operatorJoystick.button(15).whileTrue(
     //   new ShooterSetOdometry(shooter, shooterFlywheel, swerveDrivePoseEstimator).runForever()
     // )
     // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
+    // );
+
+
+    // operatorJoystick.button(12).whileTrue(
+    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60/2), shooter))
+    //   .whileTrue(shooterFlywheel.getShooterSetRPMCommand(12000)
+    // );
+
+    // operatorJoystick.button(15).whileTrue(
+    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
     // );
 
     // operatorJoystick.button(12).onTrue(

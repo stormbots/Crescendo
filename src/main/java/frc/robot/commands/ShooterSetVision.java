@@ -24,17 +24,7 @@ public class ShooterSetVision extends Command {
     Boolean exitsOnCompletion = true;
     double targetAngle = 0.0;
     double rpm = 0.0;
-    LUT lut = new LUT(new double[][]{
-        {53.5, 40.0, 5400},
-        {65.50, 30.0, 5500}, //5500
-        {77.5, 31.0, 5600},
-        {89.5, 30.0, 5700},
-        {101.5, 24.0, 6500},
-        {113.5, 20.0, 6500},
-        {125.5, 19.0, 6500},
-        {137.5, 16.0, 6500},
-        {149.5, 17.0, 6750}
-    });
+    LUT lut = Shooter.lut;
 
     public ShooterSetVision(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
         this.shooter = shooter;
