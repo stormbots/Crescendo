@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController.AccelStrategy;
 import com.stormbots.Clamp;
 
+import edu.wpi.first.units.Power;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -22,7 +23,7 @@ public class ShooterFlywheel extends SubsystemBase {
   public CANSparkFlex topMotor = new CANSparkFlex(Robot.isCompbot?12:11, MotorType.kBrushless);
   public CANSparkFlex botMotor = new CANSparkFlex(Robot.isCompbot?13:12, MotorType.kBrushless);
 
-  private final double kGearing = 2.0;
+  private final double kGearing = 30/18.0;
   private final double kMaxRPM = 6784 * kGearing;
 
   double targetRPM = 0;
@@ -35,17 +36,17 @@ public class ShooterFlywheel extends SubsystemBase {
       motor.clearFaults();
       motor.getEncoder().setVelocityConversionFactor(kGearing);
 
-      motor.enableVoltageCompensation(10);
+      // motor.enableVoltageCompensation(10);
 
-      motor.setSmartCurrentLimit(40);
+      motor.setSmartCurrentLimit(60);
       motor.getEncoder().setMeasurementPeriod(8);
       motor.getEncoder().setAverageDepth(2);
 
       var pid = motor.getPIDController();
-      pid.setP(0.0003*1.5);
+      pid.setFF(1/kMaxRPM*10_000/9_111.0*(10_000/10_300.0));
+      pid.setP(0.0003*1.5*2);
       pid.setD(0.00007*45);//want about .11
-      pid.setFF(1/kMaxRPM);
-      pid.setI(0.0000000003*3);
+      pid.setI(0.0000000003*3*5);
       pid.setOutputRange(-1,1); //dont know if we need this, adding just in case
       pid.setSmartMotionMaxVelocity(kMaxRPM, 0);
       pid.setSmartMotionMaxAccel(kMaxRPM*4*4, 0);
@@ -77,6 +78,8 @@ public class ShooterFlywheel extends SubsystemBase {
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("/shooterFlywheel/targetRPM", targetRPM);
     // SmartDashboard.putBoolean("/shooterFlywheel/isOnTarget", isOnTarget());
+    SmartDashboard.putNumber("/shooterFlywheel/topCurrent", topMotor.getOutputCurrent());
+    SmartDashboard.putNumber("/shooterFlywheel/botCurrent", botMotor.getOutputCurrent());
     SmartDashboard.putNumber("/shooterFlywheel/avgCurrentRPM", getRPM());
     SmartDashboard.putNumber("/shooterFlywheel/topMotorCurrentRPM", topMotor.getEncoder().getVelocity());
     SmartDashboard.putNumber("/shooterFlywheel/botMotorCurrentRPM", botMotor.getEncoder().getVelocity());
@@ -99,6 +102,8 @@ public class ShooterFlywheel extends SubsystemBase {
   public void stop(){
     topMotor.set(0.0);
     botMotor.set(0.0);
+    
+    PowerManager.getInstance().setPowerDraw(0, this);
   }
 
   public boolean isOnTarget(){

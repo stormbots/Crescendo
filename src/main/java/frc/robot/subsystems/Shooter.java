@@ -9,6 +9,9 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+
+import java.lang.annotation.Target;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
@@ -72,8 +75,8 @@ public class Shooter extends SubsystemBase {
     shooterMotor.setSmartCurrentLimit(20);
 
     //closed-loop control
-    pidController.setP(6.0/1.2/360.0*1.7);
-    pidController.setI(0.0000000003*20);
+    pidController.setP(6.0/1.2/360.0*1.7*1.1);
+    pidController.setI(0.000000003*20);
     pidController.setD(0.00007*50);
     
 
@@ -94,8 +97,9 @@ public class Shooter extends SubsystemBase {
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("shooter/rotations", shooterMotor.getEncoder().getPosition());
     // SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
-    SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
-    SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
+    // SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
+    // SmartDashboard.putNumber("shooter/target", shooterSetPoint);
     // SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
     // SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
     // SmartDashboard.putBoolean("shooter/isOnTarget", isOnTarget());
@@ -118,6 +122,7 @@ public class Shooter extends SubsystemBase {
 
   public void stopShooter(){
     shooterMotor.set(0);
+    PowerManager.getInstance().setPowerDraw(0, this);
   }
   
   public void moveShooter(double speed) {
@@ -148,8 +153,10 @@ public class Shooter extends SubsystemBase {
 
 
   public double getShooterFFPercent(){
-    var  kCosFFGain = 0.06*0.9;//0.085 at a cos of 28 deg
-    return kCosFFGain*Math.cos(Math.toRadians(getShooterAngle()));
+    var  kCosFFGain = 0.08;
+    var ks = 0.0099 *Math.signum(this.shooterSetPoint-shooterMotor.getEncoder().getPosition());
+    // 0.08 +- 0.09 according to tests
+    return kCosFFGain*Math.cos(Math.toRadians(getShooterAngle())) + ks;
   }
 
   public void setAngle(double degrees) {

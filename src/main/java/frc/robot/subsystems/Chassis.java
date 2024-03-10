@@ -89,6 +89,7 @@ public class Chassis extends SubsystemBase {
    */
   PIDController turnpid = new PIDController(1/Math.PI,0,0);
 
+
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
@@ -388,5 +389,13 @@ public class Chassis extends SubsystemBase {
     for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
       module.drivingSparkFlex.setIdleMode(IdleMode.kBrake);
     }
+  }
+
+  public void setCurrentLimits(double amps){
+    amps /= 4;
+    frontLeft.setCurrentLimit(amps); 
+    frontRight.setCurrentLimit(amps);
+    rearLeft.setCurrentLimit(amps);
+    rearRight.setCurrentLimit(amps);
   }
 }

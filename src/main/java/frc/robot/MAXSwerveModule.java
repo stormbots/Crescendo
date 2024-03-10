@@ -170,6 +170,10 @@ public class MAXSwerveModule implements Sendable{
     drivingEncoder.setPosition(0);
   }
   
+  public void setCurrentLimit(double amps){
+    drivingSparkFlex.setSmartCurrentLimit((int)amps);
+  }
+
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("MaxSwerveModule");

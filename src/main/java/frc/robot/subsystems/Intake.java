@@ -46,6 +46,7 @@ public class Intake extends SubsystemBase {
   //Intake Off
   public void stop(){
     motor.set(0.0);
+    PowerManager.getInstance().setPowerDraw(0, this);
   }
   //Intake Eject (use when object stuck)
   public void eject(){

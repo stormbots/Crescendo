@@ -52,6 +52,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
+import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
@@ -109,7 +110,6 @@ public class RobotContainer {
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
 
 
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
@@ -125,6 +125,16 @@ public class RobotContainer {
     configureDefaultCommands();
     configureDriverBindings();
     configureOperatorBindings();
+
+    var pm = PowerManager.getInstance()
+    .setRobotPowerBudget(280)
+    .addChassisSystem(chassis, 200, 260, chassis::setCurrentLimits)
+    .addSystem(dunkArm, 40)
+    .addSystem(intake, 60)
+    .addSystem(passthrough, 40)
+    .addSystem(shooter, 40)
+    .addSystem(shooterFlywheel, 40)
+    ;
 
     SmartDashboard.putNumber("navx/angle", navx.getRotation2d().getDegrees());
     // SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
@@ -196,7 +206,9 @@ public class RobotContainer {
 
     shooterFlywheel.setDefaultCommand(
       new WaitCommand(0.5)
-      .andThen(new RunCommand(shooterFlywheel::stop, shooterFlywheel))
+      .andThen(new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel))
+      .until(shooterFlywheel::isOnTarget)
+      .andThen(new RunCommand(shooterFlywheel::stop,shooterFlywheel))
     );
     
     //align a note if nothing else is using passthrough
@@ -206,8 +218,7 @@ public class RobotContainer {
     .whileTrue(new PassthroughAlignNote(passthrough, intake))
     ;
 
-    intake.setDefaultCommand(new RunCommand(()->{intake.setPower(0.0);}, intake));
-
+    intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
     shooter.setDefaultCommand(
       new WaitCommand(1)
       .andThen(new SetShooterProfiled(0, shooter))
@@ -215,7 +226,7 @@ public class RobotContainer {
 
     dunkArm.setDefaultCommand(new SetDunkArmSlew(-25, dunkArm)
       .andThen(new WaitCommand(0.2))
-      .andThen(new RunCommand(()->dunkArm.setPower(0), dunkArm))
+      .andThen(new RunCommand(()->dunkArm.stop(), dunkArm))
     );
 
     //TODO: Have dunkarm hold note.
@@ -421,8 +432,8 @@ public class RobotContainer {
 
     // operatorJoystick.button(12).whileTrue(
     //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60/2), shooter))
-    //   .whileTrue(shooterFlywheel.getShooterSetRPMCommand(12000)
-    // );
+    //   .whileTrue(shooterFlywheel.getShooterSetRPMCommand(10000)
+    //   );
 
     // operatorJoystick.button(15).whileTrue(
     //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
