@@ -43,11 +43,6 @@ public class Chassis extends SubsystemBase {
 //  * @param navx */
 //   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics) {}
 
-//   @Override
-//   public void periodic() {
-//     // This method will be called once per scheduler run
-//   }
-
   /** Creates a new Chassis. */
   // Create MAXSwerveModules
   private final MAXSwerveModule frontLeft = new MAXSwerveModule(
@@ -127,15 +122,14 @@ public class Chassis extends SubsystemBase {
     // SmartDashboard.putData("modules/rr", rearRight);
     // SmartDashboard.putData("modules/rl", rearLeft);
 
-    SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
 
     // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
 
-    SmartDashboard.putNumber("modules/frVel",frontRight.drivingEncoder.getVelocity());
   }
 
   public Pose2d getPose() {
@@ -398,9 +392,9 @@ public class Chassis extends SubsystemBase {
       this);
   }
 
-  public void setBrakeMode(){
+  public void setIdleMode(IdleMode idleMode){
     for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
-      module.drivingSparkFlex.setIdleMode(IdleMode.kBrake);
+      module.drivingSparkFlex.setIdleMode(idleMode);
     }
   }
 

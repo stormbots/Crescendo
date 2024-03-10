@@ -76,7 +76,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    robotContainer.chassis.setBrakeMode();
+    robotContainer.chassis.setIdleMode(IdleMode.kBrake);
   }
 
   @Override
@@ -135,6 +135,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
+    robotContainer.chassis.setIdleMode(IdleMode.kCoast);
   }
 
   /** This function is called periodically during test mode. */
