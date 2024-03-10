@@ -35,6 +35,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -78,88 +79,144 @@ public class AutoFactory {
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
+        
+        initAutoChooser();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
+
+    void initAutoChooser(){
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
-        autoChooser.addOption("blue center", 
-            makeBasicAuto(
-                new Pose2d(1.2, 5.55, new Rotation2d(Math.toRadians(0))), 
-                new Pose2d(2.9, 5.55, new Rotation2d(Math.toRadians(0))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 25))
-        );
+        // autoChooser.addOption("blue center", 
+        //     makeBasicAuto(
+        //         new Pose2d(1.2, 5.55, new Rotation2d(Math.toRadians(0))), 
+        //         new Pose2d(2.9, 5.55, new Rotation2d(Math.toRadians(0))))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 25))
+        // );
 
-        autoChooser.addOption("blue source", 
-            makeBasicAuto(
-                new Pose2d(0.8, 4.4, new Rotation2d(Math.toRadians(-60))),
-                List.of(new Translation2d(1.0, 4.4-0.34)), 
-                new Pose2d(2.9, 4.1, new Rotation2d(0)))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 20))
-        );
+        // autoChooser.addOption("blue source", 
+        //     makeBasicAuto(
+        //         new Pose2d(0.8, 4.4, new Rotation2d(Math.toRadians(-60))),
+        //         List.of(new Translation2d(1.0, 4.4-0.34)), 
+        //         new Pose2d(2.9, 4.1, new Rotation2d(0)))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 20))
+        // );
 
-        autoChooser.addOption("blue amp", 
-            makeBasicAuto(
-                new Pose2d(0.80, 6.60, new Rotation2d(Math.toRadians(60))), 
-                List.of(new Translation2d(1.0, 6.6+0.34)), 
-                new Pose2d(2.9, 7, new Rotation2d(Math.toRadians(0))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 20))
-        );
+        // autoChooser.addOption("blue amp", 
+        //     makeBasicAuto(
+        //         new Pose2d(0.80, 6.60, new Rotation2d(Math.toRadians(60))), 
+        //         List.of(new Translation2d(1.0, 6.6+0.34)), 
+        //         new Pose2d(2.9, 7, new Rotation2d(Math.toRadians(0))))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 20))
+        // );
 
-        autoChooser.addOption("red center", 
-            makeBasicAuto(
-                new Pose2d(16.6-1.2, 5.55, new Rotation2d(Math.toRadians(180))), 
-                new Pose2d(16.6-2.9, 5.55, new Rotation2d(Math.toRadians(180))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 20))
-        );
+        // autoChooser.addOption("red center", 
+        //     makeBasicAuto(
+        //         new Pose2d(16.6-1.2, 5.55, new Rotation2d(Math.toRadians(180))), 
+        //         new Pose2d(16.6-2.9, 5.55, new Rotation2d(Math.toRadians(180))))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(0, 8000, 20))
+        // );
 
-        autoChooser.addOption("red source", 
-            makeBasicAuto(
-                new Pose2d(16.6-0.8, 4.4, new Rotation2d(Math.toRadians(-120))),
-                List.of(new Translation2d(16.6-1.0, 4.4-0.34)), 
-                new Pose2d(16.6-2.9, 4.1, new Rotation2d(Math.toRadians(180))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 18))
-        );
+        // autoChooser.addOption("red source", 
+        //     makeBasicAuto(
+        //         new Pose2d(16.6-0.8, 4.4, new Rotation2d(Math.toRadians(-120))),
+        //         List.of(new Translation2d(16.6-1.0, 4.4-0.34)), 
+        //         new Pose2d(16.6-2.9, 4.1, new Rotation2d(Math.toRadians(180))))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 18))
+        // );
 
-        autoChooser.addOption("red amp", 
-            makeBasicAuto(
-                new Pose2d(16.6-0.80, 6.60, new Rotation2d(Math.toRadians(120))), 
-                List.of(new Translation2d(16.6-1.0, 6.6+0.34)), 
-                new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 18))
-        );
+        // autoChooser.addOption("red amp", 
+        //     makeBasicAuto(
+        //         new Pose2d(16.6-0.80, 6.60, new Rotation2d(Math.toRadians(120))), 
+        //         List.of(new Translation2d(16.6-1.0, 6.6+0.34)), 
+        //         new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 18))
+        // );
 
 
         autoChooser.addOption("untested autos", new InstantCommand());
 
-        autoChooser.addOption("blue amp drive to mid", 
-            makeBasicAuto(
-                new Pose2d(0.80, 6.60, new Rotation2d(Math.toRadians(60))), 
-                List.of(new Translation2d(1.0, 6.6+0.34)), 
-                new Pose2d(2.9, 7, new Rotation2d(Math.toRadians(0))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 20))
-            .andThen(
-                makeNoteToMidIntake(
-                    new Pose2d(2.9, 7, new Rotation2d()), 
-                    new Pose2d(8.3, 7.2, new Rotation2d())) //originally 7.45 for y
-            )
-        );
+        // autoChooser.addOption("blue amp drive to mid", 
+        //     makeBasicAuto(
+        //         new Pose2d(0.80, 6.60, new Rotation2d(Math.toRadians(60))), 
+        //         List.of(new Translation2d(1.0, 6.6+0.34)), 
+        //         new Pose2d(2.9, 7, new Rotation2d(Math.toRadians(0))))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(35, 8000, 20))
+        //     .andThen(
+        //         makeNoteToMidIntake(
+        //             new Pose2d(2.9, 7, new Rotation2d()), 
+        //             new Pose2d(8.3, 7.2, new Rotation2d())) //originally 7.45 for y
+        //     )
+        // );
 
-        autoChooser.addOption("red amp drive to mid", 
-            makeBasicAuto(
-                new Pose2d(16.6-0.80, 6.60, new Rotation2d(Math.toRadians(120))), 
-                List.of(new Translation2d(16.6-1.0, 6.6+0.34)), 
-                new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))))
-            .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 18))
-            .andThen(
-                makeNoteToMidIntake(
-                    new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))), 
-                    new Pose2d(16.6-8.3, 7.2, new Rotation2d(Math.toRadians(180))))//y is originally 7.45, temp change
-            )
-        );
+        // autoChooser.addOption("red amp drive to mid", 
+        //     makeBasicAuto(
+        //         new Pose2d(16.6-0.80, 6.60, new Rotation2d(Math.toRadians(120))), 
+        //         List.of(new Translation2d(16.6-1.0, 6.6+0.34)), 
+        //         new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))))
+        //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(-35, 8000, 18))
+        //     .andThen(
+        //         makeNoteToMidIntake(
+        //             new Pose2d(16.6-2.9, 7, new Rotation2d(Math.toRadians(180))), 
+        //             new Pose2d(16.6-8.3, 7.2, new Rotation2d(Math.toRadians(180))))//y is originally 7.45, temp change
+        //     )
+        // );
 
         autoChooser.addOption("vv Test Autos vv", new InstantCommand());
 
         autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
 
+        // autoChooser.addOption("Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterAuto"));
+        // autoChooser.addOption("Rotate + Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterRotation"));
 
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        // autoChooser.addOption("auto Trap", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(60))
+        //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(4.9, 4.1, new Rotation2d(Units.Degrees.of(-60)))))
+        //     .andThen(rc.sequenceFactory.getTrapSequenceCommand(pathPlannerFollowPathManual("ampTrap"), Units.Degrees.of(-60)))
+        // );
+
+        // autoChooser.addOption("twoMeterRotation", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0))
+        //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(0,0,new Rotation2d())))
+        //     .andThen(pathPlannerFollowPathManual("twoMeterRotation"))
+        //     );
+        
+        autoChooser.addOption("resetCenterPositionRed", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0))
+            .andThen(()->rc.chassis.resetOdometry(new Pose2d(16.6-1.3, 5.65, new Rotation2d(Units.Degrees.of(180)))))
+        );
+
+        autoChooser.addOption("vv PathPlanner Untested Autos vv", new InstantCommand());
+
+        autoChooser.addOption("basicAmpAuto", 
+        new InstantCommand()
+        .andThen(()->rc.chassis.setFieldCentricOffset(-60))
+        .andThen(new PathPlannerAuto("basicAmpAuto")));
+
+        autoChooser.addOption("5NoteAmp", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-60, DriverStation.getAlliance().get()==DriverStation.Alliance.Blue))
+            .andThen(new PathPlannerAuto("5NoteAmpAuto"))
+        );
+
+        autoChooser.addOption("4NoteSource", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(60, DriverStation.getAlliance().get()==DriverStation.Alliance.Blue))
+            .andThen(new PathPlannerAuto("4NoteSourceAuto"))
+        );
+
+        autoChooser.addOption("5NoteCenter", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0, DriverStation.getAlliance().get()==DriverStation.Alliance.Blue))
+            .andThen(new PathPlannerAuto("5NoteCenterAuto"))
+        );
+
+        autoChooser.addOption("4NoteCenter", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0, DriverStation.getAlliance().get()==DriverStation.Alliance.Blue))
+            .andThen(new PathPlannerAuto("4NoteCenterAuto"))
+        );
+
+        autoChooser.addOption("closeNote", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(60, DriverStation.getAlliance().get()==DriverStation.Alliance.Blue))
+            .andThen(new PathPlannerAuto("closeNoteAuto"))
+        );
+
     }
 
     void initPathPlannerStuff(){
@@ -206,7 +263,8 @@ public class AutoFactory {
         NamedCommands.registerCommand("intakeFull", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)));
         NamedCommands.registerCommand("intakeShoot", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)).until(()->!rc.passthrough.isBlocked()));
         NamedCommands.registerCommand("intakeStop", rc.sequenceFactory.getStopIntakingCommand());
-        NamedCommands.registerCommand("subwooferShot", rc.sequenceFactory.getSetRPMandShootCommand(5500, 47));
+        NamedCommands.registerCommand("subwooferShot", rc.sequenceFactory.getSetRPMandShootCommand(5500, 45));
+        NamedCommands.registerCommand("spinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(7000, 32.5));
         NamedCommands.registerCommand("stageShot", rc.sequenceFactory.getSetRPMandShootCommand(8000, 20));
         NamedCommands.registerCommand("stageShotNoStop", rc.sequenceFactory.getToShooterStateCommand(8000, 20));
         NamedCommands.registerCommand("setDownShooter", rc.sequenceFactory.getStopShooterCommand());
@@ -245,12 +303,6 @@ public class AutoFactory {
 
 
     SwerveControllerCommand generateSwerveControllerCommand(Trajectory trajectory){
-        // Example Trajectory
-        // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-        //   new Pose2d(0, 0, new Rotation2d(0)),
-        //   List.of(),
-        //   new Pose2d(1,0, new Rotation2d(0)),
-        //   config);
     
         SwerveControllerCommand swerveControllerCommand = new
         SwerveControllerCommand(
