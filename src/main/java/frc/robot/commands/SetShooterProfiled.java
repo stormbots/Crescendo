@@ -75,7 +75,7 @@ public class SetShooterProfiled extends Command {
     // var velTol = 10; // per sec
     // var vol = Clamp.bounded(shooter.getState().velocity, -velTol, velTol);
   
-    return exitsOnCompletion && shooter.isOnTarget(targetPosition);
+    return exitsOnCompletion && shooter.isOnTarget(shooterAngle);
   }
 
   public SetShooterProfiled runForever(){
