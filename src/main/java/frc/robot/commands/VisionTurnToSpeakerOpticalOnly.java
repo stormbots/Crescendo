@@ -65,13 +65,25 @@ public class VisionTurnToSpeakerOpticalOnly extends Command {
   @Override
   public void execute() {
 
+    // Optical only, not needed since gyro works better
+    // Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
+    // if (shooterData.isPresent()) {
+    //   //doing it pure vision way, works!
+    //   var tx = shooterData.get().angleHorizontal;
+    //   tx = 0.1/360 * tx ; //fudged value that seems to work
+    //   chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() -tx, true,true);
+    // }
+    // else{
+    //   chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
+    // }
+
     Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
 
     if (shooterData.isPresent()) {
-      //doing it pure vision way, works!
-      var tx = shooterData.get().angleHorizontal;
-      tx = 0.1/360 * tx ; //fudged value that seems to work
-      chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() -tx, true,true);
+      targetangle = gyro.getRotation2d().getDegrees();
+      targetangle = targetangle - shooterData.get().angleHorizontal;
+      targetangle = Math.toRadians(targetangle);
+      chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetangle);
     }
     else{
       chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);

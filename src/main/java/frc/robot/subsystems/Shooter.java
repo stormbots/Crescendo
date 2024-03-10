@@ -14,6 +14,7 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
+import com.stormbots.LUT;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +33,18 @@ public class Shooter extends SubsystemBase {
   private double reverseSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kReverse);
   private double forwardSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kForward);
 
+  public static LUT lut = new LUT(new double[][]{
+    {53.5, 40.0, 5400},
+    {65.50, 30.0, 5500},
+    {77.5, 31.0, 5600},
+    {89.5, 30.0, 5700},
+    {101.5, 24.0, 6500},
+    {113.5, 20.0, 6500},
+    {125.5, 19.0, 6500},
+    {137.5, 16.0, 6500},
+    {149.5, 17.0, 6750}
+  });
+
   public Shooter() {
     shooterMotor.clearFaults();
     shooterMotor.restoreFactoryDefaults();
@@ -47,7 +60,7 @@ public class Shooter extends SubsystemBase {
     shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()); //native unit is RPS
 
     //Configure relative encoder
-    shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51);//56.8/15.1
+    shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51*0.955);//56.8/15.1
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
 
@@ -59,7 +72,10 @@ public class Shooter extends SubsystemBase {
     shooterMotor.setSmartCurrentLimit(20);
 
     //closed-loop control
-    pidController.setP(6.0/1.2/360.0);
+    pidController.setP(6.0/1.2/360.0*1.7);
+    pidController.setI(0.0000000003*20);
+    pidController.setD(0.00007*50);
+    
 
     shooterMotor.setIdleMode(IdleMode.kCoast);
 
@@ -117,12 +133,22 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isOnTarget(){
+    var tolerance = 0.5;
     //TODO figure out better tolerances that make sense
-    return Clamp.bounded(shooterMotor.getEncoder().getPosition(), shooterSetPoint-3, shooterSetPoint+3);
+    return Clamp.bounded(shooterMotor.getEncoder().getPosition(), shooterSetPoint-tolerance, shooterSetPoint+tolerance);
+
+  }
+  public boolean isOnTarget(double position){
+    var tolerance = 0.5;
+    //TODO figure out better tolerances that make sense
+    return Clamp.bounded(position, shooterSetPoint-tolerance, shooterSetPoint+tolerance);
+
   }
 
+
+
   public double getShooterFFPercent(){
-    var  kCosFFGain = 0.06;//0.085 at a cos of 28 deg
+    var  kCosFFGain = 0.06*0.9;//0.085 at a cos of 28 deg
     return kCosFFGain*Math.cos(Math.toRadians(getShooterAngle()));
   }
 

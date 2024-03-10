@@ -28,6 +28,7 @@ public class SetShooterProfiled extends Command {
   TrapezoidProfile.State initial = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile shooterProfile = new TrapezoidProfile(constraints);
   double startTimer = 0;
+  double targetPosition = 0.0;
 
   public SetShooterProfiled(double shooterAngle, Shooter shooter) {
     this.shooterAngle = shooterAngle;
@@ -49,7 +50,7 @@ public class SetShooterProfiled extends Command {
   public void execute() {
     var currentState =shooter.getState();
 
-    var targetPosition = shooterProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal).position;
+    targetPosition = shooterProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal).position;
     shooter.setAngle(targetPosition);
     SmartDashboard.putNumber("profile/target", targetPosition);
 
@@ -68,13 +69,13 @@ public class SetShooterProfiled extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    var posTol = 5;
-    var pos = Clamp.bounded(shooter.getShooterAngle(), shooterAngle-posTol, shooterAngle+posTol);
+    // var posTol = 0.05;
+    // var pos = Clamp.bounded(shooter.getShooterAngle(), shooterAngle-posTol, shooterAngle+posTol);
   
-    var velTol = 10; // per sec
-    var vol = Clamp.bounded(shooter.getState().velocity, -velTol, velTol);
+    // var velTol = 10; // per sec
+    // var vol = Clamp.bounded(shooter.getState().velocity, -velTol, velTol);
   
-    return exitsOnCompletion && pos && vol;
+    return exitsOnCompletion && shooter.isOnTarget(targetPosition);
   }
 
   public SetShooterProfiled runForever(){
