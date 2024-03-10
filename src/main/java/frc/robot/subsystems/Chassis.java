@@ -16,14 +16,17 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -87,7 +90,7 @@ public class Chassis extends SubsystemBase {
    * 1/pi is good
    * 2/pi is too much, cause backlash 
    */
-  PIDController turnpid = new PIDController(1/Math.PI/40.0*1.2,0,0);
+  PIDController turnpid = new PIDController(1/Math.PI,0,0);
 
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
@@ -300,13 +303,24 @@ public class Chassis extends SubsystemBase {
     navx.reset();
   }
 
+
+  /** Apply an offset from initial navx zero to the intended "forward" direction
+   * for fieldcentric controls.
+   * positive value rotates zero CW
+   * 
+   * @param isBlue Control over whether bot is blue, makes overload backwards compatible
+   */
+  public void setFieldCentricOffset(double offset, boolean isBlue){
+    zeroHeading();
+    navx.setAngleAdjustment(isBlue ? offset : -offset);
+  }
+
   /** Apply an offset from initial navx zero to the intended "forward" direction
    * for fieldcentric controls.
    * positive value rotates zero CW
    */
   public void setFieldCentricOffset(double offset){
-    zeroHeading();
-    navx.setAngleAdjustment(offset);
+    setFieldCentricOffset(offset, true);
   }
 
   /**
@@ -388,5 +402,19 @@ public class Chassis extends SubsystemBase {
     for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
       module.drivingSparkFlex.setIdleMode(IdleMode.kBrake);
     }
+  }
+
+  public Measure<Distance> getDistanceFromStageCenter(){
+    Pose2d currentPose = swerveDrivePoseEstimator.getEstimatedPosition();
+
+    boolean isBlue = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue;
+
+    double stageCenterX = 4.9;
+    if(!isBlue){stageCenterX = 16.6-stageCenterX;}
+    double stageCenterY = 4.1; 
+    
+    double distanceInMeters = Math.hypot(currentPose.getX()-stageCenterX, currentPose.getY()-stageCenterY);
+
+    return Units.Meters.of(distanceInMeters);
   }
 }

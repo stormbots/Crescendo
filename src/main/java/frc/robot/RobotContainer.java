@@ -425,7 +425,7 @@ public class RobotContainer {
   private double driverTurnJoystickValue(){
     var stick = driverController.getRightX();
     stick = stick*stick*Math.signum(stick); 
-    stick /= 40;
+    // stick /= 40;
     return stick;
   }
 }

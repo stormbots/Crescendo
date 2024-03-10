@@ -28,7 +28,7 @@ public class ChassisConstants {
     // Distance between centers of right and left wheels on robot
     public static  double kWheelBase = Units.inchesToMeters(23.5);
     // Distance between front and back wheels on robot
-    public static final double distanceToModuleFromCenter = Math.sqrt(Math.pow(kTrackWidth/2, 2) + Math.pow(kWheelBase/2, 2));
+    public static double distanceToModuleFromCenter = Math.hypot(kTrackWidth/2, kWheelBase/2);
 
     // Angular offsets of the modules relative to the chassis in radians
     public static final double kFrontLeftChassisAngularOffset = 0;

@@ -12,6 +12,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
@@ -70,7 +74,7 @@ public class AutoFactory {
 
     public AutoFactory(RobotContainer rc){
         this.rc = rc;
-        // initPathPlannerStuff();
+        initPathPlannerStuff();
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -198,6 +202,15 @@ public class AutoFactory {
             rc.chassis
         );
 
+        NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand());
+        NamedCommands.registerCommand("intakeFull", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)));
+        NamedCommands.registerCommand("intakeShoot", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)).until(()->!rc.passthrough.isBlocked()));
+        NamedCommands.registerCommand("intakeStop", rc.sequenceFactory.getStopIntakingCommand());
+        NamedCommands.registerCommand("subwooferShot", rc.sequenceFactory.getSetRPMandShootCommand(5500, 47));
+        NamedCommands.registerCommand("stageShot", rc.sequenceFactory.getSetRPMandShootCommand(8000, 20));
+        NamedCommands.registerCommand("stageShotNoStop", rc.sequenceFactory.getToShooterStateCommand(8000, 20));
+        NamedCommands.registerCommand("setDownShooter", rc.sequenceFactory.getStopShooterCommand());
+
         SmartDashboard.putData("Field", pathPlannerField);
 
         PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
@@ -210,6 +223,20 @@ public class AutoFactory {
 
         PathPlannerLogging.setLogActivePathCallback((list)->pathPlannerField.getObject("path").setPoses(list));
 
+    }
+
+    Command pathPlannerFollowPathManual(String pathName){
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        
+        return AutoBuilder.followPath(path);
+    }
+    
+    Command makePathFindToPoseCommand(Pose2d pose){
+        PathConstraints constraints = new PathConstraints(
+        1.0, 1.0,
+        Math.PI, Math.PI);
+
+        return AutoBuilder.pathfindToPose(pose, constraints);
     }
 
     public Command ExampleAuto(){
@@ -332,33 +359,5 @@ public class AutoFactory {
     public SendableChooser<Command> getAutoChooser(){
         return autoChooser;
     }
-
-    // Example
-    // public Command getBlueBottomAuto(){
-    //     return new InstantCommand()
-    //     .andThen(rc.sequenceFactory.getSetRPMandShootCommand(6000, 45))
-    //     .andThen(new ParallelDeadlineGroup(
-    //         blueBotStartToBotNotePathCommand().withTimeout(5).andThen(new WaitCommand(1)), 
-    //         rc.sequenceFactory.getIntakeThenAlignCommand()
-    //     ))
-    //     .andThen(rc.sequenceFactory.getTurnSetRPMandShootCommand(Math.toRadians(-25), 8000, 20))
-    //     ;
-
-    // }
-
-    // // obsolete (for now)
-    // public Command getTwoMeterPathPlanner(){
-    //     //reset positon
-    //     var path = AutoBuilder.followPath(pathPlannerPath);
-    //     var start = pathPlannerPath.getPreviewStartingHolonomicPose();
-        
-    //     return new InstantCommand()
-    //     .andThen( ()-> rc.chassis.setFieldCentricOffset(-90) )
-    //     .andThen( ()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(),rc.navx.getRotation2d())) )
-    //     .andThen(path);
-        
-    //     // return AutoBuilder.followPath(pathPlannerPath);
-    // }
-
 
 }

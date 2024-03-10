@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,8 +47,9 @@ public class Robot extends TimedRobot {
     entry.setPersistent();
 
     //set the value of chassis track width based on bot
-    DriveConstants.kTrackWidth = isCompbot ? 23.5 : 24.5;
-    DriveConstants.kWheelBase = isCompbot ? 23.5 : 24.5;
+    DriveConstants.kTrackWidth = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
+    DriveConstants.kWheelBase = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
+    DriveConstants.distanceToModuleFromCenter = Math.hypot(DriveConstants.kTrackWidth/2, DriveConstants.kWheelBase/2);
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
