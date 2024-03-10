@@ -101,6 +101,7 @@ public class DunkArm extends SubsystemBase {
   
   public void stop() {
     armMotor.set(0);
+    PowerManager.getInstance().setPowerDraw(0, this);
   }
 
   public double getAngle() {

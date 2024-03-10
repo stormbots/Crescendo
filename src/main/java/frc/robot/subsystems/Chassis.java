@@ -411,4 +411,12 @@ public class Chassis extends SubsystemBase {
 
     return Units.Meters.of(distanceInMeters);
   }
+  
+  public void setCurrentLimits(double amps){
+    amps /= 4;
+    frontLeft.setCurrentLimit(amps); 
+    frontRight.setCurrentLimit(amps);
+    rearLeft.setCurrentLimit(amps);
+    rearRight.setCurrentLimit(amps);
+  }
 }

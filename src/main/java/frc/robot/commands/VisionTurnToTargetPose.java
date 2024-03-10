@@ -17,13 +17,11 @@ public class VisionTurnToTargetPose extends Command{
     private TargetType targetType;
     private Field2d field = new Field2d();
 
-    public VisionTurnToTargetPose(TargetType targetType, IntakeVision intakeVision, ShooterVision shooterVision, Chassis chassis)
+    public VisionTurnToTargetPose(TargetType targetType, ShooterVision shooterVision, Chassis chassis)
     {
-        this.intakeVision = intakeVision;
         this.shooterVision = shooterVision;
         this.chassis = chassis;
         
-        addRequirements(intakeVision);
         addRequirements(shooterVision);
         addRequirements(chassis);
     }

@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.stormbots.LUT;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Clamp;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
 
@@ -49,10 +50,10 @@ public class DunkArmRollerHoldNote extends Command {
     double angle = dunkarm.getAngle();
     double position = roller.getPosition();
     //get ideal position for note at that angle
-    if(Math.abs(position) > 16){ 
+    if(!Clamp.bounded(position, -5, 16)){ 
       roller.stop();
       return;
-    } 
+    }    
 
     target = lut.get(angle)[0];
     roller.setPosition(target);

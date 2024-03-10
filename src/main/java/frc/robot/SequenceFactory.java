@@ -28,6 +28,8 @@ import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.DunkArm;
+import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.Shooter;
 
 /** 
