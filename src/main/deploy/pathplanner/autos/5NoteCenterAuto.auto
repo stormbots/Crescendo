@@ -30,7 +30,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "spinUpShotNoStop"
+                  "name": "midSpinUpShotNoStop"
                 }
               }
             ]
@@ -87,7 +87,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "stageShotNoStop"
+                  "name": "midNoteShotNoStop"
                 }
               }
             ]
