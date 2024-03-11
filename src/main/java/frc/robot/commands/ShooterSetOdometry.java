@@ -15,6 +15,7 @@ import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.FieldPosition.TargetType;
 
 public class ShooterSetOdometry extends Command {
     private Shooter shooter;
@@ -57,9 +58,9 @@ public class ShooterSetOdometry extends Command {
     @Override
     public void execute() {
         var pose = manualPose.orElse(pe.getEstimatedPosition());
-        
-        x = pose.getX()-FieldPosition.BlueSpeaker.getX();
-        y = pose.getY()-FieldPosition.BlueSpeaker.getY();
+        var targetPose = FieldPosition.getTargetList(TargetType.Speaker);
+        x = Math.abs(pose.getX()-targetPose.getX());
+        y = Math.abs(pose.getY()-targetPose.getY());
         distance = Math.hypot(x, y);
         
         targetAngle = lut.get(distance)[0];
