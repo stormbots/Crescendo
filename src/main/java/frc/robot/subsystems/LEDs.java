@@ -82,7 +82,7 @@ public class Leds extends SubsystemBase {
     int red = (int)SmartDashboard.getNumber("leds/red", 0.0);
     int green = (int)SmartDashboard.getNumber("leds/green", 0.0);
     int blue = (int)SmartDashboard.getNumber("leds/blue", 0.0);
-    setColorManual(red, green, blue);
+    // setColorManual(red, green, blue);
 
     // This method will be called once per scheduler run
   }

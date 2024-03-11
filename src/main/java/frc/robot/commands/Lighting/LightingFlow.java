@@ -17,7 +17,8 @@ public class LightingFlow extends Command {
   double brightness;
   double scaleValue;
   Leds leds;
-  Leds.HSVColor color;
+  Leds.HSVColor hsvColor;
+  Color color;
   boolean finished;
   int value;
   double startTime;
@@ -26,12 +27,18 @@ public class LightingFlow extends Command {
   double wavelength;
   double speed;
   double adjustedWavelength;
+  double colorValue;
+  double offset = 3;
   /** Creates a new LightingFlicker. */
   public LightingFlow(Leds leds, Color color, double wavelength, double speed, double brightness) {
     this.leds = leds;
-    this.color = leds.new HSVColor(color);
+    this.color = color;
+    hsvColor = leds.new HSVColor(color);
     this.brightness = brightness;
     scaleValue = brightness/100;
+    this.speed = speed;
+    this.wavelength = wavelength;
+    colorValue = hsvColor.value/255;
     addRequirements(leds);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -39,8 +46,8 @@ public class LightingFlow extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), (int)brightness);
-    value = (int)(color.value*scaleValue);
+    leds.setColor(Color.fromHSV(hsvColor.hue,hsvColor.saturation, hsvColor.value), (int)brightness);
+    value = (int)(hsvColor.value*scaleValue);
     startTime = leds.getTime();
     finished = false;
     adjustedWavelength = (2/wavelength)*Math.PI;
@@ -51,16 +58,22 @@ public class LightingFlow extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    currentTime = leds.getTime();
-    elapsedTime = currentTime-startTime;
     
     for(var i = 0; i < leds.ledBuffer.getLength(); i++){
-      value = (int)((.5*Math.sin(adjustedWavelength*((elapsedTime*speed)+(i/wavelength)))+.5)*(color.value*scaleValue));
-      leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), value);
-      // SmartDashboard.putNumber("leds/value", value);
-      // SmartDashboard.putNumber("leds/startTime", startTime);
-      // SmartDashboard.putNumber("leds/currentTime", currentTime);
-      // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
+      currentTime = leds.getTime();
+      elapsedTime = currentTime-startTime;
+      double adjustedElapsedTime = elapsedTime*speed;
+      value = (int)((.5*Math.sin(adjustedWavelength*(adjustedElapsedTime-(i)))+.5)*(hsvColor.value*scaleValue));
+      value += offset;
+      if (value >255){
+        value = 255;
+      }
+      leds.ledBuffer.setHSV(i, hsvColor.hue, hsvColor.saturation, value);
+      SmartDashboard.putNumber("leds/value", value);
+      SmartDashboard.putNumber("leds/startTime", startTime);
+      SmartDashboard.putNumber("leds/currentTime", currentTime);
+      SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
+      SmartDashboard.putNumber("leds/sinElapsedTime", (.5*Math.sin(adjustedWavelength*(adjustedElapsedTime+(i/wavelength)))+.5));
     }
     
 

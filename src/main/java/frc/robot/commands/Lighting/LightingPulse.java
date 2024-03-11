@@ -17,7 +17,9 @@ public class LightingPulse extends Command {
   double brightness;
   double scaleValue;
   Leds leds;
-  Leds.HSVColor color;
+  Leds.HSVColor hsvColor;
+  double colorValue;
+  Color color;
   boolean finished;
   int value;
   double startTime;
@@ -28,9 +30,12 @@ public class LightingPulse extends Command {
   /** Creates a new LightingFlicker. */
   public LightingPulse(Leds leds, Color color, double cycleTime, double brightness) {
     this.leds = leds;
-    this.color = leds.new HSVColor(color);
+    this. color = color;
+    this.cycleTime = cycleTime;
+    this.hsvColor = leds.new HSVColor(color);
     this.brightness = brightness;
     scaleValue = brightness/100;
+    colorValue = hsvColor.value/255;
     addRequirements(leds);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -38,10 +43,10 @@ public class LightingPulse extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), (int)brightness);
-    value = (int)(color.value*scaleValue);
-    startTime = leds.getTime();
     finished = false;
+    leds.setColor(color, (int)brightness);
+    value = (int)(hsvColor.value*scaleValue);
+    startTime = leds.getTime();
     frequency = 2/cycleTime;
 
    
@@ -52,16 +57,20 @@ public class LightingPulse extends Command {
   public void execute() {
     currentTime = leds.getTime();
     elapsedTime = currentTime-startTime;
-    value = (int)((.5*Math.sin(frequency*elapsedTime*Math.PI)+.5)*(color.value*scaleValue));
+    double adjustedtime = elapsedTime*frequency*.5;
+    value = (int)((.5*Math.sin(adjustedtime*Math.PI)+.5)*(colorValue*brightness));
+    
    
 
     
     for(var i = 0; i < leds.ledBuffer.getLength(); i++){
-      leds.setColor(Color.fromHSV(color.hue, color.saturation, color.value), value);
+      leds.setColor(color, value);
       // SmartDashboard.putNumber("leds/value", value);
       // SmartDashboard.putNumber("leds/startTime", startTime);
       // SmartDashboard.putNumber("leds/currentTime", currentTime);
       // SmartDashboard.putNumber("leds/elapsedTime", elapsedTime);
+      // SmartDashboard.putNumber("leds/sinElapsedTimeValue", (int)Math.round(((.5*Math.sin(adjustedtime*Math.PI)+.5)*(colorValue*scaleValue))));
+      // SmartDashboard.putNumber("leds/sinElapsedTimeValue", (((.5*Math.sin(adjustedtime*Math.PI)+.5))));
     }
     
 
