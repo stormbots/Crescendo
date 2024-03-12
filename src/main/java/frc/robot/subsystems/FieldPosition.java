@@ -67,12 +67,12 @@ public class FieldPosition {
     public static enum TargetType{Speaker} //TODO: add more targets for better functionality
 
     public static Pose3d getTargetList(TargetType targetType){
-      // Alliance color = DriverStation.getAlliance().get(); //maybe use optional?
-      // switch(targetType){
-      //   case Speaker:   return color==Alliance.Red ? FieldPosition.RedSpeaker : FieldPosition.BlueSpeaker;
-      // }
-      return FieldPosition.BlueSpeaker;
-      // return new Pose3d();
+      Alliance color = DriverStation.getAlliance().get(); //maybe use optional?
+      switch(targetType){
+        case Speaker:   return color==Alliance.Red ? FieldPosition.RedSpeaker : FieldPosition.BlueSpeaker;
+      }
+      //return FieldPosition.BlueSpeaker;
+      return new Pose3d();
     }
 
     // public IntakeVision.LimelightReadings getIntakeTargetDataOdometry(IntakeVision intakeVision, Pose3d target, SwerveDrivePoseEstimator poseEstimator) {

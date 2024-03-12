@@ -37,15 +37,15 @@ public class Shooter extends SubsystemBase {
   private double forwardSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kForward);
 
   public static LUT lut = new LUT(new double[][]{
-    {53.5, 40.0, 5400},
-    {65.50, 30.0, 5500},
-    {77.5, 31.0, 5600},
-    {89.5, 30.0, 5700},
-    {101.5, 24.0, 6500},
-    {113.5, 20.0, 6500},
-    {125.5, 19.0, 6500},
-    {137.5, 16.0, 6500},
-    {149.5, 17.0, 6750}
+    {54, 42.5, 4000},
+    {66, 38.3, 4000},
+    {78, 34.1, 4000},
+    {90, 30.4, 4000},
+    {103, 24.0, 4000},
+    {113, 23.6, 4000},
+    {124, 20.0, 4500},
+    {148, 15.4, 5500},
+    {173, 13.2, 6000}
   });
 
   public Shooter() {

@@ -130,10 +130,10 @@ public class RobotContainer {
     .setRobotPowerBudget(280)
     .addChassisSystem(chassis, 200, 260, chassis::setCurrentLimits)
     .addSystem(dunkArm, 40)
-    .addSystem(intake, 60)
-    .addSystem(passthrough, 40)
-    .addSystem(shooter, 40)
-    .addSystem(shooterFlywheel, 40)
+    .addSystem(intake, 25)
+    .addSystem(passthrough, 20)
+    .addSystem(shooter, 0)
+    .addSystem(shooterFlywheel, 80)
     ;
 
     SmartDashboard.putNumber("navx/angle", navx.getRotation2d().getDegrees());
@@ -431,12 +431,11 @@ public class RobotContainer {
 
 
     // operatorJoystick.button(12).whileTrue(
-    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60/2), shooter))
+    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)), shooter))
     //   .whileTrue(shooterFlywheel.getShooterSetRPMCommand(10000)
-    //   );
-
-    // operatorJoystick.button(15).whileTrue(
-    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
+    // );
+    // operatorJoystick.button(12).whileTrue(
+    //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
     // );
 
     // operatorJoystick.button(12).onTrue(

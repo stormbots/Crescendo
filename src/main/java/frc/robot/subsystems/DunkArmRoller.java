@@ -22,7 +22,7 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.clearFaults();
         rollerMotor.restoreFactoryDefaults();
 
-        rollerMotor.setSmartCurrentLimit(20);
+        rollerMotor.setSmartCurrentLimit(40);
         // rollerMotor.setIdleMode(IdleMode.kBrake);
         rollerMotor.getEncoder().setPositionConversionFactor(1.375*Math.PI/3.0);
         rollerMotor.getEncoder().setVelocityConversionFactor(rollerMotor.getEncoder().getPositionConversionFactor()/60.0);
@@ -60,11 +60,11 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.set(0.4);
     }
     public void eject() {
-        rollerMotor.set(-0.4);
+        rollerMotor.set(-1);
     }
 
     public void scoreTrap(){
-        setSpeed(-0.1);
+        setSpeed(-0.4);
     }
 
     public void resetEncoder(double encoderValue){

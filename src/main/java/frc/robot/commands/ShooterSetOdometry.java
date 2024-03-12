@@ -9,12 +9,16 @@ import com.stormbots.LUT;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.FieldPosition.TargetType;
 
 public class ShooterSetOdometry extends Command {
     private Shooter shooter;
@@ -26,8 +30,8 @@ public class ShooterSetOdometry extends Command {
     Optional<Pose2d> manualPose = Optional.empty();
 
     LUT lut = Shooter.lut;
-    double x = 0;
-    double y = 0;
+    double x = 0.0;
+    double y = 0.0;
     double distance = 0;
 
     public ShooterSetOdometry(Shooter shooter, ShooterFlywheel flywheel, SwerveDrivePoseEstimator pe) {
@@ -58,8 +62,8 @@ public class ShooterSetOdometry extends Command {
     public void execute() {
         var pose = manualPose.orElse(pe.getEstimatedPosition());
         
-        x = pose.getX()-FieldPosition.BlueSpeaker.getX();
-        y = pose.getY()-FieldPosition.BlueSpeaker.getY();
+        x = Units.Meters.of(Math.abs(pose.getX()-FieldPosition.getTargetList(TargetType.Speaker).getX())).in(Units.Inches);
+        y = Units.Meters.of(Math.abs(pose.getY()-FieldPosition.getTargetList(TargetType.Speaker).getY())).in(Units.Inches);
         distance = Math.hypot(x, y);
         
         targetAngle = lut.get(distance)[0];
