@@ -4,16 +4,15 @@
 
 package frc.robot;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -35,7 +34,6 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -74,6 +72,8 @@ public class AutoFactory {
 
     Field2d pathPlannerField = new Field2d();
 
+    Future<Boolean> initAutoChooserFuture = CompletableFuture.supplyAsync(()->true);
+
     public AutoFactory(RobotContainer rc){
         this.rc = rc;
         initPathPlannerStuff();
@@ -81,11 +81,13 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         
-        initAutoChooser();
+        // initAutoChooser(); //aktes too long, run in background
+        initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
-    void initAutoChooser(){
+    boolean initAutoChooser(){
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
         // autoChooser.addOption("blue center", 
         //     makeBasicAuto(
@@ -166,7 +168,7 @@ public class AutoFactory {
 
         autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
 
-        // autoChooser.addOption("Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterAuto"));
+        autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
         // autoChooser.addOption("Rotate + Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterRotation"));
 
         // autoChooser.addOption("auto Trap", new InstantCommand()
@@ -218,6 +220,7 @@ public class AutoFactory {
             .andThen(new PathPlannerAuto("closeNoteAuto"))
         );
 
+        return false; //will bryan cry tonight 
     }
 
     void initPathPlannerStuff(){
@@ -231,8 +234,8 @@ public class AutoFactory {
         };
 
         HolonomicPathFollowerConfig holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
-            new PIDConstants(2/1*2), 
-            new PIDConstants(1/Math.PI*2), 
+            new PIDConstants(2/1*2*0), 
+            new PIDConstants(1/Math.PI*2*0), 
             DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
             new ReplanningConfig(true, false));
@@ -424,6 +427,15 @@ public class AutoFactory {
 
 
     public SendableChooser<Command> getAutoChooser(){
+        try{
+            initAutoChooserFuture.get();
+       }
+       catch(Exception e){
+           //If the auto cannot build, then we get an error and print it.
+           System.err.println("Failed to build auto command ");
+           System.err.println(e);
+       }
+
         return autoChooser;
     }
 
