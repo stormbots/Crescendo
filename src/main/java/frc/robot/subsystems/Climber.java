@@ -18,6 +18,7 @@ import com.stormbots.Clamp;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -149,7 +150,8 @@ public class Climber extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("/climber/leftCurrent", leftMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("currenttesting/leftClimber", leftMotor.getOutputCurrent());
+    // SmartDashboard.putNumber("currenttesting/rightClimber", rightMotor.getOutputCurrent());
     // SmartDashboard.putNumber("/climber/rightCurrent", rightMotor.getOutputCurrent());
     // SmartDashboard.putNumber("/climber/leftPosition", leftMotor.getEncoder().getPosition());
     // SmartDashboard.putNumber("/climber/rightPosition", rightMotor.getEncoder().getPosition());

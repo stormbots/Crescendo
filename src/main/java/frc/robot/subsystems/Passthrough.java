@@ -121,6 +121,8 @@ public class Passthrough extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("currenttesting/passthroughA", motor.getOutputCurrent());
+    SmartDashboard.putNumber("currenttesting/passthroughB", motorB.getOutputCurrent());
     SmartDashboard.putBoolean("passthrough/isBlocked", isBlocked());
     SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Millimeters));
     // SmartDashboard.putNumber("passthrough/outputCurrent", motor.getOutputCurrent());

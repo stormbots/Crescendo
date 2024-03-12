@@ -44,7 +44,7 @@ public class DunkArmRoller extends SubsystemBase{
     @Override
     public void periodic() {
         SmartDashboard.putNumber("dunkArmRoller/output", rollerMotor.getAppliedOutput());
-        SmartDashboard.putNumber("dunkArmRoller/current", rollerMotor.getOutputCurrent());
+        SmartDashboard.putNumber("currenttesting/dunkArmRoller", rollerMotor.getOutputCurrent());
         SmartDashboard.putNumber("dunkArmRoller/position", rollerMotor.getEncoder().getPosition());
     }
 

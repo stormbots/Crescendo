@@ -135,7 +135,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
-    robotContainer.chassis.setIdleMode(IdleMode.kCoast);
+    //robotContainer.chassis.setIdleMode(IdleMode.kCoast);
   }
 
   /** This function is called periodically during test mode. */

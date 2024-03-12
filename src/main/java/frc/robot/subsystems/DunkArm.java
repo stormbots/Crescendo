@@ -78,7 +78,7 @@ public class DunkArm extends SubsystemBase {
     // SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
     SmartDashboard.putNumber("dunkArm/position", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/setpoint", armSetpoint);
-    SmartDashboard.putNumber("dunkArm/current", armMotor.getOutputCurrent());
+    SmartDashboard.putNumber("currenttesting/dunkArm", armMotor.getOutputCurrent());
   }
 
   public void syncEncoders(){

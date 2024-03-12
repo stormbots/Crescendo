@@ -93,13 +93,14 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("currenttesting/shooterAngle", shooterMotor.getOutputCurrent());
 
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("shooter/rotations", shooterMotor.getEncoder().getPosition());
     // SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
     // SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
-    // SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
-    // SmartDashboard.putNumber("shooter/target", shooterSetPoint);
+    SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("shooter/target", shooterSetPoint);
     // SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
     // SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
     // SmartDashboard.putBoolean("shooter/isOnTarget", isOnTarget());

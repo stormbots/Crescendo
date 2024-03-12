@@ -122,16 +122,15 @@ public class Chassis extends SubsystemBase {
     // SmartDashboard.putData("modules/rr", rearRight);
     // SmartDashboard.putData("modules/rl", rearLeft);
 
-    // SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
-    // SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
-    // SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
-    // SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
 
     // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
-    SmartDashboard.putNumber("/fr/vel", frontRight.drivingEncoder.getVelocity());
-    SmartDashboard.putNumber("/fr/outputCurrent", frontRight.drivingSparkFlex.getOutputCurrent());
 
+    SmartDashboard.putNumber("modules/frVel",frontRight.drivingEncoder.getVelocity());
   }
 
   public Pose2d getPose() {
