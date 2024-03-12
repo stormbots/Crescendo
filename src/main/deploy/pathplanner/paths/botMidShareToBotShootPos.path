@@ -3,34 +3,52 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.7631256693640407,
-        "y": 4.2001051443963355
+        "x": 8.3,
+        "y": 2.45
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9774416650801108,
-        "y": 1.6594821025062452
+        "x": 7.058687748860292,
+        "y": 1.967881431290591
       },
       "isLocked": false,
-      "linkedName": "botNote"
+      "linkedName": "botMidShare"
     },
     {
       "anchor": {
-        "x": 8.3,
-        "y": 0.8
+        "x": 3.0,
+        "y": 2.8
       },
       "prevControl": {
-        "x": 5.877252395202419,
-        "y": 1.227195770172623
+        "x": 4.79709267110842,
+        "y": 1.7769675610907583
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "botShare"
+      "linkedName": "botShoot"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.5,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "botShootPosShotNoStop"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 3.3,
@@ -39,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -10.0,
+    "rotation": -35.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -35.0,
+    "rotation": 18.0,
     "velocity": 0.0
   },
   "useDefaultConstraints": true

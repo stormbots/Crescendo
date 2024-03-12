@@ -49,6 +49,7 @@ public class Robot extends TimedRobot {
     //set the value of chassis track width based on bot
     DriveConstants.kTrackWidth = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
     DriveConstants.kWheelBase = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
+    DriveConstants.distanceToModuleFromCenter = Math.hypot(DriveConstants.kTrackWidth/2, DriveConstants.kWheelBase/2);
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
@@ -75,7 +76,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    robotContainer.chassis.setBrakeMode();
+    robotContainer.chassis.setIdleMode(IdleMode.kBrake);
   }
 
   @Override
@@ -134,6 +135,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
+    robotContainer.chassis.setIdleMode(IdleMode.kCoast);
   }
 
   /** This function is called periodically during test mode. */

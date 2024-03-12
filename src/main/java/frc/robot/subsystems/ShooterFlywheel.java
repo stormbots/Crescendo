@@ -126,7 +126,6 @@ public class ShooterFlywheel extends SubsystemBase {
       setRPM(rpm) ;
       SmartDashboard.putNumber("flywheel/targetrpm",rpm);
     },this)
-    // .until(()->isOnTarget())
     ;
   }
 
