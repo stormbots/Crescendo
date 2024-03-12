@@ -12,7 +12,7 @@
         "y": 5.55
       },
       "isLocked": false,
-      "linkedName": "midNoteWaypoint"
+      "linkedName": "midNote"
     },
     {
       "anchor": {
@@ -25,17 +25,17 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "botMidShareWaypoint"
+      "linkedName": "botMidShare"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
-    "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 180.0
+    "maxVelocity": 5.0,
+    "maxAcceleration": 3.3,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 360.0
   },
   "goalEndState": {
     "velocity": 0,

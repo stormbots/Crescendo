@@ -3,50 +3,52 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.9,
-        "y": 5.55
+        "x": 8.3,
+        "y": 0.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.9,
-        "y": 5.55
+        "x": 7.058687748860292,
+        "y": 1.2335973151373854
       },
       "isLocked": false,
-      "linkedName": "midNote"
+      "linkedName": "botShare"
     },
     {
       "anchor": {
-        "x": 4.789749829946888,
-        "y": 4.288219238334721
+        "x": 3.0,
+        "y": 2.8
       },
       "prevControl": {
-        "x": 3.939749829946887,
-        "y": 4.650719238334721
-      },
-      "nextControl": {
-        "x": 5.639749829946888,
-        "y": 3.92571923833472
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 8.3,
-        "y": 4.1
-      },
-      "prevControl": {
-        "x": 7.300000000000001,
-        "y": 4.1
+        "x": 4.767721306462291,
+        "y": 2.085366889875104
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "midShare"
+      "linkedName": "botShoot"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.5,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "botShootPosShotNoStop"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 3.3,
@@ -55,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": -45.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -10.0,
     "velocity": 0
   },
   "useDefaultConstraints": true

@@ -206,8 +206,11 @@ public class RobotContainer {
 
     shooterFlywheel.setDefaultCommand(
       new WaitCommand(0.5)
-      .andThen(new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel))
-      .until(shooterFlywheel::isOnTarget)
+      .andThen(
+        new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel)
+        .until(shooterFlywheel::isOnTarget)
+        .withTimeout(2) //just in case
+        )
       .andThen(new RunCommand(shooterFlywheel::stop,shooterFlywheel))
     );
     

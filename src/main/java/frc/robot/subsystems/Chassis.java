@@ -16,14 +16,17 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,11 +42,6 @@ public class Chassis extends SubsystemBase {
   /** Creates a new Chassis. 
 //  * @param navx */
 //   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics) {}
-
-//   @Override
-//   public void periodic() {
-//     // This method will be called once per scheduler run
-//   }
 
   /** Creates a new Chassis. */
   // Create MAXSwerveModules
@@ -89,7 +87,6 @@ public class Chassis extends SubsystemBase {
    */
   PIDController turnpid = new PIDController(1/Math.PI,0,0);
 
-
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
@@ -125,15 +122,16 @@ public class Chassis extends SubsystemBase {
     // SmartDashboard.putData("modules/rr", rearRight);
     // SmartDashboard.putData("modules/rl", rearLeft);
 
-    SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
 
     // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
+    SmartDashboard.putNumber("/fr/vel", frontRight.drivingEncoder.getVelocity());
+    SmartDashboard.putNumber("/fr/outputCurrent", frontRight.drivingSparkFlex.getOutputCurrent());
 
-    SmartDashboard.putNumber("modules/frVel",frontRight.drivingEncoder.getVelocity());
   }
 
   public Pose2d getPose() {
@@ -301,13 +299,24 @@ public class Chassis extends SubsystemBase {
     navx.reset();
   }
 
+
+  /** Apply an offset from initial navx zero to the intended "forward" direction
+   * for fieldcentric controls.
+   * positive value rotates zero CW
+   * 
+   * @param isBlue Control over whether bot is blue, makes overload backwards compatible
+   */
+  public void setFieldCentricOffset(double offset, boolean isBlue){
+    zeroHeading();
+    navx.setAngleAdjustment(isBlue ? offset : -offset);
+  }
+
   /** Apply an offset from initial navx zero to the intended "forward" direction
    * for fieldcentric controls.
    * positive value rotates zero CW
    */
   public void setFieldCentricOffset(double offset){
-    zeroHeading();
-    navx.setAngleAdjustment(offset);
+    setFieldCentricOffset(offset, true);
   }
 
   /**
@@ -385,12 +394,26 @@ public class Chassis extends SubsystemBase {
       this);
   }
 
-  public void setBrakeMode(){
+  public void setIdleMode(IdleMode idleMode){
     for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
-      module.drivingSparkFlex.setIdleMode(IdleMode.kBrake);
+      module.drivingSparkFlex.setIdleMode(idleMode);
     }
   }
 
+  public Measure<Distance> getDistanceFromStageCenter(){
+    Pose2d currentPose = swerveDrivePoseEstimator.getEstimatedPosition();
+
+    boolean isBlue = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue;
+
+    double stageCenterX = 4.9;
+    if(!isBlue){stageCenterX = 16.6-stageCenterX;}
+    double stageCenterY = 4.1; 
+    
+    double distanceInMeters = Math.hypot(currentPose.getX()-stageCenterX, currentPose.getY()-stageCenterY);
+
+    return Units.Meters.of(distanceInMeters);
+  }
+  
   public void setCurrentLimits(double amps){
     amps /= 4;
     frontLeft.setCurrentLimit(amps); 
