@@ -158,7 +158,7 @@ public class MAXSwerveModule implements Sendable{
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
     // SmartDashboard.putNumber("optimizedDesiredState.speedMetersPerSecond", optimizedDesiredState.speedMetersPerSecond);
-    drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkFlex.ControlType.kVelocity);
     turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
     //Added a this

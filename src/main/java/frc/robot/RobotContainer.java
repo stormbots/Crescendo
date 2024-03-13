@@ -327,7 +327,7 @@ public class RobotContainer {
     //speaker shot
     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
-      shooterFlywheel.getShooterSetRPMCommand(6000),
+      shooterFlywheel.getShooterSetRPMCommand(4000),
       new SetShooterProfiled(45, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
@@ -335,7 +335,7 @@ public class RobotContainer {
     //podium/far shot
     operatorJoystick.button(4) //far shooting
     .whileTrue(new ParallelCommandGroup(
-      shooterFlywheel.getShooterSetRPMCommand(9900),
+      shooterFlywheel.getShooterSetRPMCommand(4500),
       new SetShooterProfiled(20, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -305,9 +306,9 @@ public class Chassis extends SubsystemBase {
    * 
    * @param isBlue Control over whether bot is blue, makes overload backwards compatible
    */
-  public void setFieldCentricOffset(double offset, boolean isBlue){
+  public void setFieldCentricOffset(double offset, BooleanSupplier isBlue){
     zeroHeading();
-    navx.setAngleAdjustment(isBlue ? offset : -offset);
+    navx.setAngleAdjustment(isBlue.getAsBoolean() ? offset : -offset);
   }
 
   /** Apply an offset from initial navx zero to the intended "forward" direction
@@ -315,7 +316,7 @@ public class Chassis extends SubsystemBase {
    * positive value rotates zero CW
    */
   public void setFieldCentricOffset(double offset){
-    setFieldCentricOffset(offset, true);
+    setFieldCentricOffset(offset, ()->true);
   }
 
   /**
@@ -405,7 +406,7 @@ public class Chassis extends SubsystemBase {
     boolean isBlue = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue;
 
     double stageCenterX = 4.9;
-    if(!isBlue){stageCenterX = 16.6-stageCenterX;}
+    if(!isBlue){stageCenterX = 16.542-stageCenterX;}
     double stageCenterY = 4.1; 
     
     double distanceInMeters = Math.hypot(currentPose.getX()-stageCenterX, currentPose.getY()-stageCenterY);

@@ -12,19 +12,13 @@
     "data": {
       "commands": [
         {
-          "type": "sequential",
+          "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
                   "pathName": "botStartSpinUp"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.01
                 }
               },
               {
