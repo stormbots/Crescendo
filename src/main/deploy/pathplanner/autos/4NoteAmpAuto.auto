@@ -101,6 +101,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "stopFlywheel"
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -171,7 +177,13 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
+          "data": {
+            "name": "stopFlywheel"
+          }
+        },
+        {
+          "type": "deadline",
           "data": {
             "commands": [
               {
