@@ -35,6 +35,7 @@ import frc.robot.commands.DunkArmRollerHoldNote;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.LogOutgoingShot;
 import frc.robot.commands.PassthroughAlignNote;
+import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetOdometry;
@@ -259,6 +260,12 @@ public class RobotContainer {
         ()-> -driverController.getLeftX(),
         ()-> -driverTurnJoystickValue(),
         shooterVision, chassis, navx)
+        
+    )
+    .onTrue(
+      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+    )
+    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
     );
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
@@ -416,9 +423,11 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
 
-    operatorJoystick.button(16).whileTrue(
-      new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
-    );   
+
+
+    // operatorJoystick.button(16).whileTrue(
+    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+    // );   
     
     // Used for testing only.
 

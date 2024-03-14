@@ -17,7 +17,7 @@ public class ClimberSetPosition extends Command {
   /** Creates a new ClimberSetPosition. */
   Climber climber;
   Measure<Distance> target;
-  SlewRateLimiter slewRate= new SlewRateLimiter(10, -10, 0.0);
+  SlewRateLimiter slewRate= new SlewRateLimiter(15, -12, 0.0);
   TrapezoidProfile motionProfile = new TrapezoidProfile(
     new TrapezoidProfile.Constraints (0.5, 5.0)
     );

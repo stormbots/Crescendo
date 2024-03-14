@@ -47,7 +47,7 @@ fiducial_resdiv:2
 fiducial_size:165.1
 fiducial_skip3d:0
 fiducial_type:aprilClassic36h11
-fiducial_vis_mode:3dtargposebotspace
+fiducial_vis_mode:3dbotposefieldspace
 flicker_correction:0
 force_convex:1
 hue_max:85
@@ -74,7 +74,7 @@ rspitch:18.5
 rsroll:0
 rss:0
 rsu:0.5588
-rsyaw:180
+rsyaw:-180
 sat_max:255
 sat_min:70
 send_corners:0

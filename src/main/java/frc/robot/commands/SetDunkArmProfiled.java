@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import com.stormbots.Clamp;
+
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,12 +17,14 @@ public class SetDunkArmProfiled extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DunkArm dunkArm;
   private double armAngle;
+  private boolean exitsOnCompletion = false;
+
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(45, 45);
+  TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(90*1.7*1.5, 90*1.5*2);
   TrapezoidProfile.State goal = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile.State initial = new TrapezoidProfile.State(0, 0);
   TrapezoidProfile armProfile = new TrapezoidProfile(constraints);
@@ -33,6 +37,11 @@ public class SetDunkArmProfiled extends Command {
     addRequirements(dunkArm);
 
     goal = new TrapezoidProfile.State(armAngle, 0);
+  }
+
+  public SetDunkArmProfiled runForever(){
+    this.exitsOnCompletion = false;
+    return this;
   }
 
   // Called when the command is initially scheduled.
@@ -54,7 +63,7 @@ public class SetDunkArmProfiled extends Command {
     SmartDashboard.putNumber("dunkprofile/target", targetPosition);
     SmartDashboard.putNumber("dunkprofile/targetVel", targetState.velocity);
     
-    SmartDashboard.putNumber("dunkprofile/current", currentState.position);
+    SmartDashboard.putNumber("dunkprofile/position", currentState.position);
     SmartDashboard.putNumber("dunkprofile/velocity", currentState.velocity);
   }
 
@@ -68,5 +77,12 @@ public class SetDunkArmProfiled extends Command {
   @Override
   public boolean isFinished() {
     return false;
+    // var posTol = 5;
+    // var pos = Clamp.bounded(dunkArm.getAngle(), angle-posTol, angle+posTol);
+  
+    // var velTol = 10; // per sec
+    // var vol = Clamp.bounded(dunkArm.getState().velocity, -velTol, velTol);
+  
+    // return exitsOnCompletion && pos && vol;
   }
 }

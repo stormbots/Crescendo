@@ -256,10 +256,10 @@ public class AutoFactory {
 
         HolonomicPathFollowerConfig holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
             new PIDConstants(2/4*2*2*2*2*2), 
-            new PIDConstants(1/Math.PI*2*2*2), 
+            new PIDConstants(1/Math.PI*2*2*1.5), 
             DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
-            new ReplanningConfig(true, true));
+            new ReplanningConfig(true, false));
 
         BooleanSupplier shouldFlipPath = () -> {
             // Boolean supplier that controls when the path will be mirrored for the red alliance
