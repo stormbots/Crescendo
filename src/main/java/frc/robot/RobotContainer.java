@@ -38,6 +38,7 @@ import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetOdometry;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTurnToAprilTag;
@@ -210,7 +211,6 @@ public class RobotContainer {
       .andThen(
         new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel)
         .until(shooterFlywheel::isOnTarget)
-        .withTimeout(2) //just in case
         )
       .andThen(new RunCommand(shooterFlywheel::stop,shooterFlywheel))
     );
@@ -260,13 +260,12 @@ public class RobotContainer {
         ()-> -driverController.getLeftX(),
         ()-> -driverTurnJoystickValue(),
         shooterVision, chassis, navx)
-        
-    )
-    .onTrue(
-      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-    )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    );
+      )
+      .whileTrue(
+            new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+          )
+          .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
+          );
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
 
@@ -335,7 +334,7 @@ public class RobotContainer {
     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(4000),
-      new SetShooterProfiled(45, shooter).runForever())
+      new SetShooterProfiled(40.5, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
@@ -366,7 +365,9 @@ public class RobotContainer {
         
         passthrough::isBlocked
       )
-    );
+    )
+    .whileTrue(shooterFlywheel.getShooterSetRPMCommand(0))
+    ;
 
     //arm to amp
     //TODO: This should be whileHeld, need to validate control issues with operator 
@@ -390,11 +391,13 @@ public class RobotContainer {
     operatorJoystick.button(8).whileTrue(
       new ParallelCommandGroup(
         new SetShooterProfiled(0, shooter),
-        new InstantCommand(()->shooterFlywheel.setRPM(0))
+        // new InstantCommand(()->shooterFlywheel.setRPM(0))
       )
       .andThen(new IntakeNote(intake, passthrough)
       )
-    );
+    )
+    .whileTrue(shooterFlywheel.getShooterSetRPMCommand(0))
+    ;
 
     //DEBUG CODE: manually adjust rollers
     operatorJoystick.button(9).whileTrue(
@@ -421,6 +424,12 @@ public class RobotContainer {
     //climbers down
     operatorJoystick.button(14).whileTrue(
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
+    );
+
+    operatorJoystick.button(16).whileTrue(
+      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+    )
+    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
     );
 
     // Used for testing only.

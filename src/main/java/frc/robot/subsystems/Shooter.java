@@ -44,8 +44,8 @@ public class Shooter extends SubsystemBase {
     {103, 24.0, 4000},
     {113, 23.6, 4000},
     {124, 20.0, 4500},
-    {148, 15.4, 5500},
-    {173, 13.2, 6000}
+    {148, 15.4, 5500}, //farthest shot with dunkarm down
+    {173, 13.2, 6000} 
   });
 
   public Shooter() {

@@ -64,7 +64,7 @@ public class DunkArmRollerHoldNote extends Command {
   public void end(boolean interrupted) {
     //undo limits
     //coast
-    roller.setIdleMode(IdleMode.kCoast);
+    // roller.setIdleMode(IdleMode.kCoast);
     roller.enableSoftLimit(false);
     roller.stop();
   }
