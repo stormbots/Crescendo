@@ -132,7 +132,7 @@ public class SequenceFactory {
         return new InstantCommand()
             .andThen(new IntakeNote(rc.intake, rc.passthrough))
             .andThen(new PassthroughAlignNote(rc.passthrough, rc.intake)
-                .withTimeout(1.5)
+                .withTimeout(2)
             );
     }
 

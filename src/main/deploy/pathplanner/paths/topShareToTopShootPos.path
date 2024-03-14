@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.3,
-        "y": 7.45
+        "x": 8.445710391902944,
+        "y": 7.430296210640638
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.058687748860292,
-        "y": 7.1078702443630295
+        "x": 7.204398140763235,
+        "y": 7.088166455003667
       },
       "isLocked": false,
       "linkedName": "topShare"
@@ -41,7 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "topShootPosShotNoStop"
+                "name": "topShootPosShotNoStop3"
               }
             }
           ]
