@@ -423,36 +423,10 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
 
-
-
-    // operatorJoystick.button(16).whileTrue(
-    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-    // );   
-    
     // Used for testing only.
 
     // operatorJoystick.button(12).whileTrue(
-    //   new VisionTurnToTargetPose(TargetType.Speaker, shooterVision, chassis)
-    // );
-
-    // operatorJoystick.button(15).whileTrue(
-    //   new ShooterSetOdometry(shooter, shooterFlywheel, swerveDrivePoseEstimator).runForever()
-    // )
-    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    // );
-
-
-    // operatorJoystick.button(12).whileTrue(
-    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)), shooter))
-    //   .whileTrue(shooterFlywheel.getShooterSetRPMCommand(10000)
-    // );
-    // operatorJoystick.button(12).whileTrue(
     //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
-    // );
-
-    // operatorJoystick.button(12).onTrue(
-    //   // new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(1)), shooter)
-    //   new RunCommand(()->shooter.setAngle(operatorJoystick.getRawAxis(3)*-60), shooter)
     // );
   }
   
