@@ -126,20 +126,20 @@ public class AutoFactory {
 
         autoChooser.addOption("vv PathPlanner Untested Autos vv", new InstantCommand());
 
-        autoChooser.addOption("basicAmpAuto", 
-        new InstantCommand()
-        .andThen(()->rc.chassis.setFieldCentricOffset(-60))
-        .andThen(new PathPlannerAuto("basicAmpAuto")));
+        // autoChooser.addOption("basicAmpAuto", 
+        // new InstantCommand()
+        // .andThen(()->rc.chassis.setFieldCentricOffset(-60))
+        // .andThen(new PathPlannerAuto("basicAmpAuto")));
 
         autoChooser.addOption("5NoteAmp", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
             .andThen(new PathPlannerAuto("5NoteAmpAuto"))
         );
 
-        autoChooser.addOption("4noteAmp", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-            .andThen(new PathPlannerAuto("4NoteAmpAuto"))
-        );
+        // autoChooser.addOption("4noteAmp", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+        //     .andThen(new PathPlannerAuto("4NoteAmpAuto"))
+        // );
 
         autoChooser.addOption("4NoteSource", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
@@ -151,15 +151,15 @@ public class AutoFactory {
             .andThen(new PathPlannerAuto("5NoteCenterAuto"))
         );
 
-        autoChooser.addOption("4NoteCenter", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-            .andThen(new PathPlannerAuto("4NoteCenterAuto"))
-        );
+        // autoChooser.addOption("4NoteCenter", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("4NoteCenterAuto"))
+        // );
 
-        autoChooser.addOption("closeNote", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-            .andThen(new PathPlannerAuto("closeNoteAuto"))
-        );
+        // autoChooser.addOption("closeNote", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
+        //     .andThen(new PathPlannerAuto("closeNoteAuto"))
+        // );
 
         autoChooser.addOption("2NoteAmp", new InstantCommand()
         .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
@@ -239,13 +239,13 @@ public class AutoFactory {
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28));
 
-        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 21));
+        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20));
         NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 21));
 
         NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 13));
-        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
+        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 13.25));
         NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 15));
         NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14));
 

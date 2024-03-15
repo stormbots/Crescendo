@@ -5,19 +5,20 @@
 package frc.robot;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.IdleMode;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.ChassisConstants.ModuleConstants;
 
 public class MAXSwerveModule implements Sendable{
@@ -101,8 +102,8 @@ public class MAXSwerveModule implements Sendable{
     turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
         ModuleConstants.kTurningMaxOutput);
 
-    drivingSparkFlex.setIdleMode(IdleMode.kCoast);
-    turningSparkMax.setIdleMode(IdleMode.kCoast);
+    drivingSparkFlex.setIdleMode(IdleMode.kBrake);
+    turningSparkMax.setIdleMode(IdleMode.kBrake);
     drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
@@ -112,6 +113,14 @@ public class MAXSwerveModule implements Sendable{
     this.chassisAngularOffset = chassisAngularOffset;
     desiredState.angle = new Rotation2d(turningEncoder.getPosition());
     drivingEncoder.setPosition(0);
+
+    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
+
+    turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    
     drivingSparkFlex.burnFlash();
     turningSparkMax.burnFlash();
   }

@@ -36,7 +36,7 @@ public class NoteTransferToDunkArm extends Command {
   @Override
   public void execute() {
     dunkArmRoller.setPosition(distanceOfTransfer);
-    shooterFlywheel.setRPM(3000);
+    shooterFlywheel.setRPM(500);
   }
 
   // Called once the command ends or is interrupted.

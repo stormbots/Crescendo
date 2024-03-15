@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -130,7 +131,7 @@ public class RobotContainer {
 
     var pm = PowerManager.getInstance()
     .setRobotPowerBudget(280)
-    .addChassisSystem(chassis, 200, 260, chassis::setCurrentLimits)
+    // .addChassisSystem(chassis, 200, 260, chassis::setCurrentLimits)
     .addSystem(dunkArm, 40)
     .addSystem(intake, 25)
     .addSystem(passthrough, 20)
@@ -262,10 +263,18 @@ public class RobotContainer {
         shooterVision, chassis, navx)
       )
       .whileTrue(
-            new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-          )
-          .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-          );
+        new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+      )
+      .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
+      .whileTrue(new RunCommand(()->{
+        if(shooter.isOnTarget() && shooterFlywheel.isOnTarget()){
+          driverController.getHID().setRumble(RumbleType.kBothRumble, 0.3);
+        }
+        else{
+          driverController.getHID().setRumble(RumbleType.kBothRumble, 0);
+        }
+      })
+    );
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
 
@@ -290,6 +299,7 @@ public class RobotContainer {
     //   chassis)
     );
    }
+   
   private void configureOperatorBindings(){
     // operatorJoystick.button(2).onTrue(new InstantCommand()
     //   .andThen( new SetDunkArmSlew(0, dunkArm))
@@ -366,7 +376,6 @@ public class RobotContainer {
         passthrough::isBlocked
       )
     )
-    .whileTrue(shooterFlywheel.getShooterSetRPMCommand(0))
     ;
 
     //arm to amp
@@ -390,7 +399,7 @@ public class RobotContainer {
     //intake note
     operatorJoystick.button(8).whileTrue(
       new ParallelCommandGroup(
-        new SetShooterProfiled(0, shooter),
+        new SetShooterProfiled(0, shooter)
         // new InstantCommand(()->shooterFlywheel.setRPM(0))
       )
       .andThen(new IntakeNote(intake, passthrough)

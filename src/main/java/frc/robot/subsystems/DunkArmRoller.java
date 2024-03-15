@@ -31,7 +31,8 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.setSoftLimit(SoftLimitDirection.kForward, (float) 3.2);
         rollerMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) -4.5);
 
-        rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 200);
+        setIdleMode(IdleMode.kBrake);
+
         rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
         rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
         rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);

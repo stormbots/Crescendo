@@ -50,10 +50,9 @@ public class Climber extends SubsystemBase {
       motor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
       motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
-      motor.setSmartCurrentLimit(5);
+      motor.setSmartCurrentLimit(8);
       motor.getPIDController().setP(0.3);
 
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 200);
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
@@ -150,12 +149,12 @@ public class Climber extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("currenttesting/leftClimber", leftMotor.getOutputCurrent());
-    // SmartDashboard.putNumber("currenttesting/rightClimber", rightMotor.getOutputCurrent());
+    SmartDashboard.putNumber("currenttesting/leftClimber", leftMotor.getOutputCurrent());
+    SmartDashboard.putNumber("currenttesting/rightClimber", rightMotor.getOutputCurrent());
     // SmartDashboard.putNumber("/climber/rightCurrent", rightMotor.getOutputCurrent());
     // SmartDashboard.putNumber("/climber/leftPosition", leftMotor.getEncoder().getPosition());
     // SmartDashboard.putNumber("/climber/rightPosition", rightMotor.getEncoder().getPosition());
-    // SmartDashboard.putBoolean("/climber/isHomed", isHomed);
+    SmartDashboard.putBoolean("/climber/isHomed", isHomed);
     // SmartDashboard.putNumber("/climber/out", leftMotor.getAppliedOutput());
 
     // double max =  kMaxHeight.in(Units.Inches) - 2.0;

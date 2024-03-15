@@ -57,7 +57,7 @@ public class SequenceFactory {
                 new RunCommand(()->rc.dunkArmRoller.setSpeed(0.1), rc.dunkArmRoller),
                 new RunCommand(()->rc.passthrough.intake(), rc.passthrough),
                 new RunCommand(()->rc.intake.intake(), rc.intake),
-                rc.shooterFlywheel.getShooterSetRPMCommand(2000)
+                rc.shooterFlywheel.getShooterSetRPMCommand(500)
             ).until(()->rc.passthrough.isBlocked()==false)
         )
         .andThen(

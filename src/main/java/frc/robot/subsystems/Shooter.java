@@ -82,7 +82,7 @@ public class Shooter extends SubsystemBase {
 
     shooterMotor.setIdleMode(IdleMode.kCoast);
 
-    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 50);
+    
     shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
     shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);

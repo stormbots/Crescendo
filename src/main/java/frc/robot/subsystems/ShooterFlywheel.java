@@ -30,9 +30,13 @@ public class ShooterFlywheel extends SubsystemBase {
    
   /** Creates a new Flywheel. */
   public ShooterFlywheel() {
+    topMotor.restoreFactoryDefaults();
+    botMotor.restoreFactoryDefaults();
+    topMotor.setInverted(false);
+    botMotor.setInverted(true);
+
 
     for(CANSparkFlex motor : new CANSparkFlex[]{topMotor,botMotor} ){
-      motor.restoreFactoryDefaults();
       motor.clearFaults();
       motor.getEncoder().setVelocityConversionFactor(kGearing);
 
@@ -52,8 +56,6 @@ public class ShooterFlywheel extends SubsystemBase {
       pid.setSmartMotionMaxAccel(kMaxRPM*4*4, 0);
       pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 200);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
@@ -61,8 +63,6 @@ public class ShooterFlywheel extends SubsystemBase {
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
 
     }
-    topMotor.setInverted(false);
-    botMotor.setInverted(true);
 
     setIdleMode(IdleMode.kCoast);
 

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.058687748860292,
-        "y": 1.967881431290591
+        "x": 6.917086557945974,
+        "y": 1.537605154132349
       },
       "isLocked": false,
       "linkedName": "botMidShare"
@@ -20,8 +20,8 @@
         "y": 2.8
       },
       "prevControl": {
-        "x": 4.79709267110842,
-        "y": 1.7769675610907583
+        "x": 4.759974409265469,
+        "y": 1.6092435649741366
       },
       "nextControl": null,
       "isLocked": false,
