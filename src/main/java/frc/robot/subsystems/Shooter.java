@@ -75,7 +75,7 @@ public class Shooter extends SubsystemBase {
     shooterMotor.setSmartCurrentLimit(20);
 
     //closed-loop control
-    pidController.setP(6.0/1.2/360.0*1.7*1.1);
+    pidController.setP(6.0/1.2/360.0*1.7*1.1*1.5);
     pidController.setI(0.000000003*20);
     pidController.setD(0.00007*50);
     
@@ -98,12 +98,12 @@ public class Shooter extends SubsystemBase {
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("shooter/rotations", shooterMotor.getEncoder().getPosition());
     // SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
-    // SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
+    SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
     SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("shooter/target", shooterSetPoint);
     // SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
     // SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
-    // SmartDashboard.putBoolean("shooter/isOnTarget", isOnTarget());
+    SmartDashboard.putBoolean("shooter/isOnTarget", isOnTarget());
   }
 
   /** Align the absolute and relative encoders, should the need arise */
@@ -139,13 +139,13 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isOnTarget(){
-    var tolerance = 0.5;
+    var tolerance = 0.75;
     //TODO figure out better tolerances that make sense
     return Clamp.bounded(shooterMotor.getEncoder().getPosition(), shooterSetPoint-tolerance, shooterSetPoint+tolerance);
 
   }
   public boolean isOnTarget(double position){
-    var tolerance = 0.5;
+    var tolerance = 0.75;
     //TODO figure out better tolerances that make sense
     return Clamp.bounded(position, position-tolerance, position+tolerance);
 

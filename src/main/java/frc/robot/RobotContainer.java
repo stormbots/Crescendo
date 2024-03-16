@@ -202,7 +202,7 @@ public class RobotContainer {
       new RunCommand(()->leds.setColor(Color.kPurple),leds).withTimeout(2)
     );
     
-    leds.setDefaultCommand(leds.showTeamColor());
+    leds.setDefaultCommand(leds.set5vLedStrip().andThen(leds.showTeamColor()));
     new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
     //TODO: When shooter is aligned with target, and at rpm, show show green lights
 
@@ -266,15 +266,15 @@ public class RobotContainer {
         new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
       )
       .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
-      .whileTrue(new RunCommand(()->{
-        if(shooter.isOnTarget() && shooterFlywheel.isOnTarget()){
-          driverController.getHID().setRumble(RumbleType.kBothRumble, 0.3);
-        }
-        else{
-          driverController.getHID().setRumble(RumbleType.kBothRumble, 0);
-        }
-      })
-    );
+    //   .whileTrue(new StartEndCommand(()->{
+    //     if(shooter.isOnTarget() && shooterFlywheel.isOnTarget()){
+    //       driverController.getHID().setRumble(RumbleType.kBothRumble, 0.3);
+    //     }
+    //   }, ()->driverController.getHID().setRumble(RumbleType.kBothRumble, 0)
+    //   )
+      
+    // )
+    ;
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
 
@@ -344,7 +344,7 @@ public class RobotContainer {
     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(4000),
-      new SetShooterProfiled(40.5, shooter).runForever())
+      new SetShooterProfiled(40.5+0.5, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
@@ -352,7 +352,7 @@ public class RobotContainer {
     operatorJoystick.button(4) //far shooting
     .whileTrue(new ParallelCommandGroup(
       shooterFlywheel.getShooterSetRPMCommand(4500),
-      new SetShooterProfiled(20, shooter).runForever())
+      new SetShooterProfiled(20+1, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
     )

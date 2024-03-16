@@ -7,15 +7,16 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 
 import com.stormbots.BlinkenPattern;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -23,8 +24,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Leds extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
-  Spark blinkin1 = new Spark(2);
-  Spark blinkin2 = new Spark(0);
+  Servo blinkin1 = new Servo(2);
+  Servo blinkin2 = new Servo(0);
 
   public class HSVColor{
     // private Color rgb;
@@ -74,7 +75,7 @@ public class Leds extends SubsystemBase {
     ledStrip.start();
     SmartDashboard.putData("leds/prepare", new RunCommand(this::preparing));
     SmartDashboard.putData("leds/ready", new RunCommand(this::ready));
-    // blinkin1.setBoundsMicroseconds(2000, 1501, 1500, 1499, 1000);   
+    blinkin1.setBoundsMicroseconds(2125, 1501, 1500, 1499, 1000);   
   }
 
   @Override
@@ -126,14 +127,14 @@ public class Leds extends SubsystemBase {
 
   public void preparing() {
     setColor(Color.kOrange);
-    blinkin1.set(BlinkenPattern.solidOrange.pwm());
-    blinkin2.set(BlinkenPattern.solidOrange.pwm());
+    blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidOrange.us());
+    blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidOrange.us());
   }
 
   public void ready() {
     setColor(Color.kGreen);
-    blinkin1.set(BlinkenPattern.solidGreen.pwm());
-    blinkin2.set(BlinkenPattern.solidGreen.pwm());
+    blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidGreen.us());
+    blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidGreen.us());
   }
 
   public Command showTeamColor() {
@@ -142,28 +143,39 @@ public class Leds extends SubsystemBase {
       if (color.isPresent()) {
         if (color.get() == DriverStation.Alliance.Red) {
           this.setColor(Color.kRed, this.matchBrightnessScaling(10, 100));
-          blinkin1.set(BlinkenPattern.solidRed.pwm());
-          blinkin2.set(BlinkenPattern.solidRed.pwm());
+          blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidRed.us());
+          blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidRed.us());
         }
         if (color.get() == DriverStation.Alliance.Blue) {
           this.setColor(Color.kBlue, this.matchBrightnessScaling(10, 100));
-          blinkin1.set(BlinkenPattern.solidBlue.pwm());
-          blinkin2.set(BlinkenPattern.solidBlue.pwm());
+          blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidBlue.us());
+          blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidBlue.us());
         }
         return;
       }
       this.setColor(Color.kPurple, 10);
-      blinkin1.set(BlinkenPattern.solidViolet.pwm());
-      blinkin2.set(BlinkenPattern.solidViolet.pwm());
+      blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
+      blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
     },this)
     .ignoringDisable(true)
     ;
   }
 
-  public Command showNoteIntake() {
-    return new RunCommand(()->{this.setColor(Color.kOrangeRed);
-    this.blinkin1.set(BlinkenPattern.solidRedOrange.pwm());this.blinkin2.set(BlinkenPattern.solidRedOrange.pwm());},this).withTimeout(2);
+  public Command set5vLedStrip(){
+    return new InstantCommand(()->{
+      this.blinkin1.setPulseTimeMicroseconds(2125);
+      this.blinkin2.setPulseTimeMicroseconds(2125);
+    });
   }
+  public Command showNoteIntake() {
+    return new RunCommand(
+      ()->{this.setColor(Color.kOrangeRed);
+      this.blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
+      this.blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
+    }, this)
+    .withTimeout(2);
+  }
+
     
   public Command readyLights(BooleanSupplier ...  conditions) {
     return new RunCommand(()->{

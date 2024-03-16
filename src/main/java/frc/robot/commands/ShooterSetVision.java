@@ -47,7 +47,7 @@ public class ShooterSetVision extends Command {
             SmartDashboard.putBoolean("shootersetvision/running", true);
             double distance = -visionData.get().distance.in(Units.Inches);
 
-            targetAngle = lut.get(distance)[0];
+            targetAngle = lut.get(distance)[0]+0.7+0.3;
             rpm = lut.get(distance)[1];
             shooter.setAngle(targetAngle);
             flywheel.setRPM(rpm);
