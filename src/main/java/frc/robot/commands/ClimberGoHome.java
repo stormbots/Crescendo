@@ -32,7 +32,7 @@ public class ClimberGoHome extends Command {
   @Override
   public void end(boolean interrupted){
     climber.setPower(0);
-    if(interrupted) return; //not homed!!
+    // if(interrupted) return; //not homed!!
     climber.setHomed();
   }
 

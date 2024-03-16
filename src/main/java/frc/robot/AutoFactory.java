@@ -235,19 +235,19 @@ public class AutoFactory {
         // NamedCommands.registerCommand("midShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(4.3, 4.85, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("botShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(3, 2.8, new Rotation2d())).runForever());
 
-        NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28));
+        NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 29.5));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28));
 
-        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20));
+        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 21));
         NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
-        NamedCommands.registerCommand("botNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 21));
+        NamedCommands.registerCommand("botNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.5));
 
         NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
-        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 13));
-        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 13.25));
+        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
+        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
         NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 15));
-        NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14));
+        NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14+1));
 
         NamedCommands.registerCommand("setDownShooter", rc.sequenceFactory.getStopShooterCommand());
 

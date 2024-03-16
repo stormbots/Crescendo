@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -71,6 +72,9 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   // public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
+
+  public static final double INITIALSHOOTEROFFSET =1.0; 
+  public static double shooterOffset = INITIALSHOOTEROFFSET;//adjusted via slider
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
@@ -189,7 +193,7 @@ public class RobotContainer {
     //TODO: Only enable when robot is tested 
     new Trigger(DriverStation::isEnabled)
     .and(()->climber.isHomed==false)
-    .whileTrue(new ClimberGoHome(climber));
+    .whileTrue(new ClimberGoHome(climber).withTimeout(15));
 
     new Trigger( ()-> dunkArm.getAngle()>45 )
     .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(0.1)))
@@ -226,7 +230,12 @@ public class RobotContainer {
     intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
     shooter.setDefaultCommand(
       new WaitCommand(1)
-      .andThen(new SetShooterProfiled(0, shooter))
+      .andThen(new SetShooterProfiled(0, shooter)
+        .withTimeout(1)
+      )
+      .andThen(new WaitCommand(0.1))
+      //.andThen(new InstantCommand(()->shooter.syncEncoders()))
+      .andThen(new RunCommand(shooter::stopShooter))
     );
 
     dunkArm.setDefaultCommand(new SetDunkArmSlew(-25, dunkArm)
@@ -398,20 +407,16 @@ public class RobotContainer {
 
     //intake note
     operatorJoystick.button(8).whileTrue(
-      new ParallelCommandGroup(
-        new SetShooterProfiled(0, shooter)
-        // new InstantCommand(()->shooterFlywheel.setRPM(0))
-      )
-      .andThen(new IntakeNote(intake, passthrough)
-      )
+      new IntakeNote(intake, passthrough)
     )
     .whileTrue(shooterFlywheel.getShooterSetRPMCommand(0))
+    .whileTrue(new SetShooterProfiled(0, shooter))
     ;
 
     //DEBUG CODE: manually adjust rollers
-    operatorJoystick.button(9).whileTrue(
-      new RunCommand(()->dunkArmRoller.setSpeed(operatorJoystick.getRawAxis(3)*-60*0.05*0.05*0.5), dunkArmRoller)
-    );
+    // operatorJoystick.button(9).whileTrue(
+    //   new RunCommand(()->dunkArmRoller.setSpeed(operatorJoystick.getRawAxis(3)*-60*0.05*0.05*0.5), dunkArmRoller)
+    // );0
 
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
@@ -434,6 +439,10 @@ public class RobotContainer {
     operatorJoystick.button(14).whileTrue(
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
+
+    // operatorJoystick.button(15).whileTrue(
+    //   new RunCommand(()->shooterFlywheel.setRPMProfiled(4000), shooterFlywheel)
+    // );
 
     operatorJoystick.button(16).whileTrue(
       new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()

@@ -4,23 +4,16 @@
 
 package frc.robot;
 
-import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.stormbots.Lerp;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.subsystems.IntakeVision;
+import frc.robot.subsystems.ShooterVision;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -117,6 +110,7 @@ public class Robot extends TimedRobot {
 
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
+    //robotContainer.shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
     // robotContainer.climber.setIdleMode(IdleMode.kBrake);
 
     // robotContainer.chassis.resetOdometry(new Pose2d());
@@ -126,7 +120,14 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    
+    //check slider
+    //map slider from initial to initial+2
+    RobotContainer.shooterOffset = Lerp.lerp(
+      robotContainer.operatorJoystick.getRawAxis(3), 
+      1, -1, 
+      RobotContainer.INITIALSHOOTEROFFSET, RobotContainer.INITIALSHOOTEROFFSET+5
+    );    
+    SmartDashboard.putNumber("shooterOffset", RobotContainer.shooterOffset);
   }
 
   @Override

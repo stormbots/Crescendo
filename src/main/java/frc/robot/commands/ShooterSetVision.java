@@ -13,6 +13,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
@@ -47,7 +48,7 @@ public class ShooterSetVision extends Command {
             SmartDashboard.putBoolean("shootersetvision/running", true);
             double distance = -visionData.get().distance.in(Units.Inches);
 
-            targetAngle = lut.get(distance)[0]+0.7+0.3;
+            targetAngle = lut.get(distance)[0] + RobotContainer.shooterOffset;
             rpm = lut.get(distance)[1];
             shooter.setAngle(targetAngle);
             flywheel.setRPM(rpm);

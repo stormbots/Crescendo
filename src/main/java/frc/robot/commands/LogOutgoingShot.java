@@ -4,9 +4,11 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class LogOutgoingShot extends Command {
@@ -29,6 +31,9 @@ public class LogOutgoingShot extends Command {
         System.out.print(" Y: " + pe.getEstimatedPosition().getY());
         System.out.print(" RPM: " + flywheel.getRPM());
         System.out.println(" Angle: " + shooter.getShooterAngle());
+        System.out.println("Offset: " + RobotContainer.shooterOffset);
+        System.out.print("Target Rpm" + flywheel.getTargetRpm());
+        System.out.print(" Target Shooter Angle"  + shooter.getTargetAngle());
     }
 
     @Override
@@ -41,6 +46,6 @@ public class LogOutgoingShot extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }

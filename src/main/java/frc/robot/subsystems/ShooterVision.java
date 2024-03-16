@@ -73,6 +73,7 @@ public class ShooterVision extends SubsystemBase {
 
     if (bp.length<6) {return Optional.empty();}
     SmartDashboard.putNumber("shootervision/testingdistance", bp[2]);
+    //SmartDashboard.putData("shootervision", );
     var target = new LimelightReadings();
     target.distance = Units.Meters.of(bp[2]);
     target.angleHorizontal = camera.getEntry("tx").getDouble(0.0);

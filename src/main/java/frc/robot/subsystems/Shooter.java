@@ -33,8 +33,8 @@ public class Shooter extends SubsystemBase {
   private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double shooterSetPoint = 0.0;
 
-  private double reverseSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kReverse);
-  private double forwardSoftLimit = shooterMotor.getSoftLimit(SoftLimitDirection.kForward);
+  private double reverseSoftLimit = 1;
+  private double forwardSoftLimit = 46;
 
   public static LUT lut = new LUT(new double[][]{
     {54, 42.5, 4000},
@@ -67,8 +67,8 @@ public class Shooter extends SubsystemBase {
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
 
-    shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, 5);
-    shooterMotor.setSoftLimit(SoftLimitDirection.kForward,50);
+    shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
+    shooterMotor.setSoftLimit(SoftLimitDirection.kForward, (float) forwardSoftLimit);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
@@ -162,7 +162,7 @@ public class Shooter extends SubsystemBase {
 
   public void setAngle(double degrees) {
     this.shooterSetPoint = degrees;
-    Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
+    degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
     pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
@@ -178,5 +178,9 @@ public class Shooter extends SubsystemBase {
   public TrapezoidProfile.State getState(){
     // return new TrapezoidProfile.State(shooterAbsEncoder.getPosition(), shooterAbsEncoder.getVelocity());
     return new TrapezoidProfile.State(shooterMotor.getEncoder().getPosition(), shooterMotor.getEncoder().getVelocity());
+  }
+
+  public double getTargetAngle(){
+    return shooterSetPoint;
   }
 }

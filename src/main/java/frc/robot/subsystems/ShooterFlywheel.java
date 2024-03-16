@@ -92,10 +92,14 @@ public class ShooterFlywheel extends SubsystemBase {
   }
   public void setRPM(double targetRPM) {
     this.targetRPM = targetRPM;//Will need seprate target for right
-    // topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
-    // botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
     topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
     botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
+  }
+
+  public void setRPMProfiled(double rpm){
+    this.targetRPM = targetRPM;//Will need seprate target for right
+    topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
+    botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
 
   }
 
@@ -132,5 +136,9 @@ public class ShooterFlywheel extends SubsystemBase {
   public void setIdleMode(IdleMode mode){
     topMotor.setIdleMode(mode);
     botMotor.setIdleMode(mode);
+  }
+
+  public double getTargetRpm(){
+    return targetRPM;
   }
 }

@@ -48,7 +48,7 @@ public class SequenceFactory {
     }
 
     public Command getDunkArmNoteTransferSequence(){
-        return new ParallelCommandGroup(
+        return new ParallelDeadlineGroup(
             new SetDunkArmSlew(-25, rc.dunkArm),
             new SetShooterProfiled(0, rc.shooter)
         )
