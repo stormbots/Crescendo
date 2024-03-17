@@ -61,6 +61,7 @@ public class DunkArm extends SubsystemBase {
 
     armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
     
     armMotor.burnFlash();
   }
@@ -72,8 +73,8 @@ public class DunkArm extends SubsystemBase {
     // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
 
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
-    // SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
+    SmartDashboard.putNumber("dunkArm/Rotations", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/output", armMotor.getAppliedOutput());
     // SmartDashboard.putNumber("dunkArm/velocity", getState().velocity);
     SmartDashboard.putNumber("dunkArm/position", armMotor.getEncoder().getPosition());
