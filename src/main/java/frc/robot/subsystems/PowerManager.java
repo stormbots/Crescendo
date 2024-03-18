@@ -6,7 +6,9 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.function.DoubleConsumer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.function.IntConsumer;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.sendable.Sendable;
@@ -18,49 +20,48 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PowerManager extends SubsystemBase implements Sendable {
   private static PowerManager instance;
-  
+  private Future<?> thread = CompletableFuture.runAsync(()->{});
+
   /** The total system current budget, which will be assigned to everything */
-  private double robotPowerBudget=280;
+  private int robotPowerBudget=280;
 
   /** The remaining current that hasn't been assigned yet */
-  private double remainingPower=robotPowerBudget;
+  private int remainingPower=robotPowerBudget;
 
   /** Container class to keep all the info on a system in one place */
   private class SystemInfo{
-    public double ampsMaximum;
-    public double ampsCurrentlyAllocated;
+    public int ampsMaximum;
+    public int ampsCurrentlyAllocated;
     public Optional<Command> runningCommand;
     public SubsystemBase system;
   }
 
   /** A specialized version for the system that may have it's current draw adjusted */
   private class PowerSinkInfo extends SystemInfo{
-    public DoubleConsumer setPower;
-    public double ampsMinimum;
+    public IntConsumer setPower;
+    public int ampsMinimum;
   }
 
   private HashMap<SubsystemBase,SystemInfo> systems = new HashMap<>(10);
-  private Optional<PowerSinkInfo> powerSink;
+  private Optional<PowerSinkInfo> powerSink = Optional.empty();
 
 
   /** Creates a new PowerMonitor. */
   private PowerManager() {
-    this.powerSink = Optional.empty();
   }
 
   public static PowerManager getInstance(){
     if(instance==null) instance = new PowerManager();
-
     return instance;
   }
 
-  public PowerManager setRobotPowerBudget(double amps){
+  public PowerManager setRobotPowerBudget(int amps){
     this.robotPowerBudget = amps;
     this.remainingPower = this.robotPowerBudget;
     return this;
   }
 
-  public PowerManager addSystem(SubsystemBase system, double ampsWhenRunning){
+  public PowerManager addSystem(SubsystemBase system, int ampsWhenRunning){
     var info = new SystemInfo();
     info.ampsCurrentlyAllocated=0;
     info.ampsMaximum=ampsWhenRunning;
@@ -70,7 +71,7 @@ public class PowerManager extends SubsystemBase implements Sendable {
     return this;
   }
 
-  public PowerManager addChassisSystem(SubsystemBase system, double ampsMinimum, double ampsMaximum, DoubleConsumer setCurrentLimit){
+  public PowerManager addChassisSystem(SubsystemBase system, int ampsMinimum, int ampsMaximum, IntConsumer setCurrentLimit){
     var info = new PowerSinkInfo();
     info.ampsCurrentlyAllocated=0;
     info.ampsMinimum=ampsMinimum;
@@ -80,6 +81,7 @@ public class PowerManager extends SubsystemBase implements Sendable {
     info.system = system;
 
     this.powerSink = Optional.of(info);
+
     return this;
   }
 
@@ -87,7 +89,7 @@ public class PowerManager extends SubsystemBase implements Sendable {
    * This should probably be added to the subsystem's default stop(); command,
    * or called after a defaultCommand puts it in a low power position/state
   */
-  public void setPowerDraw( double ampsToAllocate,SubsystemBase system){
+  public void setPowerDraw( int ampsToAllocate, SubsystemBase system){
     var info = systems.get(system);
     // do nothing if the system is not registered yet;
     // This could happen if the subsystem was never registered, or if the 
@@ -102,7 +104,7 @@ public class PowerManager extends SubsystemBase implements Sendable {
   /** Specify the power draw for a command. Useful for sequences or parallel
    * groups where a power adjustment is desirable
    */
-  public Command setPowerDrawCommand(double ampsToAllocate,SubsystemBase system){
+  public Command setPowerDrawCommand(int ampsToAllocate,SubsystemBase system){
     return new InstantCommand(()->setPowerDraw(ampsToAllocate,system));
   }
 
@@ -121,9 +123,9 @@ public class PowerManager extends SubsystemBase implements Sendable {
     var sink = this.powerSink.get();
     var sinkpower = MathUtil.clamp(remainingPower,sink.ampsMinimum,sink.ampsMaximum);
 
-    if(sink.ampsCurrentlyAllocated != sinkpower){
+    if(thread.isDone() && sink.ampsCurrentlyAllocated != sinkpower){
       sink.ampsCurrentlyAllocated = sinkpower;
-      sink.setPower.accept(sinkpower);
+      thread = CompletableFuture.runAsync(()->sink.setPower.accept(sinkpower));
     }
   }
 
@@ -156,7 +158,7 @@ public class PowerManager extends SubsystemBase implements Sendable {
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("PowerMonitor");
     
-    builder.addDoubleProperty("Power Managed",()->this.robotPowerBudget,(f)->this.robotPowerBudget=f);
+    builder.addDoubleProperty("Power Managed",()->this.robotPowerBudget,(f)->this.robotPowerBudget=(int)f);
     builder.addDoubleProperty("Power to systems",()->this.robotPowerBudget-this.remainingPower,null);
     builder.addDoubleProperty("Power to sink",()->this.remainingPower,null);
 
@@ -165,7 +167,7 @@ public class PowerManager extends SubsystemBase implements Sendable {
       builder.addDoubleProperty(
         sink.system.getName(),
         ()->sink.ampsCurrentlyAllocated,
-        (f)->sink.ampsCurrentlyAllocated=f
+        (f)->sink.ampsCurrentlyAllocated=(int)f
       );
     }
 
@@ -173,7 +175,7 @@ public class PowerManager extends SubsystemBase implements Sendable {
       builder.addDoubleProperty(
         sys.getName(), 
         ()->systems.get(sys).ampsCurrentlyAllocated,
-        (f)->systems.get(sys).ampsCurrentlyAllocated=f
+        (f)->systems.get(sys).ampsCurrentlyAllocated=(int)f
       );
     });
   }
