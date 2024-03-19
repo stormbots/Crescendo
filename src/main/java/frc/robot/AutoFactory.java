@@ -13,7 +13,6 @@ import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -25,7 +24,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -44,9 +42,9 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.commands.ShooterSetOdometry;
 
 
 
@@ -104,7 +102,13 @@ public class AutoFactory {
 
         autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
 
-        autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
+        autoChooser.addOption("quasi forward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption("quasi backward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption("dynamic forward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption("dynamic backward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+
+        // autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
         // autoChooser.addOption("Rotate + Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterRotation"));
 
         // autoChooser.addOption("auto Trap", new InstantCommand()
@@ -119,10 +123,10 @@ public class AutoFactory {
         //     .andThen(pathPlannerFollowPathManual("twoMeterRotation"))
         //     );
         
-        autoChooser.addOption("resetCenterPositionRed", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0))
-            .andThen(()->rc.chassis.resetOdometry(new Pose2d(16.6-1.3, 5.65, new Rotation2d(Units.Degrees.of(180)))))
-        );
+        // autoChooser.addOption("resetCenterPositionRed", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0))
+        //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(16.6-1.3, 5.65, new Rotation2d(Units.Degrees.of(180)))))
+        // );
 
         autoChooser.addOption("vv PathPlanner Untested Autos vv", new InstantCommand());
 
@@ -131,25 +135,25 @@ public class AutoFactory {
         // .andThen(()->rc.chassis.setFieldCentricOffset(-60))
         // .andThen(new PathPlannerAuto("basicAmpAuto")));
 
-        autoChooser.addOption("5NoteAmp", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-            .andThen(new PathPlannerAuto("5NoteAmpAuto"))
-        );
+        // autoChooser.addOption("5NoteAmp", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+        //     .andThen(new PathPlannerAuto("5NoteAmpAuto"))
+        // );
 
         // autoChooser.addOption("4noteAmp", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
         //     .andThen(new PathPlannerAuto("4NoteAmpAuto"))
         // );
 
-        autoChooser.addOption("4NoteSource", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-            .andThen(new PathPlannerAuto("4NoteSourceAuto"))
-        );
+        // autoChooser.addOption("4NoteSource", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
+        //     .andThen(new PathPlannerAuto("4NoteSourceAuto"))
+        // );
 
-        autoChooser.addOption("5NoteCenter", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-            .andThen(new PathPlannerAuto("5NoteCenterAuto"))
-        );
+        // autoChooser.addOption("5NoteCenter", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("5NoteCenterAuto"))
+        // );
 
         // autoChooser.addOption("4NoteCenter", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
@@ -161,13 +165,13 @@ public class AutoFactory {
         //     .andThen(new PathPlannerAuto("closeNoteAuto"))
         // );
 
-        autoChooser.addOption("2NoteAmp", new InstantCommand()
-        .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        .andThen(new PathPlannerAuto("2NoteAmpAuto")));
+        // autoChooser.addOption("2NoteAmp", new InstantCommand()
+        // .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+        // .andThen(new PathPlannerAuto("2NoteAmpAuto")));
 
-        autoChooser.addOption("2NoteSource", new InstantCommand()
-        .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        .andThen(new PathPlannerAuto("2NoteSourceAuto")));
+        // autoChooser.addOption("2NoteSource", new InstantCommand()
+        // .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
+        // .andThen(new PathPlannerAuto("2NoteSourceAuto")));
 
         return false; //will bryan cry tonight 
     }

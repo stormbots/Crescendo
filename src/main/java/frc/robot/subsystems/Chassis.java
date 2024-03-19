@@ -17,7 +17,6 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -25,15 +24,20 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.ChassisConstants.OIConstants;
 import frc.robot.MAXSwerveModule;
@@ -252,6 +256,47 @@ public class Chassis extends SubsystemBase {
     rearLeft.setDesiredState(swerveModuleStates[2]);
     rearRight.setDesiredState(swerveModuleStates[3]);
   }
+
+  private final SysIdRoutine sysIdRoutine =
+  new SysIdRoutine(
+      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(
+          // Tell SysId how to plumb the driving voltage to the motors.
+          (Measure<Voltage> volts) -> {
+            frontLeft.setVoltageDrive(volts);
+            frontRight.setVoltageDrive(volts);
+            rearLeft.setVoltageDrive(volts);
+            rearRight.setVoltageDrive(volts);
+          },
+          log -> {
+            log.motor("frontRight")
+                .voltage(Units.Volts.of(frontRight.getPowerOutput()))
+                .linearPosition(Units.Meters.of(frontRight.getDrivingEncoderPosition()))
+                .linearVelocity( Units.MetersPerSecond.of(frontRight.getState().speedMetersPerSecond));
+            log.motor("frontLeft")
+              .voltage(Units.Volts.of(frontLeft.getPowerOutput()))
+              .linearPosition(Units.Meters.of(frontLeft.getDrivingEncoderPosition()))
+              .linearVelocity( Units.MetersPerSecond.of(frontLeft.getState().speedMetersPerSecond));
+            log.motor("rearRight")
+              .voltage(Units.Volts.of(rearRight.getPowerOutput()))
+              .linearPosition(Units.Meters.of(rearRight.getDrivingEncoderPosition()))
+              .linearVelocity( Units.MetersPerSecond.of(rearRight.getState().speedMetersPerSecond));
+            log.motor("rearLeft")
+              .voltage(Units.Volts.of(rearLeft.getPowerOutput()))
+              .linearPosition(Units.Meters.of(rearLeft.getDrivingEncoderPosition()))
+              .linearVelocity( Units.MetersPerSecond.of(rearLeft.getState().speedMetersPerSecond));
+          },
+          this));
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+  }
+  
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
+  }
+          
 
   /**
    * Sets the wheels into an X formation to prevent movement.

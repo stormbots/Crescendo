@@ -17,6 +17,9 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.ChassisConstants.ModuleConstants;
@@ -181,6 +184,20 @@ public class MAXSwerveModule implements Sendable{
   
   public void setCurrentLimit(double amps){
     drivingSparkFlex.setSmartCurrentLimit((int)amps);
+  }
+
+  public void setVoltageDrive(Measure<Voltage> voltage){
+    drivingSparkFlex.setVoltage(voltage.in(Units.Volts));
+
+    turningPIDController.setReference(0, CANSparkMax.ControlType.kPosition);
+  }
+
+  public double getPowerOutput(){
+    return drivingSparkFlex.getAppliedOutput() * drivingSparkFlex.getBusVoltage();
+  }
+
+  public double getDrivingEncoderPosition(){
+    return drivingEncoder.getPosition();
   }
 
   @Override
