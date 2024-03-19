@@ -41,9 +41,6 @@ public class OdometryWithVision extends Command {
     if (shooterVision.getVisibleTargetData().isPresent()) {
         poseEstimator.addVisionMeasurement(shooterVision.poseEstimator.getEstimatedPosition(), Timer.getFPGATimestamp());
     }
-    if (intakeVision.getVisibleTarget().isPresent()) {
-        poseEstimator.addVisionMeasurement(intakeVision.poseEstimator.getEstimatedPosition(), Timer.getFPGATimestamp());
-    }
   }
 
   // Called once the command ends or is interrupted.

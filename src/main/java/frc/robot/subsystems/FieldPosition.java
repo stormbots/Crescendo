@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.subsystems.IntakeVision.LimelightReadings;
+import frc.robot.subsystems.IntakeVision.NoteData;
 
 public class FieldPosition {
     public final static double kOriginOffsetX=15.98/2.0;

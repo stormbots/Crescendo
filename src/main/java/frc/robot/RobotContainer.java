@@ -38,6 +38,7 @@ import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetOdometry;
 import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.VisionTrackNoteOnHeading;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.commands.VisionTurnToTargetPose;
@@ -96,8 +97,10 @@ public class RobotContainer {
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
 
-  // public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
+  public final IntakeVision intakeVision = new IntakeVision();
+  // public final IntakeVision intakeVision = new IntakeVision();
   public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
+  
 
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
@@ -402,6 +405,22 @@ public class RobotContainer {
       new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
     );
 
+    //Limelight Intake Vision
+    // operatorJoystick.button(15).whileTrue(
+    //   new VisionTrackNoteOnHeading(chassis,
+    //   ()-> -driverController.getLeftY(), 
+    //   ()-> -driverController.getLeftX(),
+    //   ()-> -driverTurnJoystickValue(), 
+    //   intake, passthrough, leds)
+    // );
+    
+    SmartDashboard.putData("VisionTrackNoteOnHeading/Button", new VisionTrackNoteOnHeading(chassis, intakeVision, 
+    ()-> -driverController.getLeftX(), ()-> -driverController.getLeftY(), ()-> -driverTurnJoystickValue(), intake, passthrough, leds));
+    // (chassis, 
+    // ()-> -driverController.getLeftY(), 
+    // ()-> -driverController.getLeftX(),
+    // ()-> -driverTurnJoystickValue(), 
+    // intake, passthrough, leds)
     // operatorJoystick.button(15).whileTrue(
     //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
     // );
