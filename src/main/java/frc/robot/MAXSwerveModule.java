@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkFlexFixes;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 
@@ -22,6 +23,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import frc.robot.ChassisConstants.ModuleConstants;
 
 public class MAXSwerveModule implements Sendable{
@@ -109,6 +111,11 @@ public class MAXSwerveModule implements Sendable{
     turningSparkMax.setIdleMode(IdleMode.kBrake);
     drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
+
+    // drivingEncoder.setAverageDepth(2);
+    // drivingEncoder.setMeasurementPeriod(8);
+    SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
+    SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
