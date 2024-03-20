@@ -29,7 +29,6 @@ public class IntakeNote extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  //TODO Fix this!!!
   public void execute() {
     intake.intake();
     passthrough.intake();
@@ -45,6 +44,6 @@ public class IntakeNote extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return passthrough.isBlocked();
+    return intake.isBlocked() || passthrough.isBlocked();
   }
 }
