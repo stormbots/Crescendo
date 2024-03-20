@@ -26,7 +26,7 @@ public class IntakeVision extends SubsystemBase {
 
   public NetworkTable camera = NetworkTableInstance.getDefault().getTable("limelight-intake");
 
-  public IntakeVision() { //need to add pose estimator
+  public IntakeVision() {
     setPipeline(IntakePipeline.kNote);
   }
 
@@ -35,7 +35,7 @@ public class IntakeVision extends SubsystemBase {
     SmartDashboard.putNumber("intakevision/tv", camera.getEntry("tv").getDouble(0.0));
   }
 
-  public boolean hasValidTarget() {
+  private boolean hasValidTarget() {
     double tv = camera.getEntry("tv").getDouble(0.0);
     return tv >= 1;
   }
@@ -50,11 +50,6 @@ public class IntakeVision extends SubsystemBase {
     target.time = Timer.getFPGATimestamp();
 
     return Optional.of(target);
-  }
-  //Not sure if this is correct?
-  public double angleOffset() {
-    var target = new NoteData();
-    return target.angleVertical;
   }
 
   public void setPipeline(IntakePipeline pipeline) {

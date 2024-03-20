@@ -17,72 +17,72 @@ import frc.robot.subsystems.IntakeVision.IntakePipeline;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
 
-public class VisionTrackNoteOnHeading extends Command {
+public class VisionTrackNote extends Command {
   private IntakeVision intakeVision;
   private IntakePipeline pipeline;
   private Chassis chassis;
   private DoubleSupplier xSpeed;
   private DoubleSupplier ySpeed;
   private DoubleSupplier rotSpeed;
-  private AHRS gyro;
   private Intake intake;
   private Passthrough passthrough;
   private Leds leds;
-  private boolean isBlocked;
 
   /** Creates a new VisionTrackNoteOnHeading. */
-  public VisionTrackNoteOnHeading(Chassis chassis, IntakeVision intakeVision, DoubleSupplier xSpeed, 
-  DoubleSupplier ySpeed, DoubleSupplier rotSpeed, Intake intake, Passthrough passthrough, Leds leds) {
+  public VisionTrackNote(
+    DoubleSupplier xSpeed, 
+    DoubleSupplier ySpeed,
+    DoubleSupplier rotSpeed,
+    Chassis chassis,
+    Intake intake,
+    Passthrough passthrough, 
+    IntakeVision intakeVision, 
+    Leds leds) {
 
     //TODO: put all subsystems last in constructor;
 
 
-    // this.vision = vision;
-    // this.pipeline = pipeline;
-    this.chassis = chassis;
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed;
     this.rotSpeed = rotSpeed;
-    // this.gyro = gyro;
+    this.chassis = chassis;
     this.intake = intake;
     this.passthrough = passthrough;
-    this.leds = leds;
     this.intakeVision = intakeVision;
+    this.leds = leds;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(chassis);
-    addRequirements(intakeVision);
     addRequirements(intake);
+    addRequirements(passthrough);
+    addRequirements(intakeVision);
+    addRequirements(leds);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     //set the vision pipeline
-    intakeVision.setPipeline(pipeline);
+    intakeVision.setPipeline(IntakePipeline.kNote);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    var target = intakeVision.getVisibleTarget();
-
     intake.intake();
-    //passthrough?!
+    passthrough.intake();
+
+    var target = intakeVision.getVisibleTarget();
     var noteadjustment = 0.0;
 
     if(target.isPresent()){
-      target.get();//todo use me!!!
       leds.ready();
-      //add to noteoffset
-      noteadjustment = intakeVision.angleOffset();
-      // noteadjustment = target.getVisibleTarget();
-
+      noteadjustment = target.get().angleHorizontal * 1/360.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
     } else {
       leds.preparing();
     }
 
-    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), noteadjustment + rotSpeed.getAsDouble(), true, true);
+    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + noteadjustment, true, true);
   }
   
 
@@ -90,20 +90,15 @@ public class VisionTrackNoteOnHeading extends Command {
   @Override
   public void end(boolean interrupted) {
     intake.stop();
-    //passthrough stop!?!
+    passthrough.stop();
 
     intakeVision.setPipeline(IntakePipeline.kDriverView);
-    leds.showTeamColor();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     //check lasercan to see if it sees a note, then end
-    if (passthrough.isBlocked()) {
-      return true;
-    } else {
-      return false;
-    }
+    return passthrough.isBlocked();
   }
 }

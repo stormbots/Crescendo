@@ -38,7 +38,7 @@ import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetOdometry;
 import frc.robot.commands.ShooterSetVision;
-import frc.robot.commands.VisionTrackNoteOnHeading;
+import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.commands.VisionTurnToTargetPose;
@@ -162,17 +162,22 @@ public class RobotContainer {
 
     SmartDashboard.putData("restTo0,0", new InstantCommand(()->chassis.resetOdometry(new Pose2d())));
     SmartDashboard.putData("restToSpeaker", new InstantCommand(()->chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
+
+    SmartDashboard.putData("intakevision/tracknotecommand", new VisionTrackNote(
+      ()-> -driverController.getLeftX(), ()-> -driverController.getLeftY(), ()-> -driverTurnJoystickValue(),
+      chassis,  intake, passthrough, intakeVision,  leds
+    ));
   }
 
   private void configureDefaultCommands() {
     // The left stick controls translation of the robot.
     // Turning is controlled by the X axis of the right stick.
   //TODO: This should work now
-  chassis.setDefaultCommand(chassis.getFCDriveCommand( 
-    ()-> -driverController.getLeftY(), 
-    ()-> -driverController.getLeftX(), 
-    ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
-  ));
+    chassis.setDefaultCommand(chassis.getFCDriveCommand( 
+      ()-> -driverController.getLeftY(), 
+      ()-> -driverController.getLeftX(), 
+      ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
+    ));
 
     //default, but only runs once
     //TODO: Only enable when robot is tested 
@@ -271,7 +276,21 @@ public class RobotContainer {
     //       ),
     //   chassis)
     );
-   }
+
+
+    // Limelight Intake Vision
+    // driverController
+    // .axisGreaterThan(2, 0.5) //left trigger?
+    // .whileTrue(
+    //   new VisionTrackNoteOnHeading(
+    //   ()-> -driverController.getLeftY(), 
+    //   ()-> -driverController.getLeftX(),
+    //   ()-> -driverTurnJoystickValue(), 
+    //   chassis, intake, passthrough, intakeVision, leds)
+    // );
+
+  }
+
   private void configureOperatorBindings(){
     // operatorJoystick.button(2).onTrue(new InstantCommand()
     //   .andThen( new SetDunkArmSlew(0, dunkArm))
@@ -405,22 +424,6 @@ public class RobotContainer {
       new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
     );
 
-    //Limelight Intake Vision
-    // operatorJoystick.button(15).whileTrue(
-    //   new VisionTrackNoteOnHeading(chassis,
-    //   ()-> -driverController.getLeftY(), 
-    //   ()-> -driverController.getLeftX(),
-    //   ()-> -driverTurnJoystickValue(), 
-    //   intake, passthrough, leds)
-    // );
-    
-    SmartDashboard.putData("VisionTrackNoteOnHeading/Button", new VisionTrackNoteOnHeading(chassis, intakeVision, 
-    ()-> -driverController.getLeftX(), ()-> -driverController.getLeftY(), ()-> -driverTurnJoystickValue(), intake, passthrough, leds));
-    // (chassis, 
-    // ()-> -driverController.getLeftY(), 
-    // ()-> -driverController.getLeftX(),
-    // ()-> -driverTurnJoystickValue(), 
-    // intake, passthrough, leds)
     // operatorJoystick.button(15).whileTrue(
     //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel)
     // );
