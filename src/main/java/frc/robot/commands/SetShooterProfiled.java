@@ -29,8 +29,8 @@ public class SetShooterProfiled extends Command {
   // double startTimer = 0;
   double targetPosition = 0.0;
 
-  SlewRateLimiter shooterRateLimiter =new SlewRateLimiter(
-    150, -150, 0); //TODO: get rate limits
+  SlewRateLimiter shooterRateLimiter = new SlewRateLimiter(
+  Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
 
     
   public SetShooterProfiled(double shooterAngle, Shooter shooter) {

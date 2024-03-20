@@ -48,6 +48,9 @@ public class Shooter extends SubsystemBase {
     {173, 13.2, 6000} 
   });
 
+  public static final double kSlewForward = 150;
+  public static final double kSlewBackward = -150;
+
   public Shooter() {
     shooterMotor.clearFaults();
     shooterMotor.restoreFactoryDefaults();
@@ -148,7 +151,6 @@ public class Shooter extends SubsystemBase {
     var tolerance = 0.75;
     //TODO figure out better tolerances that make sense
     return Clamp.bounded(shooterMotor.getEncoder().getPosition(), position-tolerance, position+tolerance);
-
   }
 
 

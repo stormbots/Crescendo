@@ -39,6 +39,7 @@ import frc.robot.commands.LogOutgoingShot;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
+import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetOdometry;
@@ -325,20 +326,48 @@ public class RobotContainer {
     // );
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
 
-    //score button
+    //old score button, keeping just because 
+    // operatorJoystick.button(1)
+    // .whileTrue(new ConditionalCommand(
+    //   //Shoot using whatever shooter position/speed is set up elsewhere
+    //   new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
+    //     .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
+    //     .withTimeout(5),
+    //   //score out of rollers
+    //   new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
+    //     .withTimeout(3),
+    //   passthrough::isBlocked
+    // ))
+    // .onTrue(
+    //   new LogOutgoingShot(swerveDrivePoseEstimator, shooter, shooterFlywheel)
+    // );
+    
+    //Score button
     operatorJoystick.button(1)
-    .whileTrue(new ConditionalCommand(
+    .and(()->passthrough.isBlocked())
+    .whileTrue(
       //Shoot using whatever shooter position/speed is set up elsewhere
       new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
         .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
-        .withTimeout(5),
-      //score out of rollers
-      new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
-        .withTimeout(3),
-      passthrough::isBlocked
-    ))
+        .withTimeout(5)
+    )
     .onTrue(
       new LogOutgoingShot(swerveDrivePoseEstimator, shooter, shooterFlywheel)
+    );
+
+    //score trap or amp
+    operatorJoystick.button(1)
+    .and(()->!passthrough.isBlocked())
+    .whileTrue(
+      //score trap
+      new ConditionalCommand(
+        new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
+        .withTimeout(3),
+      //score amp
+        new RunCommand(dunkArmRoller::scoreAmp, dunkArmRoller)
+        .withTimeout(3), 
+        operatorJoystick.button(6)
+      )
     );
 
     //defense position
@@ -352,7 +381,7 @@ public class RobotContainer {
     //speaker shot
     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
-      shooterFlywheel.getShooterSetRPMCommand(4000),
+      new SetFlywheelSlew(4000, shooterFlywheel),
       new SetShooterProfiled(40.5+0.5, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
@@ -360,7 +389,7 @@ public class RobotContainer {
     //podium/far shot
     operatorJoystick.button(4) //far shooting
     .whileTrue(new ParallelCommandGroup(
-      shooterFlywheel.getShooterSetRPMCommand(4500),
+      new SetFlywheelSlew(4500, shooterFlywheel),
       new SetShooterProfiled(20+1, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
@@ -376,7 +405,7 @@ public class RobotContainer {
           new IntakeNote(intake, passthrough),
           new SetShooterProfiled(0, shooter),
           //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
-          shooterFlywheel.getShooterSetRPMCommand(1500)
+          new SetFlywheelSlew(1500, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
@@ -398,7 +427,7 @@ public class RobotContainer {
       new RunCommand(intake::eject, intake),
       new RunCommand(passthrough::eject, passthrough),
       new SetShooterProfiled(0, shooter), 
-      shooterFlywheel.getShooterSetRPMCommand(-3000),
+      new SetFlywheelSlew(-3000, shooterFlywheel),
       new RunCommand(dunkArmRoller::eject, dunkArmRoller)
     )//TODO: set shooter/intake eject RPM properly
     .finallyDo((e)->passthrough.stop())
@@ -409,7 +438,7 @@ public class RobotContainer {
     operatorJoystick.button(8).whileTrue(
       new IntakeNote(intake, passthrough)
     )
-    .whileTrue(shooterFlywheel.getShooterSetRPMCommand(0))
+    .whileTrue(new SetFlywheelSlew(0, shooterFlywheel))
     .whileTrue(new SetShooterProfiled(0, shooter))
     ;
 

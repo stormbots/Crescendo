@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 
@@ -23,6 +24,7 @@ public class Intake extends SubsystemBase {
     motor.clearFaults();
     //Safety
     motor.setSmartCurrentLimit(60);
+    motor.setIdleMode(IdleMode.kBrake);
 
     motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 200);
     motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
