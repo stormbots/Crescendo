@@ -13,8 +13,10 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkFlexFixes;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -38,6 +40,8 @@ public class MAXSwerveModule implements Sendable{
 
   private double chassisAngularOffset = 0;
   private SwerveModuleState desiredState = new SwerveModuleState(0.0, new Rotation2d());
+
+  private SimpleMotorFeedforward drivingMotorFeedforward = new SimpleMotorFeedforward(0.11413,1.9025,0.11863);
 
   /**
    * Constructs a MAXSwerveModule and configures the driving and turning motor,
@@ -94,7 +98,7 @@ public class MAXSwerveModule implements Sendable{
     drivingPIDController.setP(ModuleConstants.kDrivingP);
     drivingPIDController.setI(ModuleConstants.kDrivingI);
     drivingPIDController.setD(ModuleConstants.kDrivingD);
-    drivingPIDController.setFF(ModuleConstants.kDrivingFF);
+    // drivingPIDController.setFF(ModuleConstants.kDrivingFF);  
     drivingPIDController.setOutputRange(ModuleConstants.kDrivingMinOutput,
         ModuleConstants.kDrivingMaxOutput);
 
@@ -177,7 +181,12 @@ public class MAXSwerveModule implements Sendable{
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
     // SmartDashboard.putNumber("optimizedDesiredState.speedMetersPerSecond", optimizedDesiredState.speedMetersPerSecond);
-    drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkFlex.ControlType.kVelocity);
+    // drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkFlex.ControlType.kVelocity);
+
+    // var arbFF = drivingMotorFeedforward.calculate(drivingEncoder.getVelocity(), optimizedDesiredState.speedMetersPerSecond, 0.02);
+    var arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
+    drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity, 0, arbFF, ArbFFUnits.kVoltage);
+
     turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
     //Added a this
