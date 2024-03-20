@@ -147,7 +147,7 @@ public class Shooter extends SubsystemBase {
   public boolean isOnTarget(double position){
     var tolerance = 0.75;
     //TODO figure out better tolerances that make sense
-    return Clamp.bounded(position, position-tolerance, position+tolerance);
+    return Clamp.bounded(shooterMotor.getEncoder().getPosition(), position-tolerance, position+tolerance);
 
   }
 
