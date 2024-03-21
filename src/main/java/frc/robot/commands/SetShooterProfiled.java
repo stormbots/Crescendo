@@ -29,8 +29,8 @@ public class SetShooterProfiled extends Command {
   // double startTimer = 0;
   double targetPosition = 0.0;
 
-  SlewRateLimiter shooterRateLimiter =new SlewRateLimiter(
-    150, -150, 0); //TODO: get rate limits
+  SlewRateLimiter shooterRateLimiter = new SlewRateLimiter(
+  Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
 
     
   public SetShooterProfiled(double shooterAngle, Shooter shooter) {
@@ -85,14 +85,8 @@ public class SetShooterProfiled extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // var posTol = 0.05;
-    // var pos = Clamp.bounded(shooter.getShooterAngle(), shooterAngle-posTol, shooterAngle+posTol);
   
-    // var velTol = 10; // per sec
-    // var vol = Clamp.bounded(shooter.getState().velocity, -velTol, velTol);
-  
-    // return exitsOnCompletion && shooter.isOnTarget(shooterAngle);
-    return false;
+    return exitsOnCompletion && shooter.isOnTarget(shooterAngle);
   }
 
   public SetShooterProfiled runForever(){

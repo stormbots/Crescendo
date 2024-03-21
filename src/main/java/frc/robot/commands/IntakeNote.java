@@ -12,6 +12,7 @@ public class IntakeNote extends Command {
   
   private Intake intake;
   private Passthrough passthrough;
+  boolean exitsOnCompletion = true;
 
   /** Creates a new IntakeNote. */
   public IntakeNote(Intake intake, Passthrough passthrough) {
@@ -29,10 +30,13 @@ public class IntakeNote extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  //TODO Fix this!!!
   public void execute() {
     intake.intake();
-    passthrough.intake();
+    passthrough.stop();
+
+    if (exitsOnCompletion==false) {
+      passthrough.intake();
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -45,6 +49,11 @@ public class IntakeNote extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return passthrough.isBlocked();
+    return exitsOnCompletion && (intake.isBlocked() || passthrough.isBlocked());
+  }
+
+  public IntakeNote runForever(){
+    this.exitsOnCompletion = false;
+    return this;
   }
 }

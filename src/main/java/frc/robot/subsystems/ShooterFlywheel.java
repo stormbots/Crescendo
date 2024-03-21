@@ -27,6 +27,9 @@ public class ShooterFlywheel extends SubsystemBase {
   private final double kMaxRPM = 6784 * kGearing;
 
   double targetRPM = 0;
+
+  public static final double kSlewForward = 4000/0.5;  //TODO: get rate limits
+  public static final double kSlewBackward = -kSlewForward;
    
   /** Creates a new Flywheel. */
   public ShooterFlywheel() {

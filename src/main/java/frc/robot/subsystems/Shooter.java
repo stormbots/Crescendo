@@ -33,7 +33,7 @@ public class Shooter extends SubsystemBase {
   private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double shooterSetPoint = 0.0;
 
-  private double reverseSoftLimit = 1;
+  private double reverseSoftLimit = 2;
   private double forwardSoftLimit = 46;
 
   public static LUT lut = new LUT(new double[][]{
@@ -47,6 +47,9 @@ public class Shooter extends SubsystemBase {
     {148, 15.4, 5500}, //farthest shot with dunkarm down
     {173, 13.2, 6000} 
   });
+
+  public static final double kSlewForward = 150;
+  public static final double kSlewBackward = -150;
 
   public Shooter() {
     shooterMotor.clearFaults();
@@ -146,9 +149,9 @@ public class Shooter extends SubsystemBase {
   }
   public boolean isOnTarget(double position){
     var tolerance = 0.75;
+    position = Clamp.clamp(position, reverseSoftLimit, forwardSoftLimit); 
     //TODO figure out better tolerances that make sense
-    return Clamp.bounded(position, position-tolerance, position+tolerance);
-
+    return Clamp.bounded(shooterMotor.getEncoder().getPosition(), position-tolerance, position+tolerance);
   }
 
 
@@ -161,8 +164,8 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setAngle(double degrees) {
-    this.shooterSetPoint = degrees;
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
+    this.shooterSetPoint = degrees;
     pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
