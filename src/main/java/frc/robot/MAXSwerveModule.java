@@ -41,7 +41,7 @@ public class MAXSwerveModule implements Sendable{
   private double chassisAngularOffset = 0;
   private SwerveModuleState desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
-  private SimpleMotorFeedforward drivingMotorFeedforward = new SimpleMotorFeedforward(0.14122,1.9181,0.2917);
+  private SimpleMotorFeedforward drivingMotorFeedforward = new SimpleMotorFeedforward(0,0,0);
 
   /**
    * Constructs a MAXSwerveModule and configures the driving and turning motor,
@@ -49,9 +49,10 @@ public class MAXSwerveModule implements Sendable{
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a Through Bore
    * Encoder.
    */
-  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset) {
+  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, SimpleMotorFeedforward drivingMotorFeedforward){
     drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
     turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
+    this.drivingMotorFeedforward = drivingMotorFeedforward;
 
     drivingSparkFlex.clearFaults();
     turningSparkMax.clearFaults();

@@ -344,7 +344,7 @@ public class RobotContainer {
     
     //Score button
     operatorJoystick.button(1)
-    .and(()->passthrough.isBlocked())
+    .and(()->passthrough.isBlocked()||intake.isBlocked())
     .whileTrue(
       //Shoot using whatever shooter position/speed is set up elsewhere
       new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
@@ -357,7 +357,7 @@ public class RobotContainer {
 
     //score trap or amp
     operatorJoystick.button(1)
-    .and(()->!passthrough.isBlocked())
+    .and(()->!passthrough.isBlocked()&&!intake.isBlocked())
     .whileTrue(
       //score amp
       new ConditionalCommand(

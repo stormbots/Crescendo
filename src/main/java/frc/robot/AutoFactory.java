@@ -188,8 +188,8 @@ public class AutoFactory {
         };
 
         HolonomicPathFollowerConfig holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
-            new PIDConstants(2/4*2*2*2*2*2), 
-            new PIDConstants(1/Math.PI*2*2*1.5), 
+            new PIDConstants(1/4.0*0), 
+            new PIDConstants(Math.PI*0), 
             DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
             new ReplanningConfig(true, false));

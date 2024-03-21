@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -53,22 +54,26 @@ public class Chassis extends SubsystemBase {
   private final MAXSwerveModule frontLeft = new MAXSwerveModule(
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
-      0);
+      0,
+      new SimpleMotorFeedforward(0.14435, 1.9123, 0.21404));
 
   private final MAXSwerveModule frontRight = new MAXSwerveModule(
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
-      0);
+      0,
+      new SimpleMotorFeedforward(0.15645, 1.9194, 0.26905));
 
   private final MAXSwerveModule rearLeft = new MAXSwerveModule(
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
-      0);
+      0,
+      new SimpleMotorFeedforward(0.095901, 1.9072, 0.33214));
 
   private final MAXSwerveModule rearRight = new MAXSwerveModule(
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
-      0);
+      0,
+      new SimpleMotorFeedforward(0.18284, 1.9105, 0.18241));
 
   // The gyro sensor
   public AHRS navx;
