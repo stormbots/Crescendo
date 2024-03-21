@@ -223,9 +223,9 @@ public class RobotContainer {
     
     //align a note if nothing else is using passthrough
     new Trigger(DriverStation::isTeleop)
-    .and(passthrough::isBlocked)
+    .and(()->(passthrough.isBlocked() || intake.isBlocked()))
     .and(()->passthrough.getCurrentCommand()==null)
-    .whileTrue(new PassthroughAlignNote(passthrough, intake))
+    .whileTrue(new PassthroughAlignNote(passthrough, intake).withTimeout(2))
     ;
 
     intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
@@ -402,7 +402,7 @@ public class RobotContainer {
         sequenceFactory.getDunkArmNoteTransferSequence(),
 
         new ParallelCommandGroup(
-          new IntakeNote(intake, passthrough),
+          new IntakeNote(intake, passthrough).runForever(),
           new SetShooterProfiled(0, shooter),
           //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
           new SetFlywheelSlew(1500, shooterFlywheel)
@@ -437,6 +437,7 @@ public class RobotContainer {
     //intake note
     operatorJoystick.button(8).whileTrue(
       new IntakeNote(intake, passthrough)
+      .andThen(new PassthroughAlignNote(passthrough,intake))
     )
     .whileTrue(new SetFlywheelSlew(0, shooterFlywheel))
     .whileTrue(new SetShooterProfiled(0, shooter))

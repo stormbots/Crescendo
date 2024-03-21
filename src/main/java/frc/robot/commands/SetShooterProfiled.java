@@ -85,14 +85,8 @@ public class SetShooterProfiled extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // var posTol = 0.05;
-    // var pos = Clamp.bounded(shooter.getShooterAngle(), shooterAngle-posTol, shooterAngle+posTol);
   
-    // var velTol = 10; // per sec
-    // var vol = Clamp.bounded(shooter.getState().velocity, -velTol, velTol);
-  
-    // return exitsOnCompletion && shooter.isOnTarget(shooterAngle);
-    return false;
+    return exitsOnCompletion && shooter.isOnTarget(shooterAngle);
   }
 
   public SetShooterProfiled runForever(){

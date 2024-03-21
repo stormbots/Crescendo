@@ -69,7 +69,7 @@ public class DunkArmRoller extends SubsystemBase{
     }
 
     public void scoreAmp(){
-        setSpeed(-0.4);
+        setSpeed(-0.3);
     }
 
     public void resetEncoder(double encoderValue){

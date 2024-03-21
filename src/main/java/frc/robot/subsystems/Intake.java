@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMax;
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.RangingMode;
+import au.grapplerobotics.LaserCan.TimingBudget;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
@@ -26,7 +27,7 @@ public class Intake extends SubsystemBase {
   private CANSparkMax motor = new CANSparkMax(9, MotorType.kBrushless);
   //Define motor speed, adjust
   private double kIntakeSpeed = 1.0;
-  private LaserCan lasercan = new LaserCan(21); //TODO; set lasercan value on lasercan!!!
+  private LaserCan lasercan = new LaserCan(21);
   /** distance to the far side of passthrough when unobstructed, in mm */
   private final double kFarWallDistance = 355.0; //mm
   /** distance where we're confident game piece is loaded, and loading can stop. In mm */
@@ -53,6 +54,7 @@ public class Intake extends SubsystemBase {
     
     try {
       lasercan.setRangingMode(RangingMode.SHORT);
+      lasercan.setTimingBudget(TimingBudget.TIMING_BUDGET_20MS);
       SmartDashboard.putBoolean("intake/LaserConfig'd", true);
     } catch (ConfigurationFailedException e) {
       SmartDashboard.putBoolean("intake/LaserConfig'd", false);
@@ -66,7 +68,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Measure<Distance> getSensorDistance() {   
-    var measurement = getSensorReading(); 
+    var measurement = getSensorReading();
     var distance = measurement.orElseGet(()->Units.Millimeters.of(kFarWallDistance));
     return distance;
   }
@@ -98,5 +100,6 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("currenttesting/intake", motor.getOutputCurrent());
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("seenote/intakelc", isBlocked());
   }
 }

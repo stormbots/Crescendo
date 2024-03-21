@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Clamp;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Passthrough;
 
@@ -38,6 +39,7 @@ public class PassthroughAlignNote extends Command {
 
     var kpassresponse = (dist-nominal) * kpassthrough;
     var kintakeresponse = (dist-nominal) * kintake;
+    kintakeresponse = Clamp.clamp(kintake, -0.2, 0.2);
 
     passthrough.setPower(kpassresponse);
     intake.setPower(kintakeresponse);
@@ -53,6 +55,7 @@ public class PassthroughAlignNote extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return passthrough.getSensorDistance().in(Units.Inches) > 6;
+    return false;
+    // return passthrough.getSensorDistance().in(Units.Inches) > 6;
   }
 }

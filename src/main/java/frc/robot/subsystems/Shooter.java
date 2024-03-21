@@ -149,6 +149,7 @@ public class Shooter extends SubsystemBase {
   }
   public boolean isOnTarget(double position){
     var tolerance = 0.75;
+    position = Clamp.clamp(position, reverseSoftLimit, forwardSoftLimit); 
     //TODO figure out better tolerances that make sense
     return Clamp.bounded(shooterMotor.getEncoder().getPosition(), position-tolerance, position+tolerance);
   }
@@ -163,8 +164,8 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setAngle(double degrees) {
-    this.shooterSetPoint = degrees;
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
+    this.shooterSetPoint = degrees;
     pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
