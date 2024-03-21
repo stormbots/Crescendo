@@ -33,7 +33,7 @@ public class Shooter extends SubsystemBase {
   private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double shooterSetPoint = 0.0;
 
-  private double reverseSoftLimit = 1;
+  private double reverseSoftLimit = 2;
   private double forwardSoftLimit = 46;
 
   public static LUT lut = new LUT(new double[][]{

@@ -359,12 +359,12 @@ public class RobotContainer {
     operatorJoystick.button(1)
     .and(()->!passthrough.isBlocked())
     .whileTrue(
-      //score trap
-      new ConditionalCommand(
-        new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
-        .withTimeout(3),
       //score amp
+      new ConditionalCommand(
         new RunCommand(dunkArmRoller::scoreAmp, dunkArmRoller)
+        .withTimeout(3),
+      //score trap
+        new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
         .withTimeout(3), 
         operatorJoystick.button(6)
       )
