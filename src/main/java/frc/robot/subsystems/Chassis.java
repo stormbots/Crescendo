@@ -92,6 +92,38 @@ public class Chassis extends SubsystemBase {
    */
   PIDController turnpid = new PIDController(1/Math.PI,0,0);
 
+  private final SysIdRoutine sysIdRoutine =
+  new SysIdRoutine(
+      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(
+          // Tell SysId how to plumb the driving voltage to the motors.
+          (Measure<Voltage> volts) -> {
+            frontLeft.setVoltageDrive(volts);
+            frontRight.setVoltageDrive(volts);
+            rearLeft.setVoltageDrive(volts);
+            rearRight.setVoltageDrive(volts);
+          },
+          log -> {
+            log.motor("frontRight")
+                .voltage(Units.Volts.of(frontRight.getPowerOutput()))
+                .linearPosition(Units.Meters.of(frontRight.getDrivingEncoderPosition()))
+                .linearVelocity( Units.MetersPerSecond.of(frontRight.getState().speedMetersPerSecond));
+            log.motor("frontLeft")
+              .voltage(Units.Volts.of(frontLeft.getPowerOutput()))
+              .linearPosition(Units.Meters.of(frontLeft.getDrivingEncoderPosition()))
+              .linearVelocity( Units.MetersPerSecond.of(frontLeft.getState().speedMetersPerSecond));
+            log.motor("rearRight")
+              .voltage(Units.Volts.of(rearRight.getPowerOutput()))
+              .linearPosition(Units.Meters.of(rearRight.getDrivingEncoderPosition()))
+              .linearVelocity( Units.MetersPerSecond.of(rearRight.getState().speedMetersPerSecond));
+            log.motor("rearLeft")
+              .voltage(Units.Volts.of(rearLeft.getPowerOutput()))
+              .linearPosition(Units.Meters.of(rearLeft.getDrivingEncoderPosition()))
+              .linearVelocity( Units.MetersPerSecond.of(rearLeft.getState().speedMetersPerSecond));
+          },
+          this));
+
   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
@@ -256,38 +288,6 @@ public class Chassis extends SubsystemBase {
     rearLeft.setDesiredState(swerveModuleStates[2]);
     rearRight.setDesiredState(swerveModuleStates[3]);
   }
-
-  private final SysIdRoutine sysIdRoutine =
-  new SysIdRoutine(
-      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-      new SysIdRoutine.Config(),
-      new SysIdRoutine.Mechanism(
-          // Tell SysId how to plumb the driving voltage to the motors.
-          (Measure<Voltage> volts) -> {
-            frontLeft.setVoltageDrive(volts);
-            frontRight.setVoltageDrive(volts);
-            rearLeft.setVoltageDrive(volts);
-            rearRight.setVoltageDrive(volts);
-          },
-          log -> {
-            log.motor("frontRight")
-                .voltage(Units.Volts.of(frontRight.getPowerOutput()))
-                .linearPosition(Units.Meters.of(frontRight.getDrivingEncoderPosition()))
-                .linearVelocity( Units.MetersPerSecond.of(frontRight.getState().speedMetersPerSecond));
-            log.motor("frontLeft")
-              .voltage(Units.Volts.of(frontLeft.getPowerOutput()))
-              .linearPosition(Units.Meters.of(frontLeft.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(frontLeft.getState().speedMetersPerSecond));
-            log.motor("rearRight")
-              .voltage(Units.Volts.of(rearRight.getPowerOutput()))
-              .linearPosition(Units.Meters.of(rearRight.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(rearRight.getState().speedMetersPerSecond));
-            log.motor("rearLeft")
-              .voltage(Units.Volts.of(rearLeft.getPowerOutput()))
-              .linearPosition(Units.Meters.of(rearLeft.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(rearLeft.getState().speedMetersPerSecond));
-          },
-          this));
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return sysIdRoutine.quasistatic(direction);

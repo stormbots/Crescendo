@@ -1,6 +1,5 @@
 package com.revrobotics;
 
-import com.revrobotics.CANSparkFlex;
 import com.revrobotics.jni.CANSparkMaxJNI;
 
 public class SparkFlexFixes {
@@ -20,6 +19,10 @@ public class SparkFlexFixes {
         CANSparkMaxJNI.c_SparkMax_SetAverageDepth(spark.sparkMaxHandle, depth));
   }
 
+  public static int getFlexEncoderAverageDepth(CANSparkFlex spark) {
+    return CANSparkMaxJNI.c_SparkMax_GetAverageDepth(spark.sparkMaxHandle);
+  }
+
   /**
    * Workaround for issue where SPARK Flex API doesn't allow you to set this.
    *
@@ -34,5 +37,9 @@ public class SparkFlexFixes {
     }
     return REVLibError.fromInt(
       CANSparkMaxJNI.c_SparkMax_SetMeasurementPeriod(spark.sparkMaxHandle, period_ms));
+  }
+
+  public static int getFlexEncoderSampleDelta(CANSparkFlex spark) {
+    return CANSparkMaxJNI.c_SparkMax_GetMeasurementPeriod(spark.sparkMaxHandle);
   }
 }

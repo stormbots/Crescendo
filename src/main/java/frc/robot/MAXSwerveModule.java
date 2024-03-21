@@ -41,7 +41,7 @@ public class MAXSwerveModule implements Sendable{
   private double chassisAngularOffset = 0;
   private SwerveModuleState desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
-  private SimpleMotorFeedforward drivingMotorFeedforward = new SimpleMotorFeedforward(0.11413,1.9025,0.11863);
+  private SimpleMotorFeedforward drivingMotorFeedforward = new SimpleMotorFeedforward(0.14122,1.9181,0.2917);
 
   /**
    * Constructs a MAXSwerveModule and configures the driving and turning motor,
@@ -116,10 +116,10 @@ public class MAXSwerveModule implements Sendable{
     drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
-    // drivingEncoder.setAverageDepth(2);
-    // drivingEncoder.setMeasurementPeriod(8);
-    SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
-    SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
+    drivingEncoder.setAverageDepth(2);
+    drivingEncoder.setMeasurementPeriod(8);
+    // SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
+    // SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
@@ -132,9 +132,13 @@ public class MAXSwerveModule implements Sendable{
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
+    drivingSparkFlex.setClosedLoopRampRate(0.02);
 
     turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     
+    SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
+    SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
+
     drivingSparkFlex.burnFlash();
     turningSparkMax.burnFlash();
   }
