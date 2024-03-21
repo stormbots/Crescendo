@@ -31,11 +31,8 @@ public class PassthroughAlignNote extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    //Setup PID for the passthroughMotor
-    //Have it adjusting within the ideal range for passthrough
     var dist = passthrough.getSensorDistance().in(Units.Inches);
     var nominal = 2;
-    //TODO: Adjust these values to more idea placement
     var kpassthrough = 0.1;
     var kintake = 0.1;
 
@@ -44,7 +41,6 @@ public class PassthroughAlignNote extends Command {
 
     passthrough.setPower(kpassresponse);
     intake.setPower(kintakeresponse);
-    
   }
 
   // Called once the command ends or is interrupted.

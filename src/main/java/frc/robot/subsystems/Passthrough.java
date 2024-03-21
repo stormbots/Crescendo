@@ -28,7 +28,7 @@ public class Passthrough extends SubsystemBase {
   //Define motor speed, adjust
   private double kPassthroughSpeed=1.0;
   //LaserCAN Sensor Setup
-  public LaserCan lasercan = new LaserCan(20);//TODO: Update LaserCAN PB
+  public LaserCan lasercan = new LaserCan(20);
 
   /** where we want the game piece under ideal conditions, in mm */
   public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
