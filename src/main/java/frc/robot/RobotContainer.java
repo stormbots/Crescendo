@@ -12,11 +12,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -25,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -33,35 +30,28 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
+import frc.robot.commands.DriverFeedback;
 import frc.robot.commands.DunkArmRollerHoldNote;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.LogOutgoingShot;
 import frc.robot.commands.PassthroughAlignNote;
-import frc.robot.commands.SetDunkArmProfiled;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
-import frc.robot.commands.ShooterSetManually;
-import frc.robot.commands.ShooterSetOdometry;
 import frc.robot.commands.ShooterSetVision;
-import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
-import frc.robot.commands.VisionTurnToTargetPose;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.FieldPosition.TargetType;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -175,6 +165,7 @@ public class RobotContainer {
     // SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
     // SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
     // SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
+    SmartDashboard.putData("rumble", new DriverFeedback(driverController, ()->true));
 
     SmartDashboard.putData("restTo0,0", new InstantCommand(()->chassis.resetOdometry(new Pose2d())));
     SmartDashboard.putData("restToSpeaker", new InstantCommand(()->chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
@@ -208,16 +199,22 @@ public class RobotContainer {
     );
     
     leds.setDefaultCommand(leds.set5vLedStrip().andThen(leds.showTeamColor()));
-    new Trigger(passthrough::isBlocked).onTrue(leds.showNoteIntake());
+
+    new Trigger(intake::isBlocked)
+    .onTrue(leds.showNoteIntake())
+    .onTrue(
+      new DriverFeedback(driverController, intake::isBlocked)
+      .withTimeout(2)
+    );
     //TODO: When shooter is aligned with target, and at rpm, show show green lights
 
 
     shooterFlywheel.setDefaultCommand(
       new WaitCommand(0.5)
-      .andThen(
-        new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel)
-        .until(shooterFlywheel::isOnTarget)
-        )
+      // .andThen(
+      //   new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel)
+      //   .until(shooterFlywheel::isOnTarget)
+      //   )
       .andThen(new RunCommand(shooterFlywheel::stop,shooterFlywheel))
     );
     
@@ -276,14 +273,10 @@ public class RobotContainer {
         new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
       )
       .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
-    //   .whileTrue(new StartEndCommand(()->{
-    //     if(shooter.isOnTarget() && shooterFlywheel.isOnTarget()){
-    //       driverController.getHID().setRumble(RumbleType.kBothRumble, 0.3);
-    //     }
-    //   }, ()->driverController.getHID().setRumble(RumbleType.kBothRumble, 0)
-    //   )
-      
-    // )
+      .onTrue(
+        new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
+        .withTimeout(2)
+      )
     ;
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
@@ -439,7 +432,7 @@ public class RobotContainer {
       new IntakeNote(intake, passthrough)
       .andThen(new PassthroughAlignNote(passthrough,intake))
     )
-    .whileTrue(new SetFlywheelSlew(0, shooterFlywheel))
+    // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel))
     .whileTrue(new SetShooterProfiled(0, shooter))
     ;
 

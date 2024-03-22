@@ -20,6 +20,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.stormbots.LUT;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -31,6 +32,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -46,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.subsystems.Shooter;
 
 
 
@@ -136,25 +140,25 @@ public class AutoFactory {
         // .andThen(()->rc.chassis.setFieldCentricOffset(-60))
         // .andThen(new PathPlannerAuto("basicAmpAuto")));
 
-        // autoChooser.addOption("5NoteAmp", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        //     .andThen(new PathPlannerAuto("5NoteAmpAuto"))
-        // );
+        autoChooser.addOption("5NoteAmp", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+            .andThen(new PathPlannerAuto("5NoteAmpAuto"))
+        );
 
         // autoChooser.addOption("4noteAmp", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
         //     .andThen(new PathPlannerAuto("4NoteAmpAuto"))
         // );
 
-        // autoChooser.addOption("4NoteSource", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteSourceAuto"))
-        // );
+        autoChooser.addOption("4NoteSource", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
+            .andThen(new PathPlannerAuto("4NoteSourceAuto"))
+        );
 
-        // autoChooser.addOption("5NoteCenter", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-        //     .andThen(new PathPlannerAuto("5NoteCenterAuto"))
-        // );
+        autoChooser.addOption("5NoteCenter", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+            .andThen(new PathPlannerAuto("5NoteCenterAuto"))
+        );
 
         // autoChooser.addOption("4NoteCenter", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
@@ -188,11 +192,11 @@ public class AutoFactory {
         };
 
         HolonomicPathFollowerConfig holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
-            new PIDConstants(1/4.0*0), 
-            new PIDConstants(Math.PI*0), 
+            new PIDConstants(5), 
+            new PIDConstants(5), 
             DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
-            new ReplanningConfig(true, false));
+            new ReplanningConfig(true, true));
 
         BooleanSupplier shouldFlipPath = () -> {
             // Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -216,6 +220,16 @@ public class AutoFactory {
             shouldFlipPath, 
             rc.chassis
         );
+
+        //this kinda sucks but its better than guessing values for now, fix code struct later
+        LUT shooterLUT = Shooter.lut;
+        Measure<Distance> distance = Units.Meters.of(Math.hypot(4.3-0.4, 6.25-5.55));
+        
+        var angle = shooterLUT.get(distance.in(Units.Inches))[0];
+        var rpm = shooterLUT.get(distance.in(Units.Inches))[1];
+
+
+        
 
         NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand());
         NamedCommands.registerCommand("intakeFull", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)));
@@ -244,13 +258,13 @@ public class AutoFactory {
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28));
 
-        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 21));
+        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.5));
         NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.5));
 
-        NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
-        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
-        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
+        NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(rpm, angle));
+        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(rpm, angle));
+        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(rpm, angle));
         NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 15));
         NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14));
 
