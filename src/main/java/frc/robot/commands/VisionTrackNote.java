@@ -73,16 +73,16 @@ public class VisionTrackNote extends Command {
     passthrough.intake();
 
     var target = intakeVision.getVisibleTarget();
-    var noteadjustment = 0.0;
+    var noteAdjustment = 0.0;
 
     if(target.isPresent()){
       leds.ready();
-      noteadjustment = target.get().angleHorizontal * 1/360.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
+      noteAdjustment = target.get().angleHorizontal * 1/360.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
     } else {
       leds.preparing();
     }
 
-    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + noteadjustment, true, true);
+    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + noteAdjustment, true, true);
   }
   
 

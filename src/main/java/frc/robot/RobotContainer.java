@@ -279,15 +279,15 @@ public class RobotContainer {
 
 
     // Limelight Intake Vision
-    // driverController
-    // .axisGreaterThan(2, 0.5) //left trigger?
-    // .whileTrue(
-    //   new VisionTrackNoteOnHeading(
-    //   ()-> -driverController.getLeftY(), 
-    //   ()-> -driverController.getLeftX(),
-    //   ()-> -driverTurnJoystickValue(), 
-    //   chassis, intake, passthrough, intakeVision, leds)
-    // );
+    driverController
+    .axisGreaterThan(2, 0.5) //left trigger?
+    .whileTrue(
+      new VisionTrackNote(
+      ()-> -driverController.getLeftY(), 
+      ()-> -driverController.getLeftX(),
+      ()-> -driverTurnJoystickValue(), 
+      chassis, intake, passthrough, intakeVision, leds)
+    );
 
   }
 
