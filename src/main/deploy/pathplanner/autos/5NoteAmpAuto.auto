@@ -101,6 +101,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "dunkArmUp"
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -232,6 +238,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "dunkArmDown"
           }
         },
         {

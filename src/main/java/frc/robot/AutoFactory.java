@@ -49,8 +49,10 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTurnToAprilTag;
+import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.Shooter;
 
 
@@ -248,6 +250,8 @@ public class AutoFactory {
         NamedCommands.registerCommand("stageShot", rc.sequenceFactory.getSetRPMandShootCommand(8000, 20));
         NamedCommands.registerCommand("stageShotNoStop", rc.sequenceFactory.getToShooterStateCommand(8000, 20));
         NamedCommands.registerCommand("stopFlywheel", new WaitCommand(0.1).andThen(new InstantCommand(()->rc.shooterFlywheel.setRPM(0))));
+        NamedCommands.registerCommand("dunkArmUp", new SetDunkArmSlew(80, rc.dunkArm));
+        NamedCommands.registerCommand("dunkArmDown", new SetDunkArmSlew(-25, rc.dunkArm));
 
         // NamedCommands.registerCommand("topSpinUpShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(2.15, 6.5, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("midSpinUpShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(2.15, 6.5, new Rotation2d())).runForever());

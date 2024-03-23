@@ -247,9 +247,15 @@ public class RobotContainer {
       .andThen(new RunCommand(shooter::stopShooter))
     );
 
-    dunkArm.setDefaultCommand(new SetDunkArmSlew(-25, dunkArm)
-      .andThen(new WaitCommand(0.2))
-      .andThen(new RunCommand(()->dunkArm.stop(), dunkArm))
+    var teleopdunkarm = new SetDunkArmSlew(-25, dunkArm)
+    .andThen(new WaitCommand(0.2))
+    .andThen(new RunCommand(()->dunkArm.stop(), dunkArm));
+    
+    dunkArm.setDefaultCommand(new ConditionalCommand(
+      teleopdunkarm,
+      new RunCommand(()->{}, dunkArm),
+      DriverStation::isTeleop
+      )
     );
 
     //TODO: Have dunkarm hold note.

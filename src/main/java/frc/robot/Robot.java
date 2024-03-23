@@ -91,7 +91,7 @@ public class Robot extends TimedRobot {
     }
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
-    new RunCommand(()->robotContainer.dunkArm.setPower(0), robotContainer.dunkArm).schedule();
+    // new RunCommand(()->robotContainer.dunkArm.setPower(0), robotContainer.dunkArm).schedule();
     // robotContainer.chassis.zeroHeading();
     // robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();
