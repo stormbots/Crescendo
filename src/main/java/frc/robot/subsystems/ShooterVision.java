@@ -4,10 +4,7 @@
 
 package frc.robot.subsystems;
 
-import java.sql.Driver;
 import java.util.Optional;
-
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -48,6 +45,7 @@ public class ShooterVision extends SubsystemBase {
     this.poseEstimator = poseEstimator;
 
     setPipeline(LimelightPipeline.kSpeaker);
+    // this.camera.getEntry("ledMode").setNumber(3);
   }
 
   @Override
@@ -167,5 +165,14 @@ public class ShooterVision extends SubsystemBase {
     var angle = Math.atan2(1.9, distanceToSpeaker);
     
     return angle;
+  }
+
+  public void setLEDOn(boolean isOn) {
+    if (isOn) {
+      camera.getEntry("ledMode").setNumber(3);
+    }
+    else {
+      camera.getEntry("ledMode").setNumber(1);
+    }
   }
 }

@@ -24,12 +24,6 @@
                       "data": {
                         "pathName": "topStartSpinUp"
                       }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.01
-                      }
                     }
                   ]
                 }
@@ -79,7 +73,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.01
+                        "waitTime": 0.5
                       }
                     }
                   ]
@@ -144,12 +138,6 @@
                       "data": {
                         "name": "intakeAndAlign"
                       }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeStop"
-                      }
                     }
                   ]
                 }
@@ -174,12 +162,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopFlywheel"
           }
         },
         {
@@ -216,15 +198,15 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "named",
+                      "type": "wait",
                       "data": {
-                        "name": "intakeAndAlign"
+                        "waitTime": 0.2
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "intakeStop"
+                        "name": "intakeAndAlign"
                       }
                     }
                   ]
@@ -250,12 +232,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopFlywheel"
           }
         },
         {
@@ -292,15 +268,15 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "named",
+                      "type": "wait",
                       "data": {
-                        "name": "intakeAndAlign"
+                        "waitTime": 0.2
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "intakeStop"
+                        "name": "intakeAndAlign"
                       }
                     }
                   ]
@@ -326,12 +302,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopFlywheel"
           }
         }
       ]

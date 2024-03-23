@@ -69,7 +69,7 @@ public class Shooter extends SubsystemBase {
     shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51*0.955);//56.8/15.1
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
-
+ 
     shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
     shooterMotor.setSoftLimit(SoftLimitDirection.kForward, (float) forwardSoftLimit);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);

@@ -101,5 +101,6 @@ public class Intake extends SubsystemBase {
     SmartDashboard.putNumber("currenttesting/intake", motor.getOutputCurrent());
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("seenote/intakelc", isBlocked());
+    SmartDashboard.putNumber("intake/sensordistance", getSensorDistance().in(Units.Millimeters));
   }
 }

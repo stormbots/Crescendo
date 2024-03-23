@@ -39,7 +39,7 @@ public class PassthroughAlignNote extends Command {
 
     var kpassresponse = (dist-nominal) * kpassthrough;
     var kintakeresponse = (dist-nominal) * kintake;
-    kintakeresponse = Clamp.clamp(kintake, -0.4, 0.4);
+    kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
 
     passthrough.setPower(kpassresponse);
     intake.setPower(kintakeresponse);

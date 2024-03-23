@@ -51,7 +51,7 @@ public class ShooterFlywheel extends SubsystemBase {
 
       var pid = motor.getPIDController();
       pid.setFF(1/kMaxRPM*10_000/9_111.0*(10_000/10_300.0));
-      pid.setP(0.0003*1.5*2);
+      pid.setP(0.0003*1.5*2*0.9);
       pid.setD(0.00007*45);//want about .11
       pid.setI(0.0000000003*3*5);
       pid.setOutputRange(-1,1); //dont know if we need this, adding just in case

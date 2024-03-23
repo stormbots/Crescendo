@@ -24,8 +24,10 @@ public class ShooterSetVision extends Command {
     private Shooter shooter;
     private ShooterFlywheel flywheel;
     Boolean exitsOnCompletion = true;
-    double targetAngle = 0.0;
-    double targetRPM = 0.0;
+    double targetAngle = 10;
+    double targetRPM = 4000;
+    double targetAngleSlew = 0.0;
+    double targetRPMSlew = 0.0;
     LUT lut = Shooter.lut;
     SlewRateLimiter shooterRateLimiter =new SlewRateLimiter(
         Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
@@ -46,6 +48,7 @@ public class ShooterSetVision extends Command {
         shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
         shooterRateLimiter.reset(shooter.getShooterAngle());
         flywheelRateLimiter.reset(flywheel.getRPM());
+        shooterVision.setLEDOn(true);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -58,29 +61,32 @@ public class ShooterSetVision extends Command {
             targetAngle = lut.get(distance)[0]; //get lut
             targetRPM = lut.get(distance)[1];
             
-            targetAngle = shooterRateLimiter.calculate(targetAngle); //set shooter slew
-            shooter.setAngle(targetAngle);
+            targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
+            shooter.setAngle(targetAngleSlew);
 
-            targetRPM = flywheelRateLimiter.calculate(targetRPM); //set flywheel slew
-            flywheel.setRPM(targetRPM);
+            targetRPMSlew = flywheelRateLimiter.calculate(targetRPM); //set flywheel slew
+            flywheel.setRPM(targetRPMSlew);
         }
         else {
-            targetAngle = shooterRateLimiter.calculate(targetAngle); //set shooter slew
-            shooter.setAngle(targetAngle);
-            targetRPM = flywheelRateLimiter.calculate(targetRPM);
-            flywheel.setRPM(targetRPM);
+            targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
+            shooter.setAngle(targetAngleSlew);
+            targetRPMSlew = flywheelRateLimiter.calculate(targetRPM);
+            flywheel.setRPM(targetRPMSlew);
         }
+
+        SmartDashboard.putNumber("targetVisionRpm", targetRPM);
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         if (!interrupted) {
-            targetAngle = shooterRateLimiter.calculate(targetAngle); //set shooter slew
-            shooter.setAngle(targetAngle);
-            targetRPM = flywheelRateLimiter.calculate(targetRPM);
-            flywheel.setRPM(targetRPM);
+            targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
+            shooter.setAngle(targetAngleSlew);
+            targetRPMSlew = flywheelRateLimiter.calculate(targetRPM);
+            flywheel.setRPM(targetRPMSlew);
         }
+        shooterVision.setLEDOn(false);
     }
 
     // Returns true when the command should end.

@@ -34,7 +34,7 @@ public class Passthrough extends SubsystemBase {
   public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
   // public final double kIdealDistance = 23.0;
   /** distance where we're confident game piece is loaded, and loading can stop. In mm */
-  public final double kBlockedDistance = 185.0;
+  public final double kBlockedDistance = 185.0-25.4;
   /** distance to the far side of passthrough when unobstructed, in mm */
   public final double kFarWallDistance = 355.0; //mm
   

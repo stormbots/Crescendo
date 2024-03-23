@@ -196,7 +196,7 @@ public class AutoFactory {
             new PIDConstants(5), 
             DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
-            new ReplanningConfig(true, true));
+            new ReplanningConfig(true, false));
 
         BooleanSupplier shouldFlipPath = () -> {
             // Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -233,7 +233,7 @@ public class AutoFactory {
 
         NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand());
         NamedCommands.registerCommand("intakeFull", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)));
-        NamedCommands.registerCommand("intakeShoot", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)).until(()->!rc.passthrough.isBlocked()));
+        NamedCommands.registerCommand("intakeShoot", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)).until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked()));
         NamedCommands.registerCommand("intakeStop", rc.sequenceFactory.getStopIntakingCommand().withTimeout(5));
 
         NamedCommands.registerCommand("subwooferShot", rc.sequenceFactory.getSetRPMandShootCommand(5500, 45));
@@ -254,17 +254,17 @@ public class AutoFactory {
         // NamedCommands.registerCommand("midShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(4.3, 4.85, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("botShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(3, 2.8, new Rotation2d())).runForever());
 
-        NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 29.5));
+        NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 29));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28));
 
-        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.5));
+        NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.7));
         NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.5));
 
-        NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(rpm, angle));
-        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(rpm, angle));
-        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(rpm, angle));
+        NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
+        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
+        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
         NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 15));
         NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14));
 
