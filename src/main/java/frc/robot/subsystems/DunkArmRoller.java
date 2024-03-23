@@ -65,7 +65,7 @@ public class DunkArmRoller extends SubsystemBase{
     }
 
     public void scoreTrap(){
-        setSpeed(-0.1);
+        setSpeed(-0.1-0.05);
     }
 
     public void scoreAmp(){

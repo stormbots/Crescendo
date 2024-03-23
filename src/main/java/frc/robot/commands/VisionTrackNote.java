@@ -70,7 +70,7 @@ public class VisionTrackNote extends Command {
   @Override
   public void execute() {
     intake.intake();
-    passthrough.intake();
+    passthrough.setPower(0.1);
 
     var target = intakeVision.getVisibleTarget();
     var noteAdjustment = 0.0;
@@ -99,6 +99,6 @@ public class VisionTrackNote extends Command {
   @Override
   public boolean isFinished() {
     //check lasercan to see if it sees a note, then end
-    return passthrough.isBlocked();
+    return intake.isBlocked();
   }
 }

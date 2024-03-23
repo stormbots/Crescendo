@@ -33,7 +33,7 @@ public class PassthroughAlignNote extends Command {
   @Override
   public void execute() {
     var dist = passthrough.getSensorDistance().in(Units.Inches);
-    var nominal = 2;
+    var nominal = 0.9;
     var kpassthrough = 0.1;
     var kintake = 0.1;
 

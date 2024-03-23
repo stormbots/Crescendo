@@ -125,6 +125,8 @@ public class Passthrough extends SubsystemBase {
     SmartDashboard.putNumber("currenttesting/passthroughB", motorB.getOutputCurrent());
     SmartDashboard.putBoolean("passthrough/isBlocked", isBlocked());
     SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Millimeters));
+    // SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Inches));
+
     // SmartDashboard.putNumber("passthrough/outputCurrent", motor.getOutputCurrent());
   }
 }

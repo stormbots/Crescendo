@@ -59,7 +59,7 @@ public class IntakeVision extends SubsystemBase {
       camera.getEntry("pipeline").setNumber(0);
       break;
       case kNote:
-      camera.getEntry("pipeline").setNumber(1);
+      camera.getEntry("pipeline").setNumber(3);
       break;
       default:
     }
