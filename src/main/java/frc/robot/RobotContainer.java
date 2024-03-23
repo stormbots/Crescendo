@@ -39,6 +39,7 @@ import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
@@ -46,6 +47,7 @@ import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.PowerManager;
@@ -96,8 +98,10 @@ public class RobotContainer {
   //TODO: Vision Needs access to pose estimator: Either by objects in 
   // Robotcontainer or via a method in Chassis
 
-  // public final IntakeVision intakeVision = new IntakeVision(swerveDrivePoseEstimator);
+  public final IntakeVision intakeVision = new IntakeVision();
+  // public final IntakeVision intakeVision = new IntakeVision();
   public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
+  
 
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
@@ -169,17 +173,22 @@ public class RobotContainer {
 
     SmartDashboard.putData("restTo0,0", new InstantCommand(()->chassis.resetOdometry(new Pose2d())));
     SmartDashboard.putData("restToSpeaker", new InstantCommand(()->chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
+
+    SmartDashboard.putData("intakevision/tracknotecommand", new VisionTrackNote(
+      ()-> -driverController.getLeftX(), ()-> -driverController.getLeftY(), ()-> -driverTurnJoystickValue(),
+      chassis,  intake, passthrough, intakeVision,  leds
+    ));
   }
 
   private void configureDefaultCommands() {
     // The left stick controls translation of the robot.
     // Turning is controlled by the X axis of the right stick.
   //TODO: This should work now
-  chassis.setDefaultCommand(chassis.getFCDriveCommand( 
-    ()-> -driverController.getLeftY(), 
-    ()-> -driverController.getLeftX(), 
-    ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
-  ));
+    chassis.setDefaultCommand(chassis.getFCDriveCommand( 
+      ()-> -driverController.getLeftY(), 
+      ()-> -driverController.getLeftX(), 
+      ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
+    ));
 
     //default, but only runs once
     //TODO: Only enable when robot is tested 
@@ -286,7 +295,7 @@ public class RobotContainer {
     .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis)));
 
     driverController
-    .axisGreaterThan(3, 0.5)
+    .axisGreaterThan(2, 0.5)
     // .and(()->isRightStickInDeadzone()==false)
     .whileTrue(
       chassis.getDriveToBearingCommand(
@@ -301,8 +310,24 @@ public class RobotContainer {
     //       ),
     //   chassis)
     );
-   }
    
+   
+
+
+    // Limelight Intake Vision
+    driverController
+    .axisGreaterThan(3, 0.5) //left trigger?
+    .whileTrue(
+      new VisionTrackNote(
+      ()-> -driverController.getLeftY(), 
+      ()-> -driverController.getLeftX(),
+      ()-> -driverTurnJoystickValue(), 
+      chassis, intake, passthrough, intakeVision, leds)
+    );
+
+  }
+
+
   private void configureOperatorBindings(){
     // operatorJoystick.button(2).onTrue(new InstantCommand()
     //   .andThen( new SetDunkArmSlew(0, dunkArm))
