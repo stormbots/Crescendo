@@ -49,6 +49,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.Shooter;
 
 
@@ -160,6 +162,11 @@ public class AutoFactory {
             .andThen(new PathPlannerAuto("5NoteCenterAuto"))
         );
 
+        autoChooser.addOption("Vision5NoteAmp", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+            .andThen(new PathPlannerAuto("4NoteAmpAutoVision"))
+        );
+
         // autoChooser.addOption("4NoteCenter", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
         //     .andThen(new PathPlannerAuto("4NoteCenterAuto"))
@@ -254,7 +261,7 @@ public class AutoFactory {
         // NamedCommands.registerCommand("midShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(4.3, 4.85, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("botShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(3, 2.8, new Rotation2d())).runForever());
 
-        NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 29));
+        NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28.5-0.5));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28));
 
@@ -262,11 +269,17 @@ public class AutoFactory {
         NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
         NamedCommands.registerCommand("botNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.5));
 
-        NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
-        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
-        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 13.5));
+        NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
+        NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
+        NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 15));
         NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14));
+        NamedCommands.registerCommand("visionShot", new ParallelCommandGroup(
+            new VisionTurnToAprilTag(()->0, ()->0, ()->0, rc.shooterVision, rc.chassis, rc.navx).withTimeout(1),
+            new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel)
+        ));
+
+        NamedCommands.registerCommand("rampUpVision", new RunCommand(()->rc.shooterFlywheel.setRPM(4000)));
 
         NamedCommands.registerCommand("setDownShooter", rc.sequenceFactory.getStopShooterCommand());
 

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -231,7 +233,7 @@ public class RobotContainer {
     new Trigger(DriverStation::isTeleop)
     .and(()->(passthrough.isBlocked() || intake.isBlocked()))
     .and(()->passthrough.getCurrentCommand()==null)
-    .whileTrue(new PassthroughAlignNote(passthrough, intake).withTimeout(2))
+    .whileTrue(new PassthroughAlignNote(passthrough, intake))
     ;
 
     intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
@@ -251,7 +253,14 @@ public class RobotContainer {
     );
 
     //TODO: Have dunkarm hold note.
-    dunkArmRoller.setDefaultCommand(new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)); 
+    dunkArmRoller.setDefaultCommand(new StartEndCommand(
+      ()->{dunkArmRoller.setIdleMode(IdleMode.kCoast); dunkArmRoller.stop();},
+      ()->dunkArmRoller.setIdleMode(IdleMode.kBrake), 
+      dunkArmRoller
+    ));
+      //new StartEndCommand(dunkArm, onEnd, requirements)
+      // new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)
+      // ); 
 
     // shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }

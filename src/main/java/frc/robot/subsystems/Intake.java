@@ -96,11 +96,16 @@ public class Intake extends SubsystemBase {
     motor.set(-kIntakeSpeed);
   }
 
+  public double getVelocity() {
+    return motor.getEncoder().getVelocity();
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("currenttesting/intake", motor.getOutputCurrent());
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("seenote/intakelc", isBlocked());
     SmartDashboard.putNumber("intake/sensordistance", getSensorDistance().in(Units.Millimeters));
+    SmartDashboard.putNumber("intake/velocity", motor.getEncoder().getVelocity());
   }
 }

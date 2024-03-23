@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.318015481074273,
-        "y": 4.068829003875525
+        "x": 8.35,
+        "y": 7.41991466658583
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.31167414710359,
-        "y": 4.1836198305949255
+        "x": 7.93663489174909,
+        "y": 7.204820056897092
       },
       "isLocked": false,
-      "linkedName": "midShare"
+      "linkedName": "topShare"
     },
     {
       "anchor": {
-        "x": 4.3,
-        "y": 4.846275166611156
+        "x": 4.568938647020701,
+        "y": 5.939387509188879
       },
       "prevControl": {
-        "x": 6.095719069076779,
-        "y": 4.493818790857619
+        "x": 4.951010171510236,
+        "y": 6.130423271433647
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "midShoot"
+      "linkedName": "topShareVision"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.3,
+      "waypointRelativePos": 0.1,
       "command": {
         "type": "parallel",
         "data": {
@@ -41,7 +41,7 @@
             {
               "type": "named",
               "data": {
-                "name": "midShootPosShotNoStop"
+                "name": "visionShot"
               }
             }
           ]
@@ -57,14 +57,14 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -11.0,
+    "rotation": 10.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -60.0,
-    "velocity": 0.0
+    "rotation": 0.0,
+    "velocity": 0
   },
   "useDefaultConstraints": true
 }

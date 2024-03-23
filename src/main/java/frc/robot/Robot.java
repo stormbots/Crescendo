@@ -12,7 +12,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.SetDunkArmSlew;
+import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.ShooterVision;
 
 /**
@@ -88,7 +91,7 @@ public class Robot extends TimedRobot {
     }
 
     robotContainer.climber.setPower(0); //Prevent surprise climber motion
-
+    new RunCommand(()->robotContainer.dunkArm.setPower(0), robotContainer.dunkArm).schedule();
     // robotContainer.chassis.zeroHeading();
     // robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();

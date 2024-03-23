@@ -39,6 +39,8 @@ public class DunkArmRoller extends SubsystemBase{
         rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
         rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
 
+        rollerMotor.setCANTimeout(0);
+
         rollerMotor.burnFlash();
     }
 

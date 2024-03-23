@@ -37,6 +37,9 @@
         "flywheel": {
           "open": true
         },
+        "intake": {
+          "open": true
+        },
         "manualshoot": {
           "open": true
         },
@@ -79,15 +82,28 @@
       "/SmartDashboard/flywheel/set1000": "Command",
       "/SmartDashboard/flywheel/set2500": "Command",
       "/SmartDashboard/flywheel/set5000": "Command",
+      "/SmartDashboard/intakevision/tracknotecommand": "Command",
       "/SmartDashboard/leds/prepare": "Command",
       "/SmartDashboard/leds/ready": "Command",
       "/SmartDashboard/restTo0,0": "Command",
       "/SmartDashboard/restToSpeaker": "Command",
       "/SmartDashboard/robot/scheduler": "Scheduler",
+      "/SmartDashboard/rumble": "Command",
       "/SmartDashboard/shootervisionfield": "Field2d",
       "/SmartDashboard/visionfield": "Field2d"
     },
     "windows": {
+      "/SmartDashboard/Field": {
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/chassis": {
         "bottom": 1476,
         "height": 8.210550308227539,
@@ -131,7 +147,7 @@
       }
     }
   },
-  "NetworkTables Info": {
+  "NetworkTables Log": {
     "visible": true
   },
   "NetworkTables Settings": {
@@ -223,6 +239,183 @@
                 1.0
               ],
               "id": "NT:/SmartDashboard//shooterFlywheel/topMotorCurrentRPM"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <11>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 870,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard//shooterFlywheel/botMotorCurrentRPM"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard//shooterFlywheel/topMotorCurrentRPM"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <12>": {
+      "plots": [
+        {
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 808,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/shooter/absEncoder"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/shooter/encoder"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <13>": {
+      "plots": [
+        {
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 876,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/intake/sensordistance"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <14>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 991,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard//shooterFlywheel/topMotorCurrentRPM"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard//shooterFlywheel/botMotorCurrentRPM"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <15>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 712,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/intake/velocity"
             }
           ]
         }
@@ -392,6 +585,24 @@
                 1.0
               ],
               "id": "NT:/SmartDashboard/currenttesting/shooterAngle"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard//shooterFlywheel/topCurrent"
+            },
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.4078431725502014,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard//shooterFlywheel/botCurrent"
             }
           ]
         }
@@ -679,7 +890,10 @@
             }
           ]
         }
-      ]
+      ],
+      "window": {
+        "visible": false
+      }
     }
   }
 }

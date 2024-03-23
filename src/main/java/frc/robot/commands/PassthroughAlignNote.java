@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Clamp;
 import frc.robot.subsystems.Intake;
@@ -14,6 +16,10 @@ public class PassthroughAlignNote extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Passthrough passthrough;
   private final Intake intake;
+  double stuckTimer = 0.0;
+  double superStuckTimer = 0.5;
+  double backwardTimer = 0.05;
+
 
   /** Creates a new PassthroughAlignNote. */
   public PassthroughAlignNote(Passthrough passthrough, Intake intake) {
@@ -27,7 +33,9 @@ public class PassthroughAlignNote extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    SmartDashboard.putBoolean("unstick", false);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -41,8 +49,34 @@ public class PassthroughAlignNote extends Command {
     var kintakeresponse = (dist-nominal) * kintake;
     kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
 
-    passthrough.setPower(kpassresponse);
+    if (passthrough.isBlocked()) {
+      kpassresponse=0;
+    }
+
+
+    if ( !passthrough.isBlocked() && intake.getVelocity() < 500) {
+      kintake=1; //known power that moves it if blocked
+      SmartDashboard.putBoolean("unstick", true);
+      //stuck timer start if at 
+      // if(timer!=0) timer = Timer.getFPGATimestamp()
+      if(stuckTimer != 0){
+        stuckTimer = Timer.getFPGATimestamp();
+      }
+    }
+    else {
+      // stuck timer clear
+      stuckTimer = 0.0;
+      SmartDashboard.putBoolean("unstick", false);
+    }
+
+    //act on stuck timer:
+    //after X time, and before X+Y time, reverse
+    if(Clamp.bounded(stuckTimer, stuckTimer+superStuckTimer, stuckTimer+superStuckTimer+backwardTimer)) {
+      kintakeresponse = -1.0;
+    }
+
     intake.setPower(kintakeresponse);
+    passthrough.setPower(kpassresponse);
   }
 
   // Called once the command ends or is interrupted.
