@@ -261,7 +261,7 @@ public class RobotContainer {
     .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis)));
 
     driverController
-    .axisGreaterThan(3, 0.5)
+    .axisGreaterThan(2, 0.5)
     // .and(()->isRightStickInDeadzone()==false)
     .whileTrue(
       chassis.getDriveToBearingCommand(
@@ -280,7 +280,7 @@ public class RobotContainer {
 
     // Limelight Intake Vision
     driverController
-    .axisGreaterThan(2, 0.5) //left trigger?
+    .axisGreaterThan(3, 0.5) //left trigger?
     .whileTrue(
       new VisionTrackNote(
       ()-> -driverController.getLeftY(), 

@@ -77,7 +77,7 @@ public class VisionTrackNote extends Command {
 
     if(target.isPresent()){
       leds.ready();
-      noteAdjustment = target.get().angleHorizontal * 1/360.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
+      noteAdjustment = -target.get().angleHorizontal * 1/360.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
     } else {
       leds.preparing();
     }
