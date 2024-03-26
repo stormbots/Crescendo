@@ -9,14 +9,20 @@ import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkFlexFixes;
 import com.revrobotics.SparkPIDController.AccelStrategy;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
 
-import edu.wpi.first.units.Power;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 
 public class ShooterFlywheel extends SubsystemBase {
@@ -30,7 +36,33 @@ public class ShooterFlywheel extends SubsystemBase {
 
   public static final double kSlewForward = 4000/0.5;  //TODO: get rate limits
   public static final double kSlewBackward = -kSlewForward;
+
+  SimpleMotorFeedforward flywheelFeedforward = new SimpleMotorFeedforward(0.35316, 0.0011112, 0.000072258);
    
+
+
+  private final SysIdRoutine sysIdRoutine =
+  new SysIdRoutine(
+      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(
+          // Tell SysId how to plumb the driving voltage to the motors.
+          (Measure<Voltage> volts) -> {
+            topMotor.setVoltage(volts.in(Units.Volts));
+            botMotor.setVoltage(volts.in(Units.Volts));
+          },
+          log -> {
+            log.motor("topMotor")
+                .voltage(Units.Volts.of(topMotor.getAppliedOutput() * topMotor.getBusVoltage()))
+                .linearPosition(Units.Meters.of(topMotor.getEncoder().getPosition()))
+                .linearVelocity( Units.MetersPerSecond.of(topMotor.getEncoder().getVelocity()));
+            log.motor("botMotor")
+              .voltage(Units.Volts.of(botMotor.getAppliedOutput() * botMotor.getBusVoltage()))
+              .linearPosition(Units.Meters.of(botMotor.getEncoder().getPosition()))
+              .linearVelocity( Units.MetersPerSecond.of(botMotor.getEncoder().getVelocity()));
+          },
+          this));
+          
   /** Creates a new Flywheel. */
   public ShooterFlywheel() {
     topMotor.restoreFactoryDefaults();
@@ -48,6 +80,8 @@ public class ShooterFlywheel extends SubsystemBase {
       motor.setSmartCurrentLimit(60);
       motor.getEncoder().setMeasurementPeriod(8);
       motor.getEncoder().setAverageDepth(2);
+      SparkFlexFixes.setFlexEncoderAverageDepth(motor, 2);
+      SparkFlexFixes.setFlexEncoderSampleDelta(motor, 8);
 
       var pid = motor.getPIDController();
       pid.setFF(1/kMaxRPM*10_000/9_111.0*(10_000/10_300.0));
@@ -93,10 +127,21 @@ public class ShooterFlywheel extends SubsystemBase {
     
     // leftFlywheelPIDController.setReference(1200, CANSparkMax.ControlType.kVelocity);
   }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+  }
+  
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
+  }
+
   public void setRPM(double targetRPM) {
     this.targetRPM = targetRPM;//Will need seprate target for right
     topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
     botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
+    // topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, flywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
+    // botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, flywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
   }
 
   public void setRPMProfiled(double rpm){

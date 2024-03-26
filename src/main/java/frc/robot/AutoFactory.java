@@ -116,6 +116,19 @@ public class AutoFactory {
         autoChooser.addOption("dynamic forward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption("dynamic backward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+        autoChooser.addOption("sysid Flywheel routine", 
+            new InstantCommand()
+                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(new WaitCommand(2))
+
+        );
+
 
         // autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
         // autoChooser.addOption("Rotate + Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterRotation"));

@@ -13,22 +13,23 @@ import edu.wpi.first.math.util.Units;
 public class ChassisConstants {
     
     public static final class DriveConstants {
+       // Chassis configuration
+      //NOTE: These are over-written in robot.java
+      public static double kTrackWidth = Units.inchesToMeters(23.5);
+      // Distance between centers of right and left wheels on robot
+      public static  double kWheelBase = Units.inchesToMeters(23.5);
+      // Distance between front and back wheels on robot
+      public static double distanceToModuleFromCenter = Math.hypot(kTrackWidth/2, kWheelBase/2);
+
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 5.4;
-    public static final double kMaxAngularSpeed = 4 * Math.PI; // radians per second
+    // public static final double kMaxAngularSpeed = 4 * Math.PI; // radians per second
+    public static final double kMaxAngularSpeed = kMaxSpeedMetersPerSecond / kTrackWidth; // PREVIOUS VALUE IS UNREASONABLE THIS VALUE IS APPROX 2.8PI
 
     public static final double kDirectionSlewRate = 1.2*3; // radians per second
     public static final double kMagnitudeSlewRate = 1.8*5; // percent per second (1 = 100%)
     public static final double kRotationalSlewRate = 2*2*2*2.0; // percent per second (1 = 100%)
-
-    // Chassis configuration
-    //NOTE: These are over-written in robot.java
-    public static double kTrackWidth = Units.inchesToMeters(23.5);
-    // Distance between centers of right and left wheels on robot
-    public static  double kWheelBase = Units.inchesToMeters(23.5);
-    // Distance between front and back wheels on robot
-    public static double distanceToModuleFromCenter = Math.hypot(kTrackWidth/2, kWheelBase/2);
 
     // Angular offsets of the modules relative to the chassis in radians
     public static final double kFrontLeftChassisAngularOffset = 0;
