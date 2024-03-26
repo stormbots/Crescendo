@@ -150,7 +150,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setPower(double power){
-    shooterMotor.set(power);
+    // shooterMotor.set(power);
   }
 
   public void stopShooter(){
@@ -195,7 +195,7 @@ public class Shooter extends SubsystemBase {
   public void setAngle(double degrees) {
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
     this.shooterSetPoint = degrees;
-    pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
+    // pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
   public Command getDebugSetAngle(double degrees) {

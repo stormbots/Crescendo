@@ -414,7 +414,8 @@ public class RobotContainer {
     //speaker shot
     operatorJoystick.button(3)
     .whileTrue(new ParallelCommandGroup(
-      new SetFlywheelSlew(4000, shooterFlywheel),
+      // new SetFlywheelSlew(4000, shooterFlywheel),
+      new RunCommand(()->shooterFlywheel.setRPM(4000),shooterFlywheel),
       new SetShooterProfiled(40.5+0.5, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));

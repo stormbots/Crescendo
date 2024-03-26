@@ -88,8 +88,8 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         
-        // initAutoChooser(); //aktes too long, run in background
-        initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
+        initAutoChooser(); //aktes too long, run in background
+        // initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
@@ -160,10 +160,10 @@ public class AutoFactory {
             .andThen(new PathPlannerAuto("5NoteCenterAuto"))
         );
 
-        autoChooser.addOption("Vision5NoteAmp", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-            .andThen(new PathPlannerAuto("4NoteAmpAutoVision"))
-        );
+        // autoChooser.addOption("Vision5NoteAmp", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+        //     .andThen(new PathPlannerAuto("4NoteAmpAutoVision"))
+        // );
 
         // autoChooser.addOption("4NoteCenter", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
@@ -192,14 +192,14 @@ public class AutoFactory {
 
         autoChooser.addOption("sysid Flywheel routine", 
             new InstantCommand()
-                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(5))
                 .andThen(new WaitCommand(2))
-                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(5))
                 .andThen(new WaitCommand(2))
                 .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(2))
+                .andThen(new WaitCommand(4))
                 .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(2))
+                .andThen(new WaitCommand(4))
 
         );
 

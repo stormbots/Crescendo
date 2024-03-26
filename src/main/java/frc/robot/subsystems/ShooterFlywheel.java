@@ -37,7 +37,9 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double kSlewForward = 4000/0.5;  //TODO: get rate limits
   public static final double kSlewBackward = -kSlewForward;
 
-  SimpleMotorFeedforward flywheelFeedforward = new SimpleMotorFeedforward(0.35316, 0.0011112, 0.000072258);
+  SimpleMotorFeedforward topFlywheelFeedforward = new SimpleMotorFeedforward(0.14872, 0.001077, 0.0001627);
+  SimpleMotorFeedforward botFlywheelFeedforward = new SimpleMotorFeedforward(0.1378, 0.001072, 0.00016379);
+
    
 
 
@@ -84,10 +86,11 @@ public class ShooterFlywheel extends SubsystemBase {
       SparkFlexFixes.setFlexEncoderSampleDelta(motor, 8);
 
       var pid = motor.getPIDController();
-      pid.setFF(1/kMaxRPM*10_000/9_111.0*(10_000/10_300.0));
-      pid.setP(0.0003*1.5*2*0.9);
-      pid.setD(0.00007*45);//want about .11
-      pid.setI(0.0000000003*3*5);
+      // pid.setFF(1/kMaxRPM*10_000/9_111.0*(10_000/10_300.0));
+      // pid.setP(0.0003*1.5*2*0.9);
+      pid.setP(0.000028853);
+      // pid.setD(0.00007*45);//want about .11
+      // pid.setI(0.0000000003*3*5);
       pid.setOutputRange(-1,1); //dont know if we need this, adding just in case
       pid.setSmartMotionMaxVelocity(kMaxRPM, 0);
       pid.setSmartMotionMaxAccel(kMaxRPM*4*4, 0);
@@ -138,10 +141,10 @@ public class ShooterFlywheel extends SubsystemBase {
 
   public void setRPM(double targetRPM) {
     this.targetRPM = targetRPM;//Will need seprate target for right
-    topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
-    botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
-    // topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, flywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
-    // botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, flywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
+    // topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
+    // botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
+    topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, topFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
+    botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, botFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
   }
 
   public void setRPMProfiled(double rpm){
