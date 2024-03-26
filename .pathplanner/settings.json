@@ -2,8 +2,16 @@
   "robotWidth": 0.6,
   "robotLength": 0.6,
   "holonomicMode": true,
-  "pathFolders": [],
-  "autoFolders": [],
+  "pathFolders": [
+    "NX-NX",
+    "PathPlannerPath",
+    "S2-NX"
+  ],
+  "autoFolders": [
+    "Choreo Autos",
+    "PathPlannerAuto",
+    "S2"
+  ],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 3.3,
   "defaultMaxAngVel": 540.0,

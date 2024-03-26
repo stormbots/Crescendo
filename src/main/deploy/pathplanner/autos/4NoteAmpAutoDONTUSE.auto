@@ -255,6 +255,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "PathPlannerAuto",
   "choreoAuto": false
 }
