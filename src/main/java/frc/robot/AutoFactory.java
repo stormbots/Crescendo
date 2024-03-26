@@ -111,23 +111,6 @@ public class AutoFactory {
 
         autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
 
-        autoChooser.addOption("quasi forward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption("quasi backward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption("dynamic forward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption("dynamic backward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        autoChooser.addOption("sysid Flywheel routine", 
-            new InstantCommand()
-                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(2))
-
-        );
 
 
         // autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
@@ -199,6 +182,52 @@ public class AutoFactory {
         // autoChooser.addOption("2NoteSource", new InstantCommand()
         // .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
         // .andThen(new PathPlannerAuto("2NoteSourceAuto")));
+
+        autoChooser.addOption("vv SysID vv", new InstantCommand());
+        
+        autoChooser.addOption("quasi forward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption("quasi backward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption("dynamic forward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption("dynamic backward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        autoChooser.addOption("sysid Flywheel routine", 
+            new InstantCommand()
+                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(new WaitCommand(2))
+
+        );
+
+        autoChooser.addOption("sysid shooter routine", 
+            new InstantCommand()
+                .andThen(rc.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooter.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(1))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(1))
+                .andThen(new WaitCommand(2))
+
+        );
+
+        autoChooser.addOption("sysid dunkArm routine", 
+            new InstantCommand()
+                .andThen(rc.dunkArm.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.dunkArm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
+                .andThen(new WaitCommand(2))
+                .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+                .andThen(new WaitCommand(2))
+
+        );
 
         return false; //will bryan cry tonight 
     }

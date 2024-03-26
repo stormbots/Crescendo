@@ -18,8 +18,12 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 
 public class DunkArm extends SubsystemBase {
@@ -33,6 +37,23 @@ public class DunkArm extends SubsystemBase {
 
   ArmFeedforward armff = new ArmFeedforward(.015, .035, 0.13/45);  // (0.025+0.055)/2.0;
 
+  private final SysIdRoutine sysIdRoutine =
+  new SysIdRoutine(
+      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+      new SysIdRoutine.Config(null, Units.Volts.of(4), null),//sorry for using nulls
+      new SysIdRoutine.Mechanism(
+          // Tell SysId how to plumb the driving voltage to the motors.
+          (Measure<Voltage> volts) -> {
+            armMotor.setVoltage(volts.in(Units.Volts));
+          },
+          log -> {
+            log.motor("dunkArm")
+                .voltage(Units.Volts.of(armMotor.getAppliedOutput() * armMotor.getBusVoltage()))
+                .linearPosition(Units.Meters.of(armMotor.getEncoder().getPosition()))
+                .linearVelocity( Units.MetersPerSecond.of(armMotor.getEncoder().getVelocity()));
+          },
+          this));
+          
   public DunkArm() {
     armMotor.clearFaults();
     armMotor.restoreFactoryDefaults();
@@ -80,6 +101,14 @@ public class DunkArm extends SubsystemBase {
     SmartDashboard.putNumber("dunkArm/position", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/setpoint", armSetpoint);
     SmartDashboard.putNumber("currenttesting/dunkArm", armMotor.getOutputCurrent());
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+  }
+  
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
   }
 
   public void syncEncoders(){

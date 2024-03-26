@@ -6,15 +6,14 @@ package frc.robot.commands;
 
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.stormbots.LUT;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
@@ -66,6 +65,14 @@ public class ShooterSetVision extends Command {
 
             targetRPMSlew = flywheelRateLimiter.calculate(targetRPM); //set flywheel slew
             flywheel.setRPM(targetRPMSlew);
+
+            //THIS IS NOT HOW TO USE ADVANTAGE KIT, 
+            //but for the purposes of logging matches, this is sufficient as our code structure does not support the whole functionality
+            Logger.recordOutput("Flywheel/Setpoint", targetRPM);
+            Logger.recordOutput("Flywheel/SetpointSlew", targetRPMSlew);
+            Logger.recordOutput("Shooter/Setpoint", targetAngle);
+            Logger.recordOutput("Shooter/SetpointSlew", targetAngleSlew);
+
         }
         else {
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew

@@ -20,10 +20,14 @@ import com.stormbots.Clamp;
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 
 public class Shooter extends SubsystemBase {
@@ -51,6 +55,23 @@ public class Shooter extends SubsystemBase {
   public static final double kSlewForward = 150;
   public static final double kSlewBackward = -150;
 
+  private final SysIdRoutine sysIdRoutine =
+  new SysIdRoutine(
+      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+      new SysIdRoutine.Config(null, Units.Volts.of(4), null),//sorry for using nulls
+      new SysIdRoutine.Mechanism(
+          // Tell SysId how to plumb the driving voltage to the motors.
+          (Measure<Voltage> volts) -> {
+            shooterMotor.setVoltage(volts.in(Units.Volts));
+          },
+          log -> {
+            log.motor("topMotor")
+                .voltage(Units.Volts.of(shooterMotor.getAppliedOutput() * shooterMotor.getBusVoltage()))
+                .linearPosition(Units.Meters.of(shooterMotor.getEncoder().getPosition()))
+                .linearVelocity( Units.MetersPerSecond.of(shooterMotor.getEncoder().getVelocity()));
+          },
+          this));
+          
   public Shooter() {
     shooterMotor.clearFaults();
     shooterMotor.restoreFactoryDefaults();
@@ -107,6 +128,14 @@ public class Shooter extends SubsystemBase {
     // SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
     // SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
     SmartDashboard.putBoolean("shooter/isOnTarget", isOnTarget());
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+  }
+  
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
   }
 
   /** Align the absolute and relative encoders, should the need arise */
