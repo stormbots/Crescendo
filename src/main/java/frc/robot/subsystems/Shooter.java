@@ -25,6 +25,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -39,6 +40,8 @@ public class Shooter extends SubsystemBase {
 
   private double reverseSoftLimit = 2;
   private double forwardSoftLimit = 46;
+
+  public boolean isHomed = false;
 
   public static LUT lut = new LUT(new double[][]{
     {54, 42.5, 4000},

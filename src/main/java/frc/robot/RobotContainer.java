@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.CalibrateShooter;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.DriverFeedback;
@@ -197,6 +198,10 @@ public class RobotContainer {
     new Trigger(DriverStation::isEnabled)
     .and(()->climber.isHomed==false)
     .whileTrue(new ClimberGoHome(climber).withTimeout(15));
+
+    new Trigger(DriverStation::isTeleop)
+    .and(()->shooter.isHomed==false)
+    .whileTrue(new CalibrateShooter(shooter));
 
     new Trigger( ()-> dunkArm.getAngle()>45 )
     .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(0.1)))
@@ -485,9 +490,15 @@ public class RobotContainer {
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
-    ).whileTrue( 
+    )
+    .whileTrue( 
       new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
     )
+    .onTrue(new ConditionalCommand(
+      new ClimberSetPosition(climber, Units.Inches.of(9)),
+      new InstantCommand(), 
+      ()->climber.getPosition().in(Units.Inches)<2.0
+    ))
     ;
 
     operatorJoystick.button(11).onTrue(
@@ -519,6 +530,12 @@ public class RobotContainer {
     // operatorJoystick.button(12).whileTrue(
     //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
     // );
+
+    // operatorJoystick.button(12).whileTrue(new ParallelCommandGroup( //shooting across field, not tested
+    //   new SetDunkArmSlew(20, dunkArm),
+    //   new SetShooterProfiled(15, shooter),
+    //   new SetFlywheelSlew(4000, shooterFlywheel)
+    // ));
   }
   
   /**
