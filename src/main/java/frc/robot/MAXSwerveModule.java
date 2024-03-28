@@ -29,7 +29,8 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import frc.robot.ChassisConstants.ModuleConstants;
 
 public class MAXSwerveModule implements Sendable{
-  public final CANSparkFlex drivingSparkFlex;
+  // public final CANSparkFlex drivingSparkFlex;
+  public final CANSparkMax drivingSparkFlex;
   private final CANSparkMax turningSparkMax;
 
   public final RelativeEncoder drivingEncoder;
@@ -50,7 +51,9 @@ public class MAXSwerveModule implements Sendable{
    * Encoder.
    */
   public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, SimpleMotorFeedforward drivingMotorFeedforward){
-    drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
+    // drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
+    drivingSparkFlex = new CANSparkMax(drivingCANId, MotorType.kBrushless);
+
     turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
     this.drivingMotorFeedforward = drivingMotorFeedforward;
 
@@ -137,8 +140,8 @@ public class MAXSwerveModule implements Sendable{
 
     turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     
-    SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
-    SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
+    // SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
+    // SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
 
     drivingSparkFlex.burnFlash();
     turningSparkMax.burnFlash();

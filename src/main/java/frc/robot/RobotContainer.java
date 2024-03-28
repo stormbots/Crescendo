@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -70,17 +71,20 @@ public class RobotContainer {
 
   public static final double INITIALSHOOTEROFFSET =1.0; 
   public static double shooterOffset = INITIALSHOOTEROFFSET;//adjusted via slider
+  // public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
+  //   new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
+  //   new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
+  //   new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
+  //   new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-    new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
-    new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
-    new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
-    new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
+    new Translation2d(0, Units.Inch.of(6).in(Units.Meter)),
+    new Translation2d(0, -Units.Inch.of(6).in(Units.Meter))
   );
   public AHRS navx = new AHRS();
   public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, navx.getRotation2d(), 
     new SwerveModulePosition[] {
-        new SwerveModulePosition(),
-        new SwerveModulePosition(),
+        // new SwerveModulePosition(),
+        // new SwerveModulePosition(),
         new SwerveModulePosition(),
         new SwerveModulePosition()
     }, 

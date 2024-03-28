@@ -51,11 +51,11 @@ public class Chassis extends SubsystemBase {
 
   /** Creates a new Chassis. */
   // Create MAXSwerveModules
-  private final MAXSwerveModule frontLeft = new MAXSwerveModule(
-      DriveConstants.kFrontLeftDrivingCanId,
-      DriveConstants.kFrontLeftTurningCanId,
-      0,
-      new SimpleMotorFeedforward(0.14435, 1.9123, 0.21404));
+  // private final MAXSwerveModule frontLeft = new MAXSwerveModule(
+  //     DriveConstants.kFrontLeftDrivingCanId,
+  //     DriveConstants.kFrontLeftTurningCanId,
+  //     0,
+  //     new SimpleMotorFeedforward(0.14435, 1.9123, 0.21404));
 
   private final MAXSwerveModule frontRight = new MAXSwerveModule(
       DriveConstants.kFrontRightDrivingCanId,
@@ -69,11 +69,11 @@ public class Chassis extends SubsystemBase {
       0,
       new SimpleMotorFeedforward(0.095901, 1.9072, 0.33214));
 
-  private final MAXSwerveModule rearRight = new MAXSwerveModule(
-      DriveConstants.kRearRightDrivingCanId,
-      DriveConstants.kRearRightTurningCanId,
-      0,
-      new SimpleMotorFeedforward(0.18284, 1.9105, 0.18241));
+  // private final MAXSwerveModule rearRight = new MAXSwerveModule(
+  //     DriveConstants.kRearRightDrivingCanId,
+  //     DriveConstants.kRearRightTurningCanId,
+  //     0,
+  //     new SimpleMotorFeedforward(0.18284, 1.9105, 0.18241));
 
   // The gyro sensor
   public AHRS navx;
@@ -104,24 +104,24 @@ public class Chassis extends SubsystemBase {
       new SysIdRoutine.Mechanism(
           // Tell SysId how to plumb the driving voltage to the motors.
           (Measure<Voltage> volts) -> {
-            frontLeft.setVoltageDrive(volts);
+            // frontLeft.setVoltageDrive(volts);
             frontRight.setVoltageDrive(volts);
             rearLeft.setVoltageDrive(volts);
-            rearRight.setVoltageDrive(volts);
+            // rearRight.setVoltageDrive(volts);
           },
           log -> {
             log.motor("frontRight")
                 .voltage(Units.Volts.of(frontRight.getPowerOutput()))
                 .linearPosition(Units.Meters.of(frontRight.getDrivingEncoderPosition()))
                 .linearVelocity( Units.MetersPerSecond.of(frontRight.getState().speedMetersPerSecond));
-            log.motor("frontLeft")
-              .voltage(Units.Volts.of(frontLeft.getPowerOutput()))
-              .linearPosition(Units.Meters.of(frontLeft.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(frontLeft.getState().speedMetersPerSecond));
-            log.motor("rearRight")
-              .voltage(Units.Volts.of(rearRight.getPowerOutput()))
-              .linearPosition(Units.Meters.of(rearRight.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(rearRight.getState().speedMetersPerSecond));
+            // log.motor("frontLeft")
+            //   .voltage(Units.Volts.of(frontLeft.getPowerOutput()))
+            //   .linearPosition(Units.Meters.of(frontLeft.getDrivingEncoderPosition()))
+            //   .linearVelocity( Units.MetersPerSecond.of(frontLeft.getState().speedMetersPerSecond));
+            // log.motor("rearRight")
+            //   .voltage(Units.Volts.of(rearRight.getPowerOutput()))
+            //   .linearPosition(Units.Meters.of(rearRight.getDrivingEncoderPosition()))
+            //   .linearVelocity( Units.MetersPerSecond.of(rearRight.getState().speedMetersPerSecond));
             log.motor("rearLeft")
               .voltage(Units.Volts.of(rearLeft.getPowerOutput()))
               .linearPosition(Units.Meters.of(rearLeft.getDrivingEncoderPosition()))
@@ -145,10 +145,10 @@ public class Chassis extends SubsystemBase {
         Timer.getFPGATimestamp(),
         navx.getRotation2d(),
         new SwerveModulePosition[] {
-            frontLeft.getPosition(),
+            // frontLeft.getPosition(),
             frontRight.getPosition(),
             rearLeft.getPosition(),
-            rearRight.getPosition()
+            // rearRight.getPosition()
         });
     
     //i WILL cry if this doesn't work by next week
@@ -165,8 +165,8 @@ public class Chassis extends SubsystemBase {
     // SmartDashboard.putData("modules/rl", rearLeft);
 
     SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
-    SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
+    // SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
     SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
 
     // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
@@ -192,10 +192,10 @@ public class Chassis extends SubsystemBase {
     swerveDrivePoseEstimator.resetPosition(
         navx.getRotation2d(),
         new SwerveModulePosition[] {
-            frontLeft.getPosition(),
+            // frontLeft.getPosition(),
             frontRight.getPosition(),
             rearLeft.getPosition(),
-            rearRight.getPosition()
+            // rearRight.getPosition()
         },
         pose);
   }
@@ -288,10 +288,12 @@ public class Chassis extends SubsystemBase {
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    frontLeft.setDesiredState(swerveModuleStates[0]);
-    frontRight.setDesiredState(swerveModuleStates[1]);
-    rearLeft.setDesiredState(swerveModuleStates[2]);
-    rearRight.setDesiredState(swerveModuleStates[3]);
+    // frontLeft.setDesiredState(swerveModuleStates[0]);
+    // frontRight.setDesiredState(swerveModuleStates[1]);
+    // rearLeft.setDesiredState(swerveModuleStates[2]);
+    // rearRight.setDesiredState(swerveModuleStates[3]);
+    frontRight.setDesiredState(swerveModuleStates[0]);
+    rearLeft.setDesiredState(swerveModuleStates[1]);
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -307,10 +309,10 @@ public class Chassis extends SubsystemBase {
    * Sets the wheels into an X formation to prevent movement.
    */
   public void setX() {
-    frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    // frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
     frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
     rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-    rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+    // rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
   }
 
   /**
@@ -321,27 +323,29 @@ public class Chassis extends SubsystemBase {
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    frontLeft.setDesiredState(desiredStates[0]);
+    // frontLeft.setDesiredState(desiredStates[0]);
+    // frontRight.setDesiredState(desiredStates[1]);
+    // rearLeft.setDesiredState(desiredStates[2]);
+    // rearRight.setDesiredState(desiredStates[3]);
     frontRight.setDesiredState(desiredStates[1]);
     rearLeft.setDesiredState(desiredStates[2]);
-    rearRight.setDesiredState(desiredStates[3]);
   }
 
   public SwerveModuleState[] getModuleStates(){
     return new SwerveModuleState[] {
-      frontLeft.getState(),
+      // frontLeft.getState(),
       frontRight.getState(),
       rearLeft.getState(),
-      rearRight.getState()
+      // rearRight.getState()
     };
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
-    frontLeft.resetEncoders();
+    // frontLeft.resetEncoders();
     frontRight.resetEncoders();
     rearLeft.resetEncoders();
-    rearRight.resetEncoders();
+    // rearRight.resetEncoders();
   }
   
   /** Zeroes the heading of the robot. */
@@ -445,7 +449,8 @@ public class Chassis extends SubsystemBase {
   }
 
   public void setIdleMode(IdleMode idleMode){
-    for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
+    // for(MAXSwerveModule module : new MAXSwerveModule[]{fronLeft, frontRight, rearLeft, rearRight}){
+    for(MAXSwerveModule module : new MAXSwerveModule[]{ frontRight, rearLeft}){
       module.drivingSparkFlex.setIdleMode(idleMode);
     }
   }
@@ -466,9 +471,9 @@ public class Chassis extends SubsystemBase {
   
   public void setCurrentLimits(double amps){
     amps /= 4;
-    frontLeft.setCurrentLimit(amps); 
+    // frontLeft.setCurrentLimit(amps); 
     frontRight.setCurrentLimit(amps);
     rearLeft.setCurrentLimit(amps);
-    rearRight.setCurrentLimit(amps);
+    // rearRight.setCurrentLimit(amps);
   }
 }
