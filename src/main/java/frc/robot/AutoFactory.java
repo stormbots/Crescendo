@@ -273,7 +273,7 @@ public class AutoFactory {
         );
 
         //this kinda sucks but its better than guessing values for now, fix code struct later
-        LUT shooterLUT = Shooter.lut;
+        LUT shooterLUT = Shooter.normalLUT;
         Measure<Distance> distance = Units.Meters.of(Math.hypot(4.3-0.4, 6.25-5.55));
         
         var angle = shooterLUT.get(distance.in(Units.Inches))[0];

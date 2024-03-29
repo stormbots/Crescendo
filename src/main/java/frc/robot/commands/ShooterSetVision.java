@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import java.util.Optional;
 
+import com.stormbots.Clamp;
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -25,7 +26,7 @@ public class ShooterSetVision extends Command {
     double targetRPM = 4000;
     double targetAngleSlew = 0.0;
     double targetRPMSlew = 0.0;
-    LUT lut = Shooter.lut;
+    LUT lut = Shooter.normalLUT;
     SlewRateLimiter shooterRateLimiter =new SlewRateLimiter(
         Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
     SlewRateLimiter flywheelRateLimiter = new SlewRateLimiter(
@@ -54,6 +55,7 @@ public class ShooterSetVision extends Command {
         Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
         if (visionData.isPresent()) {
             double distance = -visionData.get().distance.in(Units.Inches);
+            distance =Clamp.clamp(distance, 0, 148);
 
             targetAngle = lut.get(distance)[0]; //get lut
             targetRPM = lut.get(distance)[1];

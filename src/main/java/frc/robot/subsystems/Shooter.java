@@ -43,7 +43,7 @@ public class Shooter extends SubsystemBase {
 
   public boolean isHomed = false;
 
-  public static LUT lut = new LUT(new double[][]{
+  public static LUT normalLUT = new LUT(new double[][]{
     {54, 42.5, 4000},
     {66, 38.3, 4000},
     {78, 34.1, 4000},
@@ -54,6 +54,8 @@ public class Shooter extends SubsystemBase {
     {148, 15.4, 5500}, //farthest shot with dunkarm down
     {173, 13.2, 6000} 
   });
+
+  public static LUT lobLut = new LUT(new double[][]{});
 
   public static final double kSlewForward = 150;
   public static final double kSlewBackward = -150;
@@ -109,10 +111,9 @@ public class Shooter extends SubsystemBase {
 
     shooterMotor.setIdleMode(IdleMode.kCoast);
 
-    
     shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
     shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
 
     shooterMotor.burnFlash();
@@ -198,7 +199,7 @@ public class Shooter extends SubsystemBase {
   public void setAngle(double degrees) {
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
     this.shooterSetPoint = degrees;
-    // pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
+    pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
   public Command getDebugSetAngle(double degrees) {

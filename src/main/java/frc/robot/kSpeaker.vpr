@@ -20,7 +20,7 @@ crop_x_min:-1
 crop_y_max:0.56
 crop_y_min:-0.7
 cross_a_a:1
-cross_a_x:0
+cross_a_x:-0.17
 cross_a_y:0
 cross_b_a:1
 cross_b_x:0
@@ -62,7 +62,7 @@ multigroup_max:7
 multigroup_min:1
 multigroup_rejector:0
 pipeline_led_enabled:0
-pipeline_led_power:0
+pipeline_led_power:100
 pipeline_res:3
 pipeline_type:4
 python_snapscript_name:
@@ -90,7 +90,7 @@ solve3d_precise:0
 solve3d_zoffset:0.000000
 tsf:0
 tss:0
-tsu:0
+tsu:0.01
 val_max:255
 val_min:70
 x_outlier_miqr:1.5

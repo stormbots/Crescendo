@@ -24,7 +24,7 @@ public class DunkArmUpShoot extends Command {
     Shooter shooter;
     ShooterFlywheel flywheel;
     ShooterVision shooterVision;
-    LUT lut = Shooter.lut;
+    LUT lut = Shooter.normalLUT;
     double targetRPM = 0.0;
     double targetAngle = 0.0;
     double lowestAngle = 13.0;

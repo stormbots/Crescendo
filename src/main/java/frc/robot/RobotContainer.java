@@ -41,6 +41,7 @@ import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
@@ -199,7 +200,7 @@ public class RobotContainer {
     .and(()->climber.isHomed==false)
     .whileTrue(new ClimberGoHome(climber).withTimeout(15));
 
-    new Trigger(DriverStation::isTeleop)
+    new Trigger(DriverStation::isEnabled)
     .and(()->shooter.isHomed==false)
     .whileTrue(new CalibrateShooter(shooter));
 
@@ -242,7 +243,7 @@ public class RobotContainer {
     ;
 
     intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
-    shooter.setDefaultCommand(
+    shooter.setDefaultCommand( //TODO: why jank?? :(
       new WaitCommand(1)
       .andThen(new SetShooterProfiled(0, shooter)
         .withTimeout(1)
