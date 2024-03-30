@@ -92,10 +92,13 @@ public class Shooter extends SubsystemBase {
     shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()); //native unit is RPS
 
     //Configure relative encoder
-    shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51*0.955);//56.8/15.1
+    // shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51*0.955/2);//56.8/15.1 old 
+    shooterMotor.getEncoder().setPositionConversionFactor((38.338787-3.184040)/(19.733170-2.209433));
+    // shooterMotor.getEncoder().setPositionConversionFactor((41.827526-0.340941)/(21.474369-0.450663));
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
  
+    reverseSoftLimit = getShooterAngle()+1;
     shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
     shooterMotor.setSoftLimit(SoftLimitDirection.kForward, (float) forwardSoftLimit);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
@@ -121,17 +124,18 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("currenttesting/shooterAngle", shooterMotor.getOutputCurrent());
+    SmartDashboard.putNumber("currenttesting/shooter", shooterMotor.getOutputCurrent());
 
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("shooter/rotations", shooterMotor.getEncoder().getPosition());
-    // SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
+    SmartDashboard.putNumber("shooter/output", shooterMotor.getAppliedOutput());
     SmartDashboard.putNumber("shooter/absEncoder", getShooterAngleAbsolute());
     SmartDashboard.putNumber("shooter/encoder", shooterMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("shooter/target", shooterSetPoint);
     // SmartDashboard.putNumber("shooter/outputCurrent", shooterMotor.getOutputCurrent());
     // SmartDashboard.putNumber("shooter/TrapezoidProfile", getState().velocity);
     SmartDashboard.putBoolean("shooter/isOnTarget", isOnTarget());
+    SmartDashboard.putNumber("shooter/angleDifference", shooterSetPoint-shooterMotor.getEncoder().getPosition());
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -190,7 +194,7 @@ public class Shooter extends SubsystemBase {
 
 
   public double getShooterFFPercent(){
-    var  kCosFFGain = 0.08;
+    var  kCosFFGain = 0.045;
     var ks = 0.0099 *Math.signum(this.shooterSetPoint-shooterMotor.getEncoder().getPosition());
     // 0.08 +- 0.09 according to tests
     return kCosFFGain*Math.cos(Math.toRadians(getShooterAngle())) + ks;

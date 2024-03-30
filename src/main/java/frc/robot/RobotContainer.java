@@ -243,13 +243,13 @@ public class RobotContainer {
     ;
 
     intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
+
     shooter.setDefaultCommand( //TODO: why jank?? :(
       new WaitCommand(1)
       .andThen(new SetShooterProfiled(0, shooter)
         .withTimeout(1)
       )
       .andThen(new WaitCommand(0.1))
-      //.andThen(new InstantCommand(()->shooter.syncEncoders()))
       .andThen(new RunCommand(shooter::stopShooter))
     );
 
@@ -442,10 +442,10 @@ public class RobotContainer {
         sequenceFactory.getDunkArmNoteTransferSequence(),
 
         new ParallelCommandGroup(
-          new IntakeNote(intake, passthrough).runForever(),
+          new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
           new SetShooterProfiled(0, shooter),
           //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
-          new SetFlywheelSlew(1500, shooterFlywheel)
+          new SetFlywheelSlew(500, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
@@ -496,7 +496,7 @@ public class RobotContainer {
       new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
     )
     .onTrue(new ConditionalCommand(
-      new ClimberSetPosition(climber, Units.Inches.of(9)),
+      new ClimberSetPosition(climber, Units.Inches.of(11)),
       new InstantCommand(), 
       ()->climber.getPosition().in(Units.Inches)<2.0
     ))

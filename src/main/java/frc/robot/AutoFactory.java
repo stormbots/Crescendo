@@ -193,13 +193,13 @@ public class AutoFactory {
         autoChooser.addOption("sysid Flywheel routine", 
             new InstantCommand()
                 .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(5))
-                .andThen(new WaitCommand(2))
+                .andThen(new WaitCommand(5))
                 .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(5))
-                .andThen(new WaitCommand(2))
+                .andThen(new WaitCommand(5))
                 .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(4))
+                .andThen(new WaitCommand(5))
                 .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(4))
+                .andThen(new WaitCommand(5))
 
         );
 
