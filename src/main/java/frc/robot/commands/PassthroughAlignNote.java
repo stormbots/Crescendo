@@ -49,8 +49,8 @@ public class PassthroughAlignNote extends Command {
     var kintakeresponse = (dist-nominal) * kintake;
     kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
 
-    if (passthrough.isBlocked()) {
-      kpassresponse=0;
+    if (dist<nominal) {
+      kintakeresponse=0;
     }
 
 

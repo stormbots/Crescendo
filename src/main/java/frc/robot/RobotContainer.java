@@ -528,9 +528,11 @@ public class RobotContainer {
 
     // Used for testing only.
 
-    // operatorJoystick.button(12).whileTrue(
+    // operatorJoystick.button(12)
+    // .whileTrue(
     //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
-    // );
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
     // operatorJoystick.button(12).whileTrue(new ParallelCommandGroup( //shooting across field, not tested
     //   new SetDunkArmSlew(20, dunkArm),

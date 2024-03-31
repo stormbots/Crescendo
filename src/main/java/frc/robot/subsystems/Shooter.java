@@ -44,15 +44,16 @@ public class Shooter extends SubsystemBase {
   public boolean isHomed = false;
 
   public static LUT normalLUT = new LUT(new double[][]{
-    {54, 42.5, 4000},
-    {66, 38.3, 4000},
-    {78, 34.1, 4000},
-    {90, 30.4, 4000},
-    {103, 24.0, 4000},
-    {113, 23.6, 4000},
-    {124, 20.0, 4500},
-    {148, 15.4, 5500}, //farthest shot with dunkarm down
-    {173, 13.2, 6000} 
+    {54, 44.4, 4000},
+    {67.6, 39.19, 4000},
+    {81.6, 33.31, 4000},
+    {93.8, 29.42, 4000},
+    {106, 27.56, 4000},
+    {118.9, 24.12, 4000},
+    {131.5, 20.97, 4500},
+    {142.4, 19.44, 5500},
+    {156.4, 18.63, 6000}, //last shot with dunkarm down
+    {227, 9.132, 6000}
   });
 
   public static LUT lobLut = new LUT(new double[][]{});
