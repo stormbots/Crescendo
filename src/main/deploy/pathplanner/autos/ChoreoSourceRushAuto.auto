@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7669041156768799,
-      "y": 6.669712543487549
+      "x": 0.7753955125808716,
+      "y": 4.522815704345703
     },
-    "rotation": 59.99956734830468
+    "rotation": -59.99956734830468
   },
   "command": {
     "type": "sequential",
@@ -16,29 +16,22 @@
           "data": {
             "commands": [
               {
-                "type": "sequential",
+                "type": "path",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "AmpPath.1"
-                      }
-                    }
-                  ]
+                  "pathName": "SourceRushNote.1"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "topSpinUpShotNoStop"
+                  "name": "botSpinUpShotNoStop"
                 }
               }
             ]
           }
         },
         {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -67,109 +60,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.2"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeFull"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "topNoteShotNoStop"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "AmpPath.3"
+                        "pathName": "SourceRushNote.2"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.4"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeAndAlign"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.2
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.4
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeShoot"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "AmpPath.5"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "AmpPath.6"
+                        "pathName": "SourcePath.4"
                       }
                     }
                   ]
@@ -182,13 +79,19 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.2
+                        "waitTime": 0.4
                       }
                     },
                     {
                       "type": "named",
                       "data": {
                         "name": "intakeAndAlign"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeStop"
                       }
                     }
                   ]
@@ -227,13 +130,19 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.7"
+                        "pathName": "SourcePath.5"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.01
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.8"
+                        "pathName": "SourcePath.6"
                       }
                     }
                   ]
@@ -246,13 +155,19 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.2
+                        "waitTime": 0.4
                       }
                     },
                     {
                       "type": "named",
                       "data": {
                         "name": "intakeAndAlign"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeStop"
                       }
                     }
                   ]
@@ -275,6 +190,57 @@
                 "type": "named",
                 "data": {
                   "name": "intakeShoot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "SourcePath.7"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "SourcePath.8"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.4
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeAndAlign"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeStop"
+                      }
+                    }
+                  ]
                 }
               }
             ]

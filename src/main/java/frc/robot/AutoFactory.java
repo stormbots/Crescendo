@@ -88,8 +88,8 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         
-        initAutoChooser(); //aktes too long, run in background
-        // initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
+        // initAutoChooser(); //This for somereason had to be made for the autos to deploy
+        initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
@@ -182,6 +182,29 @@ public class AutoFactory {
         // autoChooser.addOption("2NoteSource", new InstantCommand()
         // .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
         // .andThen(new PathPlannerAuto("2NoteSourceAuto")));
+
+        autoChooser.addOption("TwoMeter", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0))
+            .andThen(new PathPlannerAuto("2MeterAuto")));
+
+        autoChooser.addOption("Circle", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(90, isBlue))
+            .andThen(new PathPlannerAuto("CircleAuto")));
+
+        autoChooser.addOption("5NoteChoreo", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+            .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
+        );
+
+        autoChooser.addOption("5NoteChoreo", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+            .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
+        );
+
+        autoChooser.addOption("5NoteChoreo", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+            .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
+        );
 
         autoChooser.addOption("vv SysID vv", new InstantCommand());
         

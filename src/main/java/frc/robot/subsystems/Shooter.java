@@ -87,7 +87,7 @@ public class Shooter extends SubsystemBase {
     shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()); //native unit is RPS
 
     //Configure relative encoder
-    shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51*0.955);//56.8/15.1
+    shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51*0.955/2);//56.8/15.1
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
  
@@ -195,7 +195,7 @@ public class Shooter extends SubsystemBase {
   public void setAngle(double degrees) {
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
     this.shooterSetPoint = degrees;
-    // pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
+    pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
   public Command getDebugSetAngle(double degrees) {

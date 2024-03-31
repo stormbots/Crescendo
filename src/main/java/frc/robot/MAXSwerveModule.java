@@ -26,6 +26,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.ChassisConstants.ModuleConstants;
 
 public class MAXSwerveModule implements Sendable{
@@ -133,12 +134,12 @@ public class MAXSwerveModule implements Sendable{
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
-    drivingSparkFlex.setClosedLoopRampRate(0.02);
+    // drivingSparkFlex.setClosedLoopRampRate(0.02);
 
     turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     
-    SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
-    SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
+    // SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
+    // SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
 
     drivingSparkFlex.burnFlash();
     turningSparkMax.burnFlash();
@@ -184,17 +185,11 @@ public class MAXSwerveModule implements Sendable{
     SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
         new Rotation2d(turningEncoder.getPosition()));
 
-    // Command driving and turning SPARKS MAX towards their respective setpoints.
-    // SmartDashboard.putNumber("optimizedDesiredState.speedMetersPerSecond", optimizedDesiredState.speedMetersPerSecond);
-    // drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkFlex.ControlType.kVelocity);
-
-    // var arbFF = drivingMotorFeedforward.calculate(drivingEncoder.getVelocity(), optimizedDesiredState.speedMetersPerSecond, 0.02);
     var arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
     drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity, 0, arbFF, ArbFFUnits.kVoltage);
 
     turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
-    //Added a this
     this.desiredState = desiredState;
   }
   
@@ -217,6 +212,10 @@ public class MAXSwerveModule implements Sendable{
     return drivingSparkFlex.getAppliedOutput() * drivingSparkFlex.getBusVoltage();
   }
 
+  public double getDriveCurrent(){
+    return drivingSparkFlex.getOutputCurrent();
+  }
+
   public double getDrivingEncoderPosition(){
     return drivingEncoder.getPosition();
   }
@@ -226,5 +225,9 @@ public class MAXSwerveModule implements Sendable{
     builder.setSmartDashboardType("MaxSwerveModule");
     builder.addDoubleProperty("Azimuth Angle", turningEncoder::getPosition, null);
     builder.addDoubleProperty("Encoder Dist", drivingEncoder::getPosition, drivingEncoder::setPosition);
+  }
+
+  public SwerveModuleState getDesiredSate(){
+    return desiredState;
   }
 }

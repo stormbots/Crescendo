@@ -25,7 +25,7 @@ public class ChassisConstants {
     // the robot, rather the allowed maximum speeds
     public static final double kMaxSpeedMetersPerSecond = 5.4;
     // public static final double kMaxAngularSpeed = 4 * Math.PI; // radians per second
-    public static final double kMaxAngularSpeed = kMaxSpeedMetersPerSecond / kTrackWidth; // PREVIOUS VALUE IS UNREASONABLE THIS VALUE IS APPROX 2.8PI
+    public static final double kMaxAngularSpeed = kMaxSpeedMetersPerSecond / kTrackWidth * 2; // PREVIOUS VALUE IS UNREASONABLE THIS VALUE IS APPROX 2.8PI
 
     public static final double kDirectionSlewRate = 1.2*3; // radians per second
     public static final double kMagnitudeSlewRate = 1.8*5; // percent per second (1 = 100%)
@@ -63,7 +63,7 @@ public class ChassisConstants {
 
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
-    public static final double kWheelDiameterMeters = 0.0762;
+    public static final double kWheelDiameterMeters = 0.0762*0.975;
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15 teeth on the bevel pinion
     public static final double kDrivingMotorReduction = (45.0 * 20) / (kDrivingMotorPinionTeeth * 15);
@@ -76,7 +76,7 @@ public class ChassisConstants {
     public static final double kDrivingEncoderVelocityFactor = kDrivingEncoderPositionFactor / 60.0; // meters per second
 
     public static final double kTurningEncoderPositionFactor = (2 * Math.PI); // radians
-    public static final double kTurningEncoderVelocityFactor = (2 * Math.PI) / 60.0; // radians per second
+    public static final double kTurningEncoderVelocityFactor = (2 * Math.PI); // radians per second uses absolute not relative
 
     public static final double kTurningEncoderPositionPIDMinInput = 0; // radians
     public static final double kTurningEncoderPositionPIDMaxInput = kTurningEncoderPositionFactor; // radians

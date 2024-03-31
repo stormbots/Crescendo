@@ -37,8 +37,8 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double kSlewForward = 4000/0.5;  //TODO: get rate limits
   public static final double kSlewBackward = -kSlewForward;
 
-  SimpleMotorFeedforward topFlywheelFeedforward = new SimpleMotorFeedforward(0.14872, 0.001077, 0.0001627);
-  SimpleMotorFeedforward botFlywheelFeedforward = new SimpleMotorFeedforward(0.1378, 0.001072, 0.00016379);
+  SimpleMotorFeedforward topFlywheelFeedforward = new SimpleMotorFeedforward(0.087324, 0.0010992, 0.00018632);
+  SimpleMotorFeedforward botFlywheelFeedforward = new SimpleMotorFeedforward(0.12387, 0.0010968, 0.00018145);
 
    
 
