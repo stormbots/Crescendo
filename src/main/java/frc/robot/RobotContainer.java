@@ -24,12 +24,14 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.AutomatedTrap;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.DriverFeedback;
@@ -421,10 +423,20 @@ public class RobotContainer {
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
     //podium/far shot
+    // operatorJoystick.button(4) //far shooting
+    // .whileTrue(new ParallelCommandGroup(
+    //   new SetFlywheelSlew(4500, shooterFlywheel),
+    //   new SetShooterProfiled(20+1, shooter).runForever())
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
+    // )
+    // ;
+
+//testing shooter at different rpms
     operatorJoystick.button(4) //far shooting
     .whileTrue(new ParallelCommandGroup(
-      new SetFlywheelSlew(4500, shooterFlywheel),
-      new SetShooterProfiled(20+1, shooter).runForever())
+      new SetFlywheelSlew(6000, shooterFlywheel),
+      new SetShooterProfiled(10, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
     )
@@ -519,6 +531,25 @@ public class RobotContainer {
     // operatorJoystick.button(12).whileTrue(
     //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
     // );
+
+    operatorJoystick.button(12).whileTrue(
+      new InstantCommand()
+      // new RunCommand(()->{
+      //   chassis.driveToBearing(0, 0, Math.toRadians(Clamp.clamp(60*Math.round((int)navx.getRotation2d().getDegrees()/60), -60, 60)));
+      // },chassis).until(()->Clamp.bounded(navx.getRotation2d().getDegrees(), Clamp.clamp(60*Math.round((int)navx.getRotation2d().getDegrees()/60), -60, 60)-5, Clamp.clamp(60*Math.round((int)navx.getRotation2d().getDegrees()/60), -60, 60)+5))
+      .andThen(
+        new SequentialCommandGroup(new InstantCommand()
+          .andThen(new SetDunkArmSlew(20, dunkArm))
+          .andThen(new AutomatedTrap(this))
+          .andThen(
+        new ClimberSetPosition(climber, Units.Inches.of(0))
+        .alongWith(new RunCommand(()->{},dunkArm))
+      )
+        )
+      ).alongWith(new DunkArmRollerHoldNote(dunkArm, dunkArmRoller))
+    )
+    .onFalse(new RunCommand(()->{}, dunkArm))
+    ;
   }
   
   /**

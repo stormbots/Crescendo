@@ -91,6 +91,7 @@ public class Shooter extends SubsystemBase {
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
  
+    reverseSoftLimit = shooterMotor.getEncoder().getPosition()+1;
     shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
     shooterMotor.setSoftLimit(SoftLimitDirection.kForward, (float) forwardSoftLimit);
     shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
@@ -195,7 +196,7 @@ public class Shooter extends SubsystemBase {
   public void setAngle(double degrees) {
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
     this.shooterSetPoint = degrees;
-    // pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
+    pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
   public Command getDebugSetAngle(double degrees) {

@@ -33,7 +33,7 @@ public class ShooterFlywheel extends SubsystemBase {
   private final double kMaxRPM = 6784 * kGearing;
 
   double targetRPM = 0;
-
+  
   public static final double kSlewForward = 4000/0.5;  //TODO: get rate limits
   public static final double kSlewBackward = -kSlewForward;
 
@@ -145,6 +145,10 @@ public class ShooterFlywheel extends SubsystemBase {
     // botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
     topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, topFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
     botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, botFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
+  }
+
+  public void setRPM(double topTargetRPM, double botTargetRPM) {
+    
   }
 
   public void setRPMProfiled(double rpm){
