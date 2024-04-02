@@ -48,6 +48,7 @@ public class PassthroughAlignNote extends Command {
     var kpassresponse = (dist-nominal) * kpassthrough;
     var kintakeresponse = (dist-nominal) * kintake;
     kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
+    kpassthrough = Clamp.clamp(kpassthrough, -1, 0.2);
 
     if (dist<nominal) {
       kintakeresponse=0;

@@ -36,6 +36,10 @@ public class Climber extends SubsystemBase {
   public final  Measure<Distance> kClimbReadyPosition=Units.Inches.of(23.25-6);
   private double positionSetpoint=0;
 
+  public float forwardSoftLimit = (float)(kMaxHeight.in(Units.Inches)-0.2);
+  public float climbingReverseSoftLimit = (float)0.1;
+  public float defaultReverseSoftLimit = (float)11.5;
+
   public Climber(AHRS navx) {
     //TODO Auto-generated constructor stub
 
@@ -43,10 +47,10 @@ public class Climber extends SubsystemBase {
       motor.clearFaults();
       motor.restoreFactoryDefaults();
 
-      motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.1);
+      motor.setSoftLimit(SoftLimitDirection.kReverse, climbingReverseSoftLimit);
       motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
-      motor.setSoftLimit(SoftLimitDirection.kForward, (float)(kMaxHeight.in(Units.Inches)-0.2));
+      motor.setSoftLimit(SoftLimitDirection.kForward, forwardSoftLimit);
       motor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
       motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
@@ -100,7 +104,7 @@ public class Climber extends SubsystemBase {
       motor.setSmartCurrentLimit(30);
       setIdleMode(IdleMode.kBrake);
       //TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for drive team
-      motor.setSoftLimit(SoftLimitDirection.kReverse,(float) 9.5); //Should be 11.5 b/c climber double hook, previously 9.5
+      motor.setSoftLimit(SoftLimitDirection.kReverse, defaultReverseSoftLimit); //Should be 11.5 b/c climber double hook, previously 9.5
     }
 
   }

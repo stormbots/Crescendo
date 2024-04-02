@@ -42,6 +42,7 @@ public class Shooter extends SubsystemBase {
   private double forwardSoftLimit = 46;
 
   public boolean isHomed = false;
+  public static double farthestShotDistance = 144; 
 
   public static LUT normalLUT = new LUT(new double[][]{
     {54, 44.4, 4000},
@@ -54,6 +55,20 @@ public class Shooter extends SubsystemBase {
     {142.4, 19.44, 5500},
     {156.4, 18.63, 6000}, //last shot with dunkarm down
     {227, 9.132, 6000}
+  });
+
+  public static LUT constantShortLUT = new LUT(new double[][]{
+    {54, 43.5, 5500},
+    {63.2, 40.59, 5500},
+    {73, 36, 5500},
+    {84.6, 32.07, 5500},
+    {96.5, 27.9, 5500},
+    {107, 25.3, 5500},
+    {118, 22.81, 5500},
+    {130.4, 19.89, 5500},
+    {142, 17.55, 5500}, 
+    {144, 17.15, 5500}, //last shot with dunkarm down
+    {153, 15.75, 5500}
   });
 
   public static LUT lobLut = new LUT(new double[][]{});

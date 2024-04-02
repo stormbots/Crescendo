@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -57,6 +58,7 @@ public class ShooterVision extends SubsystemBase {
     if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("manualshoot/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
+    SmartDashboard.putBoolean("shooter/distanceinrange", distanceInRange());
   }
 
   public boolean hasValidTarget() {
@@ -186,5 +188,12 @@ public class ShooterVision extends SubsystemBase {
     else {
       camera.getEntry("ledMode").setNumber(1);
     }
+  }
+
+  public boolean distanceInRange() {
+    var target = getVisibleTargetData();
+    if (target.isEmpty()) return false;
+    if (-target.get().distance.in(Units.Inches)<=Shooter.farthestShotDistance) return true;
+    else return false;
   }
 }
