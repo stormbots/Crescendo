@@ -183,23 +183,9 @@ public class AutoFactory {
         // .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
         // .andThen(new PathPlannerAuto("2NoteSourceAuto")));
 
-        autoChooser.addOption("TwoMeter", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0))
-            .andThen(new PathPlannerAuto("2MeterAuto")));
-
         autoChooser.addOption("Circle", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(90, isBlue))
             .andThen(new PathPlannerAuto("CircleAuto")));
-
-        autoChooser.addOption("5NoteChoreo", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-            .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
-        );
-
-        autoChooser.addOption("5NoteChoreo", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-            .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
-        );
 
         autoChooser.addOption("5NoteChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
