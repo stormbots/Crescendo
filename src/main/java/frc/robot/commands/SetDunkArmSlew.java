@@ -4,22 +4,20 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.DunkArm;
-
 import com.stormbots.Clamp;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.DunkArm;
 
 public class SetDunkArmSlew extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private double angle;
+
   DunkArm dunkArm;
   boolean exitsOnCompletion = true;
 
-  SlewRateLimiter armRateLimiter =new SlewRateLimiter(
-    90*1.7, -90*1.7, -20); //TODO: get rate limits
+  SlewRateLimiter armRateLimiter =
+      new SlewRateLimiter(90 * 1.7, -90 * 1.7, -20); // TODO: get rate limits
   /**
    * Creates a new ExampleCommand.
    *
@@ -32,7 +30,7 @@ public class SetDunkArmSlew extends Command {
     addRequirements(dunkArm);
   }
 
-  public SetDunkArmSlew runForever(){
+  public SetDunkArmSlew runForever() {
     this.exitsOnCompletion = false;
     return this;
   }
@@ -53,7 +51,7 @@ public class SetDunkArmSlew extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if(!interrupted){
+    if (!interrupted) {
       dunkArm.setArmAngle(angle);
     }
   }
@@ -62,11 +60,11 @@ public class SetDunkArmSlew extends Command {
   @Override
   public boolean isFinished() {
     var posTol = 5;
-    var pos = Clamp.bounded(dunkArm.getAngle(), angle-posTol, angle+posTol);
-  
+    var pos = Clamp.bounded(dunkArm.getAngle(), angle - posTol, angle + posTol);
+
     var velTol = 10; // per sec
     var vol = Clamp.bounded(dunkArm.getState().velocity, -velTol, velTol);
-  
+
     return exitsOnCompletion && pos && vol;
   }
 }

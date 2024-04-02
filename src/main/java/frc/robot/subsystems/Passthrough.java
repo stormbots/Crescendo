@@ -4,40 +4,37 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.IdleMode;
-
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.RangingMode;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import java.util.Optional;
 
 public class Passthrough extends SubsystemBase {
-  //Define SparkMax
-  public CANSparkMax motor = new CANSparkMax(Robot.isCompbot?10:10 , MotorType.kBrushless); //
-  public CANSparkMax motorB = new CANSparkMax(Robot.isCompbot?11:22, MotorType.kBrushless); //
-  //Define motor speed, adjust
-  private double kPassthroughSpeed=1.0;
-  //LaserCAN Sensor Setup
+  // Define SparkMax
+  public CANSparkMax motor = new CANSparkMax(Robot.isCompbot ? 10 : 10, MotorType.kBrushless); //
+  public CANSparkMax motorB = new CANSparkMax(Robot.isCompbot ? 11 : 22, MotorType.kBrushless); //
+  // Define motor speed, adjust
+  private double kPassthroughSpeed = 1.0;
+  // LaserCAN Sensor Setup
   public LaserCan lasercan = new LaserCan(20);
 
   /** where we want the game piece under ideal conditions, in mm */
   public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
   // public final double kIdealDistance = 23.0;
   /** distance where we're confident game piece is loaded, and loading can stop. In mm */
-  public final double kBlockedDistance = 185.0-25.4;
+  public final double kBlockedDistance = 185.0 - 25.4;
   /** distance to the far side of passthrough when unobstructed, in mm */
-  public final double kFarWallDistance = 355.0; //mm
-  
+  public final double kFarWallDistance = 355.0; // mm
 
   /** Creates a new Passthrough. */
   public Passthrough() {
@@ -46,13 +43,13 @@ public class Passthrough extends SubsystemBase {
     motorB.restoreFactoryDefaults();
     motorB.clearFaults();
 
-    motorB.follow(motor,true);//TODO: Check invert
+    motorB.follow(motor, true); // TODO: Check invert
     motor.setInverted(false);
 
     motor.setIdleMode(IdleMode.kBrake);
     motorB.setIdleMode(IdleMode.kBrake);
 
-    //Safety inplace
+    // Safety inplace
     motor.setSmartCurrentLimit(15);
 
     motor.getPIDController().setP(0.1);
@@ -64,7 +61,7 @@ public class Passthrough extends SubsystemBase {
     motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
     motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
     motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
-    
+
     motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
     motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
     motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
@@ -82,18 +79,20 @@ public class Passthrough extends SubsystemBase {
     }
   }
 
-  public Optional<Measure<Distance>> getSensorReading(){
-    var reading = lasercan.getMeasurement();    
-    if(reading == null){return Optional.empty();}
+  public Optional<Measure<Distance>> getSensorReading() {
+    var reading = lasercan.getMeasurement();
+    if (reading == null) {
+      return Optional.empty();
+    }
     return Optional.of(Units.Millimeters.of(reading.distance_mm));
   }
 
-  public void setPower(double power){
+  public void setPower(double power) {
     motor.set(power);
   }
 
-  //This for manual option for driver
-  public void intake(){
+  // This for manual option for driver
+  public void intake() {
     motor.set(kPassthroughSpeed);
   }
 
@@ -105,14 +104,14 @@ public class Passthrough extends SubsystemBase {
   public void eject() {
     motor.set(-kPassthroughSpeed);
   }
-  
-  public Measure<Distance> getSensorDistance() {   
-    var measurement = getSensorReading(); 
-    var distance = measurement.orElseGet(()->Units.Millimeters.of(kFarWallDistance));
+
+  public Measure<Distance> getSensorDistance() {
+    var measurement = getSensorReading();
+    var distance = measurement.orElseGet(() -> Units.Millimeters.of(kFarWallDistance));
     return distance;
   }
 
-  //This will be area for setup for sensor
+  // This will be area for setup for sensor
   public boolean isBlocked() {
     var distance = getSensorDistance();
     return distance.in(Units.Millimeters) < kBlockedDistance;

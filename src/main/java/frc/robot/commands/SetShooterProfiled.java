@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
@@ -15,6 +14,7 @@ import frc.robot.subsystems.Shooter;
 public class SetShooterProfiled extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Shooter shooter;
+
   private double shooterAngle;
   private Boolean exitsOnCompletion = true;
   /**
@@ -29,10 +29,9 @@ public class SetShooterProfiled extends Command {
   // double startTimer = 0;
   double targetPosition = 0.0;
 
-  SlewRateLimiter shooterRateLimiter = new SlewRateLimiter(
-  Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
+  SlewRateLimiter shooterRateLimiter =
+      new SlewRateLimiter(Shooter.kSlewForward, Shooter.kSlewBackward, 0); // TODO: get rate limits
 
-    
   public SetShooterProfiled(double shooterAngle, Shooter shooter) {
     this.shooterAngle = shooterAngle;
     this.shooter = shooter;
@@ -40,8 +39,8 @@ public class SetShooterProfiled extends Command {
     // goal = new TrapezoidProfile.State(shooterAngle, 0);
   }
 
-  public SetShooterProfiled withConstrants(TrapezoidProfile.Constraints constraints){
-    //set the value
+  public SetShooterProfiled withConstrants(TrapezoidProfile.Constraints constraints) {
+    // set the value
     // this.constraints = constraints;
     // this.shooterProfile = new TrapezoidProfile(constraints);
 
@@ -63,19 +62,19 @@ public class SetShooterProfiled extends Command {
   public void execute() {
     // var currentState =shooter.getState();
 
-    // targetPosition = shooterProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState, goal).position;
+    // targetPosition = shooterProfile.calculate(Timer.getFPGATimestamp()-startTimer, currentState,
+    // goal).position;
     // shooter.setAngle(targetPosition);
     // SmartDashboard.putNumber("profile/target", targetPosition);
 
     var target = shooterRateLimiter.calculate(shooterAngle);
     shooter.setAngle(target);
-
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //Will need to figure out, add feedforward stuff?
+    // Will need to figure out, add feedforward stuff?
     SmartDashboard.putBoolean("shooter/interrupted", interrupted);
     // if(interrupted == false){
     //   shooter.setAngle(shooterAngle);
@@ -85,11 +84,11 @@ public class SetShooterProfiled extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-  
+
     return exitsOnCompletion && shooter.isOnTarget(shooterAngle);
   }
 
-  public SetShooterProfiled runForever(){
+  public SetShooterProfiled runForever() {
     this.exitsOnCompletion = false;
     return this;
   }

@@ -6,17 +6,18 @@ package frc.robot;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.stormbots.Lerp;
-
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.commands.SetDunkArmSlew;
-import frc.robot.subsystems.DunkArm;
-import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
+
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -24,28 +25,69 @@ import frc.robot.subsystems.ShooterVision;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer robotContainer;
 
-  public static boolean isCompbot=true;
-  
+  public static boolean isCompbot = true;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
+    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+    Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    switch (BuildConstants.DIRTY) {
+      case 0:
+        Logger.recordMetadata("GitDirty", "All changes committed");
+        break;
+      case 1:
+        Logger.recordMetadata("GitDirty", "Uncomitted changes");
+        break;
+      default:
+        Logger.recordMetadata("GitDirty", "Unknown");
+        break;
+    }
+
+    // Set up data receivers & replay source
+    switch (Constants.currentMode) {
+      case REAL:
+        // Running on a real robot, log to a USB stick ("/U/logs")
+        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+
+      case SIM:
+        // Running a physics simulator, log to NT
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+
+      case REPLAY:
+        // Replaying a log, set up replay source
+        setUseTiming(false); // Run as fast as possible
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
+    }
+
     var entry = SmartDashboard.getEntry("isCompbot");
-    isCompbot=entry.getBoolean(true);
+    isCompbot = entry.getBoolean(true);
     entry.setBoolean(isCompbot);
     entry.setPersistent();
 
-    //set the value of chassis track width based on bot
-    DriveConstants.kTrackWidth = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
+    // set the value of chassis track width based on bot
+    DriveConstants.kTrackWidth =
+        isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
     DriveConstants.kWheelBase = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
-    DriveConstants.distanceToModuleFromCenter = Math.hypot(DriveConstants.kTrackWidth/2, DriveConstants.kWheelBase/2);
+    DriveConstants.distanceToModuleFromCenter =
+        Math.hypot(DriveConstants.kTrackWidth / 2, DriveConstants.kWheelBase / 2);
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
@@ -76,9 +118,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {
-
-  }
+  public void disabledPeriodic() {}
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -90,7 +130,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
 
-    robotContainer.climber.setPower(0); //Prevent surprise climber motion
+    robotContainer.climber.setPower(0); // Prevent surprise climber motion
     // new RunCommand(()->robotContainer.dunkArm.setPower(0), robotContainer.dunkArm).schedule();
     // robotContainer.chassis.zeroHeading();
     // robotContainer.chassis.resetOdometry(new Pose2d());
@@ -111,9 +151,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-
-    robotContainer.climber.setPower(0); //Prevent surprise climber motion
-    //robotContainer.shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
+    robotContainer.climber.setPower(0); // Prevent surprise climber motion
+    // robotContainer.shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
     // robotContainer.climber.setIdleMode(IdleMode.kBrake);
 
     // robotContainer.chassis.resetOdometry(new Pose2d());
@@ -123,13 +162,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    //check slider
-    //map slider from initial to initial+2
-    RobotContainer.shooterOffset = Lerp.lerp(
-      robotContainer.operatorJoystick.getRawAxis(3), 
-      1, -1, 
-      RobotContainer.INITIALSHOOTEROFFSET, RobotContainer.INITIALSHOOTEROFFSET+5
-    );    
+    // check slider
+    // map slider from initial to initial+2
+    RobotContainer.shooterOffset =
+        Lerp.lerp(
+            robotContainer.operatorJoystick.getRawAxis(3),
+            1,
+            -1,
+            RobotContainer.INITIALSHOOTEROFFSET,
+            RobotContainer.INITIALSHOOTEROFFSET + 5);
     SmartDashboard.putNumber("shooterOffset", RobotContainer.shooterOffset);
   }
 
@@ -138,8 +179,8 @@ public class Robot extends TimedRobot {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
-    robotContainer.climber.setPower(0); //Prevent surprise climber motion
-    //robotContainer.chassis.setIdleMode(IdleMode.kCoast);
+    robotContainer.climber.setPower(0); // Prevent surprise climber motion
+    // robotContainer.chassis.setIdleMode(IdleMode.kCoast);
   }
 
   /** This function is called periodically during test mode. */

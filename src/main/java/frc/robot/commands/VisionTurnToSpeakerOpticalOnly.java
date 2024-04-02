@@ -4,30 +4,25 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.IntakeVision;
-import frc.robot.ChassisConstants;
-import frc.robot.subsystems.Chassis;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.Chassis.Chassis;
 
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
 public class VisionTurnToSpeakerOpticalOnly extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
+
   private Chassis chassis;
   private AHRS gyro;
   private DoubleSupplier xSpeed;
   private DoubleSupplier ySpeed;
   private DoubleSupplier rotSpeed;
-  private double targetAngle = 0.0; //or 180?
+  private double targetAngle = 0.0; // or 180?
   private double tolerance = 10.0;
   private double targetangle = 0.0;
 
@@ -37,12 +32,12 @@ public class VisionTurnToSpeakerOpticalOnly extends Command {
    * @param subsystem The subsystem used by this command.
    */
   public VisionTurnToSpeakerOpticalOnly(
-    DoubleSupplier xSpeed,
-    DoubleSupplier ySpeed,
-    DoubleSupplier rotSpeed,
-    ShooterVision shooterVision,
-    Chassis chassis,
-    AHRS gyro) {
+      DoubleSupplier xSpeed,
+      DoubleSupplier ySpeed,
+      DoubleSupplier rotSpeed,
+      ShooterVision shooterVision,
+      Chassis chassis,
+      AHRS gyro) {
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed;
     this.rotSpeed = rotSpeed;
@@ -71,10 +66,12 @@ public class VisionTurnToSpeakerOpticalOnly extends Command {
     //   //doing it pure vision way, works!
     //   var tx = shooterData.get().angleHorizontal;
     //   tx = 0.1/360 * tx ; //fudged value that seems to work
-    //   chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() -tx, true,true);
+    //   chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() -tx,
+    // true,true);
     // }
     // else{
-    //   chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
+    //   chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(),
+    // true,true);
     // }
 
     Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
@@ -84,9 +81,8 @@ public class VisionTurnToSpeakerOpticalOnly extends Command {
       targetangle = targetangle - shooterData.get().angleHorizontal;
       targetangle = Math.toRadians(targetangle);
       chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetangle);
-    }
-    else{
-      chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
+    } else {
+      chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true, true);
     }
   }
 

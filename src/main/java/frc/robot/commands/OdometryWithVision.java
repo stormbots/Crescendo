@@ -4,16 +4,17 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.IntakeVision;
-import frc.robot.subsystems.ShooterVision;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.IntakeVision;
+import frc.robot.subsystems.ShooterVision;
 
 /** An example command that uses an example subsystem. */
 public class OdometryWithVision extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
+
   private IntakeVision intakeVision;
   private SwerveDrivePoseEstimator poseEstimator;
   /**
@@ -21,7 +22,10 @@ public class OdometryWithVision extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public OdometryWithVision(ShooterVision shooterVision, IntakeVision intakeVision, SwerveDrivePoseEstimator poseEstimator) { //front vision
+  public OdometryWithVision(
+      ShooterVision shooterVision,
+      IntakeVision intakeVision,
+      SwerveDrivePoseEstimator poseEstimator) { // front vision
     this.shooterVision = shooterVision;
     this.intakeVision = intakeVision;
     this.poseEstimator = poseEstimator;
@@ -30,16 +34,15 @@ public class OdometryWithVision extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
     if (shooterVision.getVisibleTargetData().isPresent()) {
-        poseEstimator.addVisionMeasurement(shooterVision.poseEstimator.getEstimatedPosition(), Timer.getFPGATimestamp());
+      poseEstimator.addVisionMeasurement(
+          shooterVision.poseEstimator.getEstimatedPosition(), Timer.getFPGATimestamp());
     }
   }
 

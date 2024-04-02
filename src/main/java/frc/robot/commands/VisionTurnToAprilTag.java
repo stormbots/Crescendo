@@ -4,30 +4,26 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.IntakeVision;
-import frc.robot.ChassisConstants;
-import frc.robot.subsystems.Chassis;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.Chassis.Chassis;
 
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
 public class VisionTurnToAprilTag extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
+
   private Chassis chassis;
   private AHRS gyro;
   private DoubleSupplier xSpeed;
   private DoubleSupplier ySpeed;
   private DoubleSupplier rotSpeed;
-  private double targetAngle = 0.0; //or 180?
+  private double targetAngle = 0.0; // or 180?
   private double tolerance = 10.0;
   private double targetangle = 0.0;
 
@@ -37,12 +33,12 @@ public class VisionTurnToAprilTag extends Command {
    * @param subsystem The subsystem used by this command.
    */
   public VisionTurnToAprilTag(
-    DoubleSupplier xSpeed,
-    DoubleSupplier ySpeed,
-    DoubleSupplier rotSpeed,
-    ShooterVision shooterVision,
-    Chassis chassis,
-    AHRS gyro) {
+      DoubleSupplier xSpeed,
+      DoubleSupplier ySpeed,
+      DoubleSupplier rotSpeed,
+      ShooterVision shooterVision,
+      Chassis chassis,
+      AHRS gyro) {
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed;
     this.rotSpeed = rotSpeed;
@@ -65,11 +61,11 @@ public class VisionTurnToAprilTag extends Command {
   @Override
   public void execute() {
 
-    //if valid target 
-      // update target and bearing
-    //if target is "newish", pid to it
+    // if valid target
+    // update target and bearing
+    // if target is "newish", pid to it
 
-    //in other cases, drive
+    // in other cases, drive
 
     Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getVisibleTargetData();
 
@@ -81,9 +77,8 @@ public class VisionTurnToAprilTag extends Command {
 
       SmartDashboard.putNumber("shooterVision/targetAngle", shooterData.get().angleHorizontal);
       SmartDashboard.putNumber("shooterVision/navxangle", gyro.getRotation2d().getDegrees());
-    }
-    else{
-      chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
+    } else {
+      chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true, true);
     }
   }
 

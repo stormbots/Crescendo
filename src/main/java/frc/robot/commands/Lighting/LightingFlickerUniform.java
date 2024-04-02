@@ -4,11 +4,10 @@
 
 package frc.robot.commands.Lighting;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Leds;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class LightingFlickerUniform extends Command {
   double percentOutput;
@@ -26,7 +25,7 @@ public class LightingFlickerUniform extends Command {
     this.leds = leds;
     this.color = color;
     this.percentOutput = percentOutput;
-    scaleValue = percentOutput/100;
+    scaleValue = percentOutput / 100;
     addRequirements(leds);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -34,31 +33,27 @@ public class LightingFlickerUniform extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-  //  hsv = leds.rgbToHsv(color);
-   value = (int)Math.round((ThreadLocalRandom.current().nextInt(25, 200))*scaleValue);
-   startTime = leds.getTime();
-   
+    //  hsv = leds.rgbToHsv(color);
+    value = (int) Math.round((ThreadLocalRandom.current().nextInt(25, 200)) * scaleValue);
+    startTime = leds.getTime();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     currentTime = leds.getTime();
-    elapsedTime = currentTime-startTime;
-    if (elapsedTime <= (Math.random()/10)){
-      value = (int)Math.round((ThreadLocalRandom.current().nextInt(0, 11))*25*scaleValue);
-      
-    }
-    else if (elapsedTime >= (Math.random()*5)){
+    elapsedTime = currentTime - startTime;
+    if (elapsedTime <= (Math.random() / 10)) {
+      value = (int) Math.round((ThreadLocalRandom.current().nextInt(0, 11)) * 25 * scaleValue);
+
+    } else if (elapsedTime >= (Math.random() * 5)) {
       value = 0;
       startTime = leds.getTime();
     }
-    
-    for(var i = 0; i < leds.ledBuffer.getLength(); i++){
+
+    for (var i = 0; i < leds.ledBuffer.getLength(); i++) {
       leds.ledBuffer.setHSV(i, hsv[0], hsv[1], value);
     }
-    
-
   }
 
   // Called once the command ends or is interrupted.

@@ -36,7 +36,7 @@ public class SparkFlexFixes {
           "Quadrature measurement period must be in the range of [1, 100]");
     }
     return REVLibError.fromInt(
-      CANSparkMaxJNI.c_SparkMax_SetMeasurementPeriod(spark.sparkMaxHandle, period_ms));
+        CANSparkMaxJNI.c_SparkMax_SetMeasurementPeriod(spark.sparkMaxHandle, period_ms));
   }
 
   public static int getFlexEncoderSampleDelta(CANSparkFlex spark) {

@@ -6,14 +6,12 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase.IdleMode;
-
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -30,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.DriverFeedback;
@@ -44,7 +41,6 @@ import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
-import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
@@ -57,6 +53,7 @@ import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.Chassis.Chassis;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -69,30 +66,32 @@ public class RobotContainer {
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   // public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
-  public static final double INITIALSHOOTEROFFSET =1.0; 
-  public static double shooterOffset = INITIALSHOOTEROFFSET;//adjusted via slider
+  public static final double INITIALSHOOTEROFFSET = 1.0;
+  public static double shooterOffset = INITIALSHOOTEROFFSET; // adjusted via slider
   // public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
   //   new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
   //   new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
   //   new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
   //   new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
-  public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-    new Translation2d(0, Units.Inch.of(6).in(Units.Meter)),
-    new Translation2d(0, -Units.Inch.of(6).in(Units.Meter))
-  );
+  public SwerveDriveKinematics swerveDriveKinematics =
+      new SwerveDriveKinematics(
+          new Translation2d(0, Units.Inch.of(6).in(Units.Meter)),
+          new Translation2d(0, -Units.Inch.of(6).in(Units.Meter)));
   public AHRS navx = new AHRS();
-  public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, navx.getRotation2d(), 
-    new SwerveModulePosition[] {
-        // new SwerveModulePosition(),
-        // new SwerveModulePosition(),
-        new SwerveModulePosition(),
-        new SwerveModulePosition()
-    }, 
-    new Pose2d(0, 0 , new Rotation2d())
-  );
+  public SwerveDrivePoseEstimator swerveDrivePoseEstimator =
+      new SwerveDrivePoseEstimator(
+          swerveDriveKinematics,
+          navx.getRotation2d(),
+          new SwerveModulePosition[] {
+            // new SwerveModulePosition(),
+            // new SwerveModulePosition(),
+            new SwerveModulePosition(), new SwerveModulePosition()
+          },
+          new Pose2d(0, 0, new Rotation2d()));
 
   public Field2d field = new Field2d();
-  public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
+  public final Chassis chassis =
+      new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
   public final Climber climber = new Climber(navx);
   public final Intake intake = new Intake();
   public final Passthrough passthrough = new Passthrough();
@@ -101,22 +100,20 @@ public class RobotContainer {
   public final Leds leds = new Leds();
   public final DunkArm dunkArm = new DunkArm();
   public final DunkArmRoller dunkArmRoller = new DunkArmRoller();
-  //TODO: Vision Needs access to pose estimator: Either by objects in 
+  // TODO: Vision Needs access to pose estimator: Either by objects in
   // Robotcontainer or via a method in Chassis
 
   public final IntakeVision intakeVision = new IntakeVision();
   // public final IntakeVision intakeVision = new IntakeVision();
   public final ShooterVision shooterVision = new ShooterVision(swerveDrivePoseEstimator);
-  
 
-  //Keep Sequences and Autos in a single place 
+  // Keep Sequences and Autos in a single place
   public final SequenceFactory sequenceFactory;
   public final AutoFactory autoFactory;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
-
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -134,15 +131,15 @@ public class RobotContainer {
     configureDriverBindings();
     configureOperatorBindings();
 
-    var pm = PowerManager.getInstance()
-    .setRobotPowerBudget(280)
-    // .addChassisSystem(chassis, 200, 260, chassis::setCurrentLimits)
-    .addSystem(dunkArm, 40)
-    .addSystem(intake, 25)
-    .addSystem(passthrough, 20)
-    .addSystem(shooter, 0)
-    .addSystem(shooterFlywheel, 80)
-    ;
+    var pm =
+        PowerManager.getInstance()
+            .setRobotPowerBudget(280)
+            // .addChassisSystem(chassis, 200, 260, chassis::setCurrentLimits)
+            .addSystem(dunkArm, 40)
+            .addSystem(intake, 25)
+            .addSystem(passthrough, 20)
+            .addSystem(shooter, 0)
+            .addSystem(shooterFlywheel, 80);
 
     SmartDashboard.putNumber("navx/angle", navx.getRotation2d().getDegrees());
     // SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
@@ -162,117 +159,132 @@ public class RobotContainer {
     // SmartDashboard.putData("dunkArm/setProfile0", new SetDunkArmProfiled(0, dunkArm));
     // SmartDashboard.putData("dunkArm/setProfile20", new SetDunkArmProfiled(20, dunkArm));
     // SmartDashboard.putData("dunkArm/setProfile85", new SetDunkArmProfiled(85, dunkArm));
-    
-    // SmartDashboard.putData("dunkArm/setPID-20", new RunCommand(()->dunkArm.setArmAngle(-20), dunkArm));
-    // SmartDashboard.putData("dunkArm/setPID0", new RunCommand(()->dunkArm.setArmAngle(0), dunkArm));
-    // SmartDashboard.putData("dunkArm/setPID20", new RunCommand(()->dunkArm.setArmAngle(20), dunkArm));
-    // SmartDashboard.putData("dunkArm/setPID85", new RunCommand(()->dunkArm.setArmAngle(85), dunkArm));
+
+    // SmartDashboard.putData("dunkArm/setPID-20", new RunCommand(()->dunkArm.setArmAngle(-20),
+    // dunkArm));
+    // SmartDashboard.putData("dunkArm/setPID0", new RunCommand(()->dunkArm.setArmAngle(0),
+    // dunkArm));
+    // SmartDashboard.putData("dunkArm/setPID20", new RunCommand(()->dunkArm.setArmAngle(20),
+    // dunkArm));
+    // SmartDashboard.putData("dunkArm/setPID85", new RunCommand(()->dunkArm.setArmAngle(85),
+    // dunkArm));
 
     // SmartDashboard.putData("dunkArm/setSlew-20", new SetDunkArmSlew(-20, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
     // SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
-    // SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
+    // SmartDashboard.putData("NoteTransferToDunkArm/tester",
+    // sequenceFactory.getDunkArmNoteTransferSequence());
     // SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
-    // SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
-    SmartDashboard.putData("rumble", new DriverFeedback(driverController, ()->true));
+    // SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(),
+    // dunkArmRoller));
+    SmartDashboard.putData("rumble", new DriverFeedback(driverController, () -> true));
 
-    SmartDashboard.putData("restTo0,0", new InstantCommand(()->chassis.resetOdometry(new Pose2d())));
-    SmartDashboard.putData("restToSpeaker", new InstantCommand(()->chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
+    SmartDashboard.putData(
+        "restTo0,0", new InstantCommand(() -> chassis.resetOdometry(new Pose2d())));
+    SmartDashboard.putData(
+        "restToSpeaker",
+        new InstantCommand(
+            () ->
+                chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
 
-    SmartDashboard.putData("intakevision/tracknotecommand", new VisionTrackNote(
-      ()-> -driverController.getLeftX(), ()-> -driverController.getLeftY(), ()-> -driverTurnJoystickValue(),
-      chassis,  intake, passthrough, intakeVision,  leds
-    ));
+    SmartDashboard.putData(
+        "intakevision/tracknotecommand",
+        new VisionTrackNote(
+            () -> -driverController.getLeftX(),
+            () -> -driverController.getLeftY(),
+            () -> -driverTurnJoystickValue(),
+            chassis,
+            intake,
+            passthrough,
+            intakeVision,
+            leds));
   }
 
   private void configureDefaultCommands() {
     // The left stick controls translation of the robot.
     // Turning is controlled by the X axis of the right stick.
-  //TODO: This should work now
-    chassis.setDefaultCommand(chassis.getFCDriveCommand( 
-      ()-> -driverController.getLeftY(), 
-      ()-> -driverController.getLeftX(), 
-      ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
-    ));
+    // TODO: This should work now
+    chassis.setDefaultCommand(
+        chassis.getFCDriveCommand(
+            () -> -driverController.getLeftY(),
+            () -> -driverController.getLeftX(),
+            () -> -driverTurnJoystickValue() // divide by 4 is still not enough
+            ));
 
-    //default, but only runs once
-    //TODO: Only enable when robot is tested 
+    // default, but only runs once
+    // TODO: Only enable when robot is tested
     new Trigger(DriverStation::isEnabled)
-    .and(()->climber.isHomed==false)
-    .whileTrue(new ClimberGoHome(climber).withTimeout(15));
+        .and(() -> climber.isHomed == false)
+        .whileTrue(new ClimberGoHome(climber).withTimeout(15));
 
-    new Trigger( ()-> dunkArm.getAngle()>45 )
-    .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(0.1)))
-    .onFalse(new InstantCommand(()->climber.setReverseSoftLimit(9.5)))
-    ;
+    new Trigger(() -> dunkArm.getAngle() > 45)
+        .onTrue(new InstantCommand(() -> climber.setReverseSoftLimit(0.1)))
+        .onFalse(new InstantCommand(() -> climber.setReverseSoftLimit(9.5)));
 
     new Trigger(DriverStation::isTeleop)
-    .and(()-> Timer.getMatchTime()<20)
-    .onTrue(
-      new RunCommand(()->leds.setColor(Color.kPurple),leds).withTimeout(2)
-    );
-    
+        .and(() -> Timer.getMatchTime() < 20)
+        .onTrue(new RunCommand(() -> leds.setColor(Color.kPurple), leds).withTimeout(2));
+
     leds.setDefaultCommand(leds.set5vLedStrip().andThen(leds.showTeamColor()));
 
     new Trigger(intake::isBlocked)
-    .onTrue(leds.showNoteIntake())
-    .onTrue(
-      new DriverFeedback(driverController, intake::isBlocked)
-      .withTimeout(2)
-    );
-    //TODO: When shooter is aligned with target, and at rpm, show show green lights
-
+        .onTrue(leds.showNoteIntake())
+        .onTrue(new DriverFeedback(driverController, intake::isBlocked).withTimeout(2));
+    // TODO: When shooter is aligned with target, and at rpm, show show green lights
 
     shooterFlywheel.setDefaultCommand(
-      new WaitCommand(0.5)
-      // .andThen(
-      //   new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel)
-      //   .until(shooterFlywheel::isOnTarget)
-      //   )
-      .andThen(new RunCommand(shooterFlywheel::stop,shooterFlywheel))
-    );
-    
-    //align a note if nothing else is using passthrough
+        new WaitCommand(0.5)
+            // .andThen(
+            //   new RunCommand(()->shooterFlywheel.setRPM(0), shooterFlywheel)
+            //   .until(shooterFlywheel::isOnTarget)
+            //   )
+            .andThen(new RunCommand(shooterFlywheel::stop, shooterFlywheel)));
+
+    // align a note if nothing else is using passthrough
     new Trigger(DriverStation::isTeleop)
-    .and(()->(passthrough.isBlocked() || intake.isBlocked()))
-    .and(()->passthrough.getCurrentCommand()==null)
-    .whileTrue(new PassthroughAlignNote(passthrough, intake))
-    ;
+        .and(() -> (passthrough.isBlocked() || intake.isBlocked()))
+        .and(() -> passthrough.getCurrentCommand() == null)
+        .whileTrue(new PassthroughAlignNote(passthrough, intake));
 
-    intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
+    intake.setDefaultCommand(
+        new RunCommand(
+            () -> {
+              intake.stop();
+            },
+            intake));
     shooter.setDefaultCommand(
-      new WaitCommand(1)
-      .andThen(new SetShooterProfiled(0, shooter)
-        .withTimeout(1)
-      )
-      .andThen(new WaitCommand(0.1))
-      //.andThen(new InstantCommand(()->shooter.syncEncoders()))
-      .andThen(new RunCommand(shooter::stopShooter))
-    );
+        new WaitCommand(1)
+            .andThen(new SetShooterProfiled(0, shooter).withTimeout(1))
+            .andThen(new WaitCommand(0.1))
+            // .andThen(new InstantCommand(()->shooter.syncEncoders()))
+            .andThen(new RunCommand(shooter::stopShooter)));
 
-    var teleopdunkarm = new SetDunkArmSlew(-25, dunkArm)
-    .andThen(new WaitCommand(0.2))
-    .andThen(new RunCommand(()->dunkArm.stop(), dunkArm));
-    
-    dunkArm.setDefaultCommand(new ConditionalCommand(
-      teleopdunkarm,
-      new RunCommand(()->{}, dunkArm),
-      DriverStation::isTeleop
-      )
-    );
+    var teleopdunkarm =
+        new SetDunkArmSlew(-25, dunkArm)
+            .andThen(new WaitCommand(0.2))
+            .andThen(new RunCommand(() -> dunkArm.stop(), dunkArm));
 
-    //TODO: Have dunkarm hold note.
-    dunkArmRoller.setDefaultCommand(new StartEndCommand(
-      ()->{dunkArmRoller.setIdleMode(IdleMode.kCoast); dunkArmRoller.stop();},
-      ()->dunkArmRoller.setIdleMode(IdleMode.kBrake), 
-      dunkArmRoller
-    ));
-      //new StartEndCommand(dunkArm, onEnd, requirements)
-      // new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)
-      // ); 
+    dunkArm.setDefaultCommand(
+        new ConditionalCommand(
+            teleopdunkarm, new RunCommand(() -> {}, dunkArm), DriverStation::isTeleop));
 
-    // shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
+    // TODO: Have dunkarm hold note.
+    dunkArmRoller.setDefaultCommand(
+        new StartEndCommand(
+            () -> {
+              dunkArmRoller.setIdleMode(IdleMode.kCoast);
+              dunkArmRoller.stop();
+            },
+            () -> dunkArmRoller.setIdleMode(IdleMode.kBrake),
+            dunkArmRoller));
+    // new StartEndCommand(dunkArm, onEnd, requirements)
+    // new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)
+    // );
+
+    // shooterVision.setDefaultCommand(new
+    // StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom),
+    // ()->{}, shooterVision));
   }
 
   private void configureDriverBindings() {
@@ -283,71 +295,106 @@ public class RobotContainer {
     //   new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
     // );
 
-    //face toward driver
-    driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(180))); //Face toward driver
-    driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
-    driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
-    driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
-    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/2.0, ()->-driverController.getLeftX()/2.0, ()->-driverTurnJoystickValue()/2.0));
+    // face toward driver
+    driverController
+        .button(1)
+        .whileTrue(
+            chassis.getDriveToBearingCommand(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> Units.Degrees.of(180))); // Face toward driver
+    driverController
+        .button(2)
+        .whileTrue(
+            chassis.getDriveToBearingCommand(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> Units.Degrees.of(270))); // Face right
+    driverController
+        .button(3)
+        .whileTrue(
+            chassis.getDriveToBearingCommand(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> Units.Degrees.of(90))); // Face left
+    driverController
+        .button(4)
+        .whileTrue(
+            chassis.getDriveToBearingCommand(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> Units.Degrees.of(0))); // Face away from driver
+    driverController
+        .button(5)
+        .whileTrue(
+            chassis.getFCDriveCommand(
+                () -> -driverController.getLeftY() / 2.0,
+                () -> -driverController.getLeftX() / 2.0,
+                () -> -driverTurnJoystickValue() / 2.0));
 
-    driverController.button(6).whileTrue(
-      new VisionTurnToSpeakerOpticalOnly(
-        ()-> -driverController.getLeftY(),
-        ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(),
-        shooterVision, chassis, navx)
-      )
-      .whileTrue(
-        new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-      )
-      .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
-      .onTrue(
-        new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
-        .withTimeout(2)
-      )
-    ;
+    driverController
+        .button(6)
+        .whileTrue(
+            new VisionTurnToSpeakerOpticalOnly(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> -driverTurnJoystickValue(),
+                shooterVision,
+                chassis,
+                navx))
+        .whileTrue(new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever())
+        .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
+        .onTrue(
+            new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
+                .withTimeout(2));
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
 
-    //Reset Gyro
-    driverController.button(8).onTrue(new InstantCommand()
-    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis)));
+    // Reset Gyro
+    driverController
+        .button(8)
+        .onTrue(
+            new InstantCommand()
+                .andThen(new InstantCommand(() -> chassis.setFieldCentricOffset(0.0), chassis)));
 
     driverController
-    .axisGreaterThan(2, 0.5)
-    // .and(()->isRightStickInDeadzone()==false)
-    .whileTrue(
-      chassis.getDriveToBearingCommand(
-        ()-> -driverController.getLeftY(), 
-        ()-> -driverController.getLeftX(), 
-        ()->Units.Radians.of(Math.atan2(driverController.getRightY(), -driverController.getRightX())+Math.PI/2))
-    // new RunCommand(
-    //   () -> chassis.driveToBearing(
-    //       -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-    //       -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-    //       Math.atan2(-driverController.getRightY(), driverController.getRightX())
-    //       ),
-    //   chassis)
-    );
-   
-   
-
+        .axisGreaterThan(2, 0.5)
+        // .and(()->isRightStickInDeadzone()==false)
+        .whileTrue(
+            chassis.getDriveToBearingCommand(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () ->
+                    Units.Radians.of(
+                        Math.atan2(driverController.getRightY(), -driverController.getRightX())
+                            + Math.PI / 2))
+            // new RunCommand(
+            //   () -> chassis.driveToBearing(
+            //       -MathUtil.applyDeadband(driverController.getRawAxis(1),
+            // OIConstants.kDriveDeadband),
+            //       -MathUtil.applyDeadband(driverController.getRawAxis(0),
+            // OIConstants.kDriveDeadband),
+            //       Math.atan2(-driverController.getRightY(), driverController.getRightX())
+            //       ),
+            //   chassis)
+            );
 
     // Limelight Intake Vision
     driverController
-    .axisGreaterThan(3, 0.5) //left trigger?
-    .whileTrue(
-      new VisionTrackNote(
-      ()-> -driverController.getLeftY(), 
-      ()-> -driverController.getLeftX(),
-      ()-> -driverTurnJoystickValue(), 
-      chassis, intake, passthrough, intakeVision, leds)
-    );
-
+        .axisGreaterThan(3, 0.5) // left trigger?
+        .whileTrue(
+            new VisionTrackNote(
+                () -> -driverController.getLeftY(),
+                () -> -driverController.getLeftX(),
+                () -> -driverTurnJoystickValue(),
+                chassis,
+                intake,
+                passthrough,
+                intakeVision,
+                leds));
   }
 
-
-  private void configureOperatorBindings(){
+  private void configureOperatorBindings() {
     // operatorJoystick.button(2).onTrue(new InstantCommand()
     //   .andThen( new SetDunkArmSlew(0, dunkArm))
     // );
@@ -363,7 +410,7 @@ public class RobotContainer {
     // );
     // operatorJoystick.button(1).whileTrue(new InstantCommand());
 
-    //old score button, keeping just because 
+    // old score button, keeping just because
     // operatorJoystick.button(1)
     // .whileTrue(new ConditionalCommand(
     //   //Shoot using whatever shooter position/speed is set up elsewhere
@@ -378,144 +425,133 @@ public class RobotContainer {
     // .onTrue(
     //   new LogOutgoingShot(swerveDrivePoseEstimator, shooter, shooterFlywheel)
     // );
-    
-    //Score button
-    operatorJoystick.button(1)
-    .and(()->passthrough.isBlocked()||intake.isBlocked())
-    .whileTrue(
-      //Shoot using whatever shooter position/speed is set up elsewhere
-      new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
-        .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
-        .withTimeout(5)
-    )
-    .onTrue(
-      new LogOutgoingShot(swerveDrivePoseEstimator, shooter, shooterFlywheel)
-    );
 
-    //score trap or amp
-    operatorJoystick.button(1)
-    .and(()->!passthrough.isBlocked()&&!intake.isBlocked())
-    .whileTrue(
-      //score amp
-      new ConditionalCommand(
-        new RunCommand(dunkArmRoller::scoreAmp, dunkArmRoller)
-        .withTimeout(3),
-      //score trap
-        new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
-        .withTimeout(3), 
-        operatorJoystick.button(6)
-      )
-    );
+    // Score button
+    operatorJoystick
+        .button(1)
+        .and(() -> passthrough.isBlocked() || intake.isBlocked())
+        .whileTrue(
+            // Shoot using whatever shooter position/speed is set up elsewhere
+            new RunCommand(passthrough::intake, passthrough)
+                .finallyDo(passthrough::stop)
+                .alongWith(new RunCommand(intake::intake, intake).finallyDo(intake::stop))
+                .withTimeout(5))
+        .onTrue(new LogOutgoingShot(swerveDrivePoseEstimator, shooter, shooterFlywheel));
 
-    //defense position
-    operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
-      new SetShooterProfiled(0, shooter), //TODO: not setting to 0
-      new SetDunkArmSlew(-25, dunkArm)
-      ).withTimeout(3)
-      )
-      ;
+    // score trap or amp
+    operatorJoystick
+        .button(1)
+        .and(() -> !passthrough.isBlocked() && !intake.isBlocked())
+        .whileTrue(
+            // score amp
+            new ConditionalCommand(
+                new RunCommand(dunkArmRoller::scoreAmp, dunkArmRoller).withTimeout(3),
+                // score trap
+                new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller).withTimeout(3),
+                operatorJoystick.button(6)));
 
-    //speaker shot
-    operatorJoystick.button(3)
-    .whileTrue(new ParallelCommandGroup(
-      new SetFlywheelSlew(4000, shooterFlywheel),
-      new SetShooterProfiled(40.5+0.5, shooter).runForever())
-    )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
+    // defense position
+    operatorJoystick
+        .button(2)
+        .onTrue(
+            new ParallelCommandGroup(
+                    new SetShooterProfiled(0, shooter), // TODO: not setting to 0
+                    new SetDunkArmSlew(-25, dunkArm))
+                .withTimeout(3));
 
-    //podium/far shot
-    operatorJoystick.button(4) //far shooting
-    .whileTrue(new ParallelCommandGroup(
-      new SetFlywheelSlew(4500, shooterFlywheel),
-      new SetShooterProfiled(20+1, shooter).runForever())
-    )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    )
-    ;
+    // speaker shot
+    operatorJoystick
+        .button(3)
+        .whileTrue(
+            new ParallelCommandGroup(
+                new SetFlywheelSlew(4000, shooterFlywheel),
+                new SetShooterProfiled(40.5 + 0.5, shooter).runForever()))
+        .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
-    //load rollers / intake to rollers
-    operatorJoystick.button(5).whileTrue(
-      new ConditionalCommand(
-        sequenceFactory.getDunkArmNoteTransferSequence(),
+    // podium/far shot
+    operatorJoystick
+        .button(4) // far shooting
+        .whileTrue(
+            new ParallelCommandGroup(
+                new SetFlywheelSlew(4500, shooterFlywheel),
+                new SetShooterProfiled(20 + 1, shooter).runForever()))
+        .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
-        new ParallelCommandGroup(
-          new IntakeNote(intake, passthrough).runForever(),
-          new SetShooterProfiled(0, shooter),
-          //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
-          new SetFlywheelSlew(1500, shooterFlywheel)
-        )
-        .until(passthrough::isBlocked)
-        .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
-        .andThen(new SetDunkArmSlew(-25, dunkArm)),
-        
-        passthrough::isBlocked
-      )
-    )
-    ;
+    // load rollers / intake to rollers
+    operatorJoystick
+        .button(5)
+        .whileTrue(
+            new ConditionalCommand(
+                sequenceFactory.getDunkArmNoteTransferSequence(),
+                new ParallelCommandGroup(
+                        new IntakeNote(intake, passthrough).runForever(),
+                        new SetShooterProfiled(0, shooter),
+                        // Unnecesary change, made to warm up flywheel while debugging, may still be
+                        // wanted
+                        new SetFlywheelSlew(1500, shooterFlywheel))
+                    .until(passthrough::isBlocked)
+                    .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
+                    .andThen(new SetDunkArmSlew(-25, dunkArm)),
+                passthrough::isBlocked));
 
-    //arm to amp
-    //TODO: This should be whileHeld, need to validate control issues with operator 
-    operatorJoystick.button(6).whileTrue(
-      new SetDunkArmSlew(105, dunkArm).runForever()
-    );
+    // arm to amp
+    // TODO: This should be whileHeld, need to validate control issues with operator
+    operatorJoystick.button(6).whileTrue(new SetDunkArmSlew(105, dunkArm).runForever());
 
-    //eject note
-    operatorJoystick.button(7).whileTrue(new ParallelCommandGroup(
-      new RunCommand(intake::eject, intake),
-      new RunCommand(passthrough::eject, passthrough),
-      new SetShooterProfiled(0, shooter), 
-      new SetFlywheelSlew(-3000, shooterFlywheel),
-      new RunCommand(dunkArmRoller::eject, dunkArmRoller)
-    )//TODO: set shooter/intake eject RPM properly
-    .finallyDo((e)->passthrough.stop())
-    )
-    ;
+    // eject note
+    operatorJoystick
+        .button(7)
+        .whileTrue(
+            new ParallelCommandGroup(
+                    new RunCommand(intake::eject, intake),
+                    new RunCommand(passthrough::eject, passthrough),
+                    new SetShooterProfiled(0, shooter),
+                    new SetFlywheelSlew(-3000, shooterFlywheel),
+                    new RunCommand(
+                        dunkArmRoller::eject,
+                        dunkArmRoller)) // TODO: set shooter/intake eject RPM properly
+                .finallyDo((e) -> passthrough.stop()));
 
-    //intake note
-    operatorJoystick.button(8).whileTrue(
-      new IntakeNote(intake, passthrough)
-      .andThen(new PassthroughAlignNote(passthrough,intake))
-    )
-    // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel))
-    .whileTrue(new SetShooterProfiled(0, shooter))
-    ;
+    // intake note
+    operatorJoystick
+        .button(8)
+        .whileTrue(
+            new IntakeNote(intake, passthrough)
+                .andThen(new PassthroughAlignNote(passthrough, intake)))
+        // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel))
+        .whileTrue(new SetShooterProfiled(0, shooter));
 
-    //DEBUG CODE: manually adjust rollers
+    // DEBUG CODE: manually adjust rollers
     // operatorJoystick.button(9).whileTrue(
-    //   new RunCommand(()->dunkArmRoller.setSpeed(operatorJoystick.getRawAxis(3)*-60*0.05*0.05*0.5), dunkArmRoller)
+    //   new
+    // RunCommand(()->dunkArmRoller.setSpeed(operatorJoystick.getRawAxis(3)*-60*0.05*0.05*0.5),
+    // dunkArmRoller)
     // );0
 
-    //move dunkarm manually
-    operatorJoystick.button(10).onTrue(
-      new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
-    ).whileTrue( 
-      new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
-    )
-    ;
+    // move dunkarm manually
+    operatorJoystick
+        .button(10)
+        .onTrue(
+            new RunCommand(
+                () -> dunkArm.setPowerFF(-.25 * operatorJoystick.getRawAxis(1)), dunkArm))
+        .whileTrue(new DunkArmRollerHoldNote(dunkArm, dunkArmRoller));
 
-    operatorJoystick.button(11).onTrue(
-      new InstantCommand(()->dunkArm.syncEncoders())
-    );
+    operatorJoystick.button(11).onTrue(new InstantCommand(() -> dunkArm.syncEncoders()));
 
-    //climbers up
-    operatorJoystick.button(13).whileTrue(
-      new ClimberSetPosition(climber, climber.kMaxHeight)
-    );
+    // climbers up
+    operatorJoystick.button(13).whileTrue(new ClimberSetPosition(climber, climber.kMaxHeight));
 
-    //climbers down
-    operatorJoystick.button(14).whileTrue(
-      new ClimberSetPosition(climber, Units.Inches.of(1.0))
-    );
+    // climbers down
+    operatorJoystick.button(14).whileTrue(new ClimberSetPosition(climber, Units.Inches.of(1.0)));
 
     // operatorJoystick.button(15).whileTrue(
     //   new RunCommand(()->shooterFlywheel.setRPMProfiled(4000), shooterFlywheel)
     // );
 
-    operatorJoystick.button(16).whileTrue(
-      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-    )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    );
+    operatorJoystick
+        .button(16)
+        .whileTrue(new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever())
+        .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
     // Used for testing only.
 
@@ -523,7 +559,7 @@ public class RobotContainer {
     //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
     // );
   }
-  
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -538,9 +574,9 @@ public class RobotContainer {
 
   }
 
-  private double driverTurnJoystickValue(){
+  private double driverTurnJoystickValue() {
     var stick = driverController.getRightX();
-    stick = stick*stick*Math.signum(stick); 
+    stick = stick * stick * Math.signum(stick);
     // stick /= 40;
     return stick;
   }

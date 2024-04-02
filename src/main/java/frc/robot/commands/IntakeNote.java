@@ -9,7 +9,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Passthrough;
 
 public class IntakeNote extends Command {
-  
+
   private Intake intake;
   private Passthrough passthrough;
   boolean exitsOnCompletion = true;
@@ -17,16 +17,14 @@ public class IntakeNote extends Command {
   /** Creates a new IntakeNote. */
   public IntakeNote(Intake intake, Passthrough passthrough) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.intake = intake; 
+    this.intake = intake;
     this.passthrough = passthrough;
-    addRequirements(intake,passthrough);
+    addRequirements(intake, passthrough);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize(){
-
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -34,14 +32,14 @@ public class IntakeNote extends Command {
     intake.intake();
     passthrough.setPower(0.1);
 
-    if (exitsOnCompletion==false) {
+    if (exitsOnCompletion == false) {
       passthrough.intake();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted){
+  public void end(boolean interrupted) {
     intake.stop();
     passthrough.stop();
   }
@@ -52,7 +50,7 @@ public class IntakeNote extends Command {
     return exitsOnCompletion && (intake.isBlocked() || passthrough.isBlocked());
   }
 
-  public IntakeNote runForever(){
+  public IntakeNote runForever() {
     this.exitsOnCompletion = false;
     return this;
   }

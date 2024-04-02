@@ -4,10 +4,7 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
 import com.stormbots.BlinkenPattern;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import java.util.function.BooleanSupplier;
 
 public class Leds extends SubsystemBase {
   public AddressableLED ledStrip;
@@ -27,44 +24,38 @@ public class Leds extends SubsystemBase {
   Servo blinkin1 = new Servo(2);
   Servo blinkin2 = new Servo(0);
 
-  public class HSVColor{
+  public class HSVColor {
     // private Color rgb;
     public int hue;
     public int saturation;
     public int value;
-    public HSVColor(int hue, int saturation,int value){
+
+    public HSVColor(int hue, int saturation, int value) {
       this.hue = hue;
       this.saturation = saturation;
       this.value = value;
     }
-    
-    public HSVColor(Color color){
+
+    public HSVColor(Color color) {
       double r = color.red;
       double g = color.green;
       double b = color.blue;
-      double max = Math.max(r, Math.max(g, b)); // maximum of r, g, b 
-      double min = Math.min(r, Math.min(g, b)); // minimum of r, g, b 
-      double range = max - min; // diff of cmax and cmin. 
-      double h = -1, s = -1; 
-      if (max == min) 
-        h = 0; 
-      else if (max == r) 
-        h = ((60 * ((g - b) / range) + 360) % 360)/2; 
-      else if (max == g) 
-        h = ((60 * ((b - r) / range) + 120) % 360)/2; 
-      else if (max == b) 
-        h = ((60 * ((r - g) / range) + 240) % 360)/2; 
-      if (max == 0) 
-        s = 0; 
-      else
-        s = (range / max) * 255; 
-      double v = max * 255; 
-      this.hue = (int)Math.round(h);
-      this.saturation = (int)Math.round(s);
-      this.value = (int)Math.round(v);
+      double max = Math.max(r, Math.max(g, b)); // maximum of r, g, b
+      double min = Math.min(r, Math.min(g, b)); // minimum of r, g, b
+      double range = max - min; // diff of cmax and cmin.
+      double h = -1, s = -1;
+      if (max == min) h = 0;
+      else if (max == r) h = ((60 * ((g - b) / range) + 360) % 360) / 2;
+      else if (max == g) h = ((60 * ((b - r) / range) + 120) % 360) / 2;
+      else if (max == b) h = ((60 * ((r - g) / range) + 240) % 360) / 2;
+      if (max == 0) s = 0;
+      else s = (range / max) * 255;
+      double v = max * 255;
+      this.hue = (int) Math.round(h);
+      this.saturation = (int) Math.round(s);
+      this.value = (int) Math.round(v);
     }
   }
-
 
   /** Creates a new LEDs. */
   public Leds() {
@@ -75,7 +66,7 @@ public class Leds extends SubsystemBase {
     ledStrip.start();
     SmartDashboard.putData("leds/prepare", new RunCommand(this::preparing));
     SmartDashboard.putData("leds/ready", new RunCommand(this::ready));
-    blinkin1.setBoundsMicroseconds(2125, 1501, 1500, 1499, 1000);   
+    blinkin1.setBoundsMicroseconds(2125, 1501, 1500, 1499, 1000);
   }
 
   @Override
@@ -83,26 +74,24 @@ public class Leds extends SubsystemBase {
     ledStrip.setData(ledBuffer);
     // This method will be called once per scheduler run
   }
-  
+
   public double getTime() {
     double time = Timer.getFPGATimestamp();
     return time;
   }
 
-  
-
   public int matchBrightnessScaling(int disabledBrightness, int enabledBrightness) {
-    if (DriverStation.isDisabled()){
+    if (DriverStation.isDisabled()) {
       return disabledBrightness;
     }
     return enabledBrightness;
   }
 
   public void setColor(Color color) {
-    int red = (int)(color.red*255);
-    int green = (int)(color.green*255);
-    int blue = (int)(color.blue*255);
-    for(var i = 0; i < ledBuffer.getLength(); i++){
+    int red = (int) (color.red * 255);
+    int green = (int) (color.green * 255);
+    int blue = (int) (color.blue * 255);
+    for (var i = 0; i < ledBuffer.getLength(); i++) {
       ledBuffer.setRGB(i, red, green, blue);
     }
   }
@@ -113,14 +102,14 @@ public class Leds extends SubsystemBase {
    */
   public void setColor(Color color, int brightness) {
     var hsv = new HSVColor(color);
-    hsv.value = (int) (hsv.value*brightness/100.0);
-    for(var i = 0; i < ledBuffer.getLength(); i++){
+    hsv.value = (int) (hsv.value * brightness / 100.0);
+    for (var i = 0; i < ledBuffer.getLength(); i++) {
       ledBuffer.setHSV(i, hsv.hue, hsv.saturation, hsv.value);
     }
   }
 
   private void setColorManual(int red, int green, int blue) {
-    for(var i = 0; i < ledBuffer.getLength(); i++){
+    for (var i = 0; i < ledBuffer.getLength(); i++) {
       ledBuffer.setRGB(i, red, green, blue);
     }
   }
@@ -138,56 +127,60 @@ public class Leds extends SubsystemBase {
   }
 
   public Command showTeamColor() {
-    return new RunCommand(()->{
-      var color = DriverStation.getAlliance();
-      if (color.isPresent()) {
-        if (color.get() == DriverStation.Alliance.Red) {
-          this.setColor(Color.kRed, this.matchBrightnessScaling(10, 100));
-          blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidRed.us());
-          blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidRed.us());
-        }
-        if (color.get() == DriverStation.Alliance.Blue) {
-          this.setColor(Color.kBlue, this.matchBrightnessScaling(10, 100));
-          blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidBlue.us());
-          blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidBlue.us());
-        }
-        return;
-      }
-      this.setColor(Color.kPurple, 10);
-      blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
-      blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
-    },this)
-    .ignoringDisable(true)
-    ;
+    return new RunCommand(
+            () -> {
+              var color = DriverStation.getAlliance();
+              if (color.isPresent()) {
+                if (color.get() == DriverStation.Alliance.Red) {
+                  this.setColor(Color.kRed, this.matchBrightnessScaling(10, 100));
+                  blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidRed.us());
+                  blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidRed.us());
+                }
+                if (color.get() == DriverStation.Alliance.Blue) {
+                  this.setColor(Color.kBlue, this.matchBrightnessScaling(10, 100));
+                  blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidBlue.us());
+                  blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidBlue.us());
+                }
+                return;
+              }
+              this.setColor(Color.kPurple, 10);
+              blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
+              blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
+            },
+            this)
+        .ignoringDisable(true);
   }
 
-  public Command set5vLedStrip(){
-    return new InstantCommand(()->{
-      this.blinkin1.setPulseTimeMicroseconds(2125);
-      this.blinkin2.setPulseTimeMicroseconds(2125);
-    });
+  public Command set5vLedStrip() {
+    return new InstantCommand(
+        () -> {
+          this.blinkin1.setPulseTimeMicroseconds(2125);
+          this.blinkin2.setPulseTimeMicroseconds(2125);
+        });
   }
+
   public Command showNoteIntake() {
     return new RunCommand(
-      ()->{this.setColor(Color.kOrangeRed);
-      this.blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
-      this.blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
-    }, this)
-    .withTimeout(2);
+            () -> {
+              this.setColor(Color.kOrangeRed);
+              this.blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
+              this.blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
+            },
+            this)
+        .withTimeout(2);
   }
 
-    
-  public Command readyLights(BooleanSupplier ...  conditions) {
-    return new RunCommand(()->{
-      for (BooleanSupplier condition : conditions) {
-        if (!condition.getAsBoolean()) {
-          preparing();
-          return;
-        }
-      }
-      ready();
-    }, this);
-  } 
-
-
+  public Command readyLights(BooleanSupplier... conditions) {
+    return new RunCommand(
+        () -> {
+          for (BooleanSupplier condition : conditions) {
+            if (!condition.getAsBoolean()) {
+              preparing();
+              return;
+            }
+          }
+          ready();
+        },
+        this);
+  }
 }

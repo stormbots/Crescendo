@@ -1,4 +1,3 @@
-
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
@@ -11,50 +10,55 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
-import com.stormbots.LUT;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 public class DunkArm extends SubsystemBase {
   /** Creates a new Shooter. */
-  public CANSparkMax armMotor = new CANSparkMax(Robot.isCompbot?15:14, MotorType.kBrushless);
+  public CANSparkMax armMotor = new CANSparkMax(Robot.isCompbot ? 15 : 14, MotorType.kBrushless);
+
   private SparkPIDController armPID = armMotor.getPIDController();
-  private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+  private SparkAbsoluteEncoder armAbsEncoder =
+      armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double reverseSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kReverse);
   private double forwardSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kForward);
   private double armSetpoint = 0.0;
 
-  ArmFeedforward armff = new ArmFeedforward(.015, .035, 0.13/45);  // (0.025+0.055)/2.0;
+  ArmFeedforward armff = new ArmFeedforward(.015, .035, 0.13 / 45); // (0.025+0.055)/2.0;
 
   public DunkArm() {
     armMotor.clearFaults();
     armMotor.restoreFactoryDefaults();
     armMotor.setIdleMode(IdleMode.kBrake);
 
-    //Configure abs encoder
+    // Configure abs encoder
     armAbsEncoder.setPositionConversionFactor(360.0);
     armAbsEncoder.setInverted(true);
-    armAbsEncoder.setVelocityConversionFactor(armAbsEncoder.getPositionConversionFactor()); //native unit is RPS, degrees/second
-    
-    //configure relative encoder
-    armMotor.getPIDController().setFeedbackDevice(armMotor.getEncoder()); //Make sure we revert to native encoder for PID
-    armMotor.getEncoder().setPositionConversionFactor(22.5/1.929);//21.8/3.0
-    armMotor.getEncoder().setVelocityConversionFactor(armMotor.getEncoder().getPositionConversionFactor()/60.0); //native unit is RPS
-    
-    armPID.setP((1/25.0));
+    armAbsEncoder.setVelocityConversionFactor(
+        armAbsEncoder.getPositionConversionFactor()); // native unit is RPS, degrees/second
+
+    // configure relative encoder
+    armMotor
+        .getPIDController()
+        .setFeedbackDevice(armMotor.getEncoder()); // Make sure we revert to native encoder for PID
+    armMotor.getEncoder().setPositionConversionFactor(22.5 / 1.929); // 21.8/3.0
+    armMotor
+        .getEncoder()
+        .setVelocityConversionFactor(
+            armMotor.getEncoder().getPositionConversionFactor() / 60.0); // native unit is RPS
+
+    armPID.setP((1 / 25.0));
     armMotor.setClosedLoopRampRate(0.05);
     armPID.setOutputRange(-0.2, 0.2);
     syncEncoders();
 
     armMotor.setSoftLimit(SoftLimitDirection.kReverse, -25);
-    armMotor.setSoftLimit(SoftLimitDirection.kForward,112); //112 hardstop, 7.3 inch after note transfer to safep trap pos
+    armMotor.setSoftLimit(
+        SoftLimitDirection.kForward,
+        112); // 112 hardstop, 7.3 inch after note transfer to safep trap pos
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     armMotor.setSmartCurrentLimit(40);
@@ -62,7 +66,7 @@ public class DunkArm extends SubsystemBase {
     armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
     armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
-    
+
     armMotor.burnFlash();
   }
 
@@ -70,7 +74,8 @@ public class DunkArm extends SubsystemBase {
   public void periodic() {
 
     // shooterMotor.set(0.1);
-    // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
+    // shooterMotor.getPIDController().setReference(0,
+    // com.revrobotics.CANSparkBase.ControlType.kPosition);
 
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
@@ -82,24 +87,24 @@ public class DunkArm extends SubsystemBase {
     SmartDashboard.putNumber("currenttesting/dunkArm", armMotor.getOutputCurrent());
   }
 
-  public void syncEncoders(){
+  public void syncEncoders() {
     var position = armAbsEncoder.getPosition();
-    if(position > 270){
-      //Account for discontinuity, set relative to negative position
-    armMotor.getEncoder().setPosition(position-360);
-    }else{
+    if (position > 270) {
+      // Account for discontinuity, set relative to negative position
+      armMotor.getEncoder().setPosition(position - 360);
+    } else {
       armMotor.getEncoder().setPosition(position);
     }
   }
-  
+
   public void setPower(double power) {
     armMotor.set(power);
   }
 
-  public void setPowerFF(double power){
+  public void setPowerFF(double power) {
     setPower(power + getArmFFPercent());
   }
-  
+
   public void stop() {
     armMotor.set(0);
     PowerManager.getInstance().setPowerDraw(0, this);
@@ -110,18 +115,18 @@ public class DunkArm extends SubsystemBase {
   }
 
   public double getAngleAbs() {
-    return armAbsEncoder.getPosition(); //in rotations, need to do limit
+    return armAbsEncoder.getPosition(); // in rotations, need to do limit
   }
 
-  public Boolean isOnTarget(){
-    //TODO figure out better tolerances that make sense
+  public Boolean isOnTarget() {
+    // TODO figure out better tolerances that make sense
     // return Clamp.clamp(armAbsEncoder.getPosition(), armSetpoint-3, armSetpoint+3);
-    return Clamp.bounded(getAngle(), armSetpoint-3, armSetpoint+3);
+    return Clamp.bounded(getAngle(), armSetpoint - 3, armSetpoint + 3);
   }
-  
-  public double getArmFFPercent(){
-    var  kCosFFGain = 0.043;
-    return kCosFFGain*Math.cos(Math.toRadians(getAngle()));
+
+  public double getArmFFPercent() {
+    var kCosFFGain = 0.043;
+    return kCosFFGain * Math.cos(Math.toRadians(getAngle()));
   }
 
   // public double getArmFFProperly(double position, double velocity){
@@ -134,12 +139,18 @@ public class DunkArm extends SubsystemBase {
   public void setArmAngle(double degrees) {
     this.armSetpoint = degrees;
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit);
-    //SmartDashboard.putNumber("dunkArm/targetAngle", degrees);
-    armPID.setReference(degrees, ControlType.kPosition, 0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
+    // SmartDashboard.putNumber("dunkArm/targetAngle", degrees);
+    armPID.setReference(
+        degrees,
+        ControlType.kPosition,
+        0,
+        getArmFFPercent(),
+        ArbFFUnits.kPercentOut); // TODO: voltage control
   }
 
-  public TrapezoidProfile.State getState(){
-    return new TrapezoidProfile.State(armMotor.getEncoder().getPosition(), armMotor.getEncoder().getVelocity());
+  public TrapezoidProfile.State getState() {
+    return new TrapezoidProfile.State(
+        armMotor.getEncoder().getPosition(), armMotor.getEncoder().getVelocity());
   }
 
   // public isOnTarget()

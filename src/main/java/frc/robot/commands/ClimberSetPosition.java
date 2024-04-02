@@ -16,16 +16,14 @@ import frc.robot.subsystems.Climber;
 public class ClimberSetPosition extends Command {
   /** Creates a new ClimberSetPosition. */
   Climber climber;
+
   Measure<Distance> target;
-  SlewRateLimiter slewRate= new SlewRateLimiter(15*1.1*1.25, -12*1.1*1.25, 0.0);
-  TrapezoidProfile motionProfile = new TrapezoidProfile(
-    new TrapezoidProfile.Constraints (0.5, 5.0)
-    );
-    TrapezoidProfile.State initialPos = new TrapezoidProfile.State(0, 0);
-    TrapezoidProfile.State goalPos;
+  SlewRateLimiter slewRate = new SlewRateLimiter(15 * 1.1 * 1.25, -12 * 1.1 * 1.25, 0.0);
+  TrapezoidProfile motionProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(0.5, 5.0));
+  TrapezoidProfile.State initialPos = new TrapezoidProfile.State(0, 0);
+  TrapezoidProfile.State goalPos;
 
   double startTimer = 0;
-  
 
   public ClimberSetPosition(Climber climber, Measure<Distance> target) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -35,7 +33,6 @@ public class ClimberSetPosition extends Command {
     goalPos = new TrapezoidProfile.State(target.in(Units.Inches), 0);
 
     addRequirements(climber);
-
   }
 
   // Called when the command is initially scheduled.
@@ -50,20 +47,22 @@ public class ClimberSetPosition extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double targetPosition = motionProfile.calculate(Timer.getFPGATimestamp()-startTimer, initialPos, goalPos).position;
+    double targetPosition =
+        motionProfile.calculate(Timer.getFPGATimestamp() - startTimer, initialPos, goalPos)
+            .position;
     double slewRatePosition = slewRate.calculate(target.in(Units.Inches));
     climber.setPosition(Units.Inches.of(slewRatePosition));
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;
-    // return climber.isAtSetpoint() && motionProfile.isFinished(startTimer + motionProfile.totalTime());
+    // return climber.isAtSetpoint() && motionProfile.isFinished(startTimer +
+    // motionProfile.totalTime());
   }
 }

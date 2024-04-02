@@ -15,11 +15,11 @@ import frc.robot.subsystems.Passthrough;
 public class PassthroughAlignNote extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Passthrough passthrough;
+
   private final Intake intake;
   double stuckTimer = 0.0;
   double superStuckTimer = 0.5;
   double backwardTimer = 0.05;
-
 
   /** Creates a new PassthroughAlignNote. */
   public PassthroughAlignNote(Passthrough passthrough, Intake intake) {
@@ -45,33 +45,32 @@ public class PassthroughAlignNote extends Command {
     var kpassthrough = 0.1;
     var kintake = 0.1;
 
-    var kpassresponse = (dist-nominal) * kpassthrough;
-    var kintakeresponse = (dist-nominal) * kintake;
+    var kpassresponse = (dist - nominal) * kpassthrough;
+    var kintakeresponse = (dist - nominal) * kintake;
     kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
 
     if (passthrough.isBlocked()) {
-      kpassresponse=0;
+      kpassresponse = 0;
     }
 
-
-    if ( !passthrough.isBlocked() && intake.getVelocity() < 500) {
-      kintake=1; //known power that moves it if blocked
+    if (!passthrough.isBlocked() && intake.getVelocity() < 500) {
+      kintake = 1; // known power that moves it if blocked
       SmartDashboard.putBoolean("unstick", true);
-      //stuck timer start if at 
+      // stuck timer start if at
       // if(timer!=0) timer = Timer.getFPGATimestamp()
-      if(stuckTimer != 0){
+      if (stuckTimer != 0) {
         stuckTimer = Timer.getFPGATimestamp();
       }
-    }
-    else {
+    } else {
       // stuck timer clear
       stuckTimer = 0.0;
       SmartDashboard.putBoolean("unstick", false);
     }
 
-    //act on stuck timer:
-    //after X time, and before X+Y time, reverse
-    if(Clamp.bounded(stuckTimer, stuckTimer+superStuckTimer, stuckTimer+superStuckTimer+backwardTimer)) {
+    // act on stuck timer:
+    // after X time, and before X+Y time, reverse
+    if (Clamp.bounded(
+        stuckTimer, stuckTimer + superStuckTimer, stuckTimer + superStuckTimer + backwardTimer)) {
       kintakeresponse = -1.0;
     }
 

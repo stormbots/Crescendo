@@ -4,23 +4,24 @@
 
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.Optional;
 
 public class IntakeVision extends SubsystemBase {
   /** Creates a new Vision. */
   public enum IntakePipeline {
-    kDriverView, kNote,
+    kDriverView,
+    kNote,
   }
+
   public class NoteData {
-    public double distance; //meters
-    public double angleHorizontal; //degrees
-    public double angleVertical; //degrees
+    public double distance; // meters
+    public double angleHorizontal; // degrees
+    public double angleVertical; // degrees
     public Double time;
   }
 
@@ -41,7 +42,9 @@ public class IntakeVision extends SubsystemBase {
   }
 
   public Optional<NoteData> getVisibleTarget() {
-    if (hasValidTarget()==false) {return Optional.empty();}
+    if (hasValidTarget() == false) {
+      return Optional.empty();
+    }
 
     var target = new NoteData();
     target.distance = 0;
@@ -53,14 +56,14 @@ public class IntakeVision extends SubsystemBase {
   }
 
   public void setPipeline(IntakePipeline pipeline) {
-    //TODO: returns a null
-    switch(pipeline) {
+    // TODO: returns a null
+    switch (pipeline) {
       case kDriverView:
-      camera.getEntry("pipeline").setNumber(0);
-      break;
+        camera.getEntry("pipeline").setNumber(0);
+        break;
       case kNote:
-      camera.getEntry("pipeline").setNumber(3);
-      break;
+        camera.getEntry("pipeline").setNumber(3);
+        break;
       default:
     }
   }

@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import com.stormbots.Clamp;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DunkArmRoller;
@@ -27,8 +26,8 @@ public class NoteTransferToDunkArm extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //shooter flywheel diameter: 3 inch
-    //dunkArm flywheel diameter: 1.375 inch
+    // shooter flywheel diameter: 3 inch
+    // dunkArm flywheel diameter: 1.375 inch
     dunkArmRoller.resetEncoder(0);
   }
 
@@ -41,19 +40,19 @@ public class NoteTransferToDunkArm extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
-  public boolean isFinished() { 
-    //TODO: Tune tol both
+  public boolean isFinished() {
+    // TODO: Tune tol both
     var posTol = 0.5;
-    var pos = Clamp.bounded(dunkArmRoller.getPosition(), distanceOfTransfer-posTol, distanceOfTransfer+posTol);
-  
+    var pos =
+        Clamp.bounded(
+            dunkArmRoller.getPosition(), distanceOfTransfer - posTol, distanceOfTransfer + posTol);
+
     SmartDashboard.putBoolean("dunkArmRoller/pos", pos);
-  
+
     var velTol = 0.5; // per sec
     var vel = Clamp.bounded(dunkArmRoller.getVelocity(), -velTol, velTol);
     SmartDashboard.putBoolean("dunkArmRoller/vel", vel);

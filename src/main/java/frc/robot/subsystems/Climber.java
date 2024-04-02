@@ -14,7 +14,6 @@ import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.stormbots.Clamp;
-
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
@@ -24,32 +23,36 @@ import frc.robot.Robot;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
+  private CANSparkMax leftMotor = new CANSparkMax(Robot.isCompbot ? 17 : 16, MotorType.kBrushless);
 
-  private CANSparkMax leftMotor = new CANSparkMax(Robot.isCompbot?17:16, MotorType.kBrushless);
-  private CANSparkMax rightMotor = new CANSparkMax(Robot.isCompbot?18:17, MotorType.kBrushless);
-  
-  public boolean isHomed=false;
-  public final double kHomeCurrentThreshold=5;
-  public final double kClimbingCurrentThreshold=10;
-  public final double kHomePower=-0.1;
-  public final  Measure<Distance> kMaxHeight=Units.Inches.of(23);;
-  public final  Measure<Distance> kClimbReadyPosition=Units.Inches.of(23.25-6);
-  private double positionSetpoint=0;
+  private CANSparkMax rightMotor = new CANSparkMax(Robot.isCompbot ? 18 : 17, MotorType.kBrushless);
+
+  public boolean isHomed = false;
+  public final double kHomeCurrentThreshold = 5;
+  public final double kClimbingCurrentThreshold = 10;
+  public final double kHomePower = -0.1;
+  public final Measure<Distance> kMaxHeight = Units.Inches.of(23);
+  ;
+  public final Measure<Distance> kClimbReadyPosition = Units.Inches.of(23.25 - 6);
+  private double positionSetpoint = 0;
 
   public Climber(AHRS navx) {
-    //TODO Auto-generated constructor stub
+    // TODO Auto-generated constructor stub
 
-    for(CANSparkBase motor : new CANSparkBase[]{leftMotor,rightMotor} ){
+    for (CANSparkBase motor : new CANSparkBase[] {leftMotor, rightMotor}) {
       motor.clearFaults();
       motor.restoreFactoryDefaults();
 
-      motor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.1);
+      motor.setSoftLimit(SoftLimitDirection.kReverse, (float) 0.1);
       motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
-      motor.setSoftLimit(SoftLimitDirection.kForward, (float)(kMaxHeight.in(Units.Inches)-0.2));
+      motor.setSoftLimit(SoftLimitDirection.kForward, (float) (kMaxHeight.in(Units.Inches) - 0.2));
       motor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
-      motor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
+      motor
+          .getEncoder()
+          .setPositionConversionFactor(
+              kMaxHeight.in(Units.Inches) / 80.146); // kMaxHeight.in(Units.Inches)/71.69
       motor.setSmartCurrentLimit(8);
       motor.getPIDController().setP(0.3);
 
@@ -60,10 +63,10 @@ public class Climber extends SubsystemBase {
       motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
     }
 
-    //set soft limits
+    // set soft limits
     leftMotor.setInverted(false);
     rightMotor.setInverted(true);
-    setIdleMode(IdleMode.kCoast);  
+    setIdleMode(IdleMode.kCoast);
 
     leftMotor.burnFlash();
     rightMotor.burnFlash();
@@ -76,72 +79,78 @@ public class Climber extends SubsystemBase {
     // SmartDashboard.putData("climber/down", new RunCommand(()->setPosition(down),this));
   }
 
-
-  public void setPower(double power){
+  public void setPower(double power) {
     leftMotor.set(power);
     rightMotor.set(power);
   }
 
-  public void setIdleMode(IdleMode mode){
+  public void setIdleMode(IdleMode mode) {
     leftMotor.setIdleMode(mode);
     rightMotor.setIdleMode(mode);
   }
 
-  public Boolean isAtHomePosition(){
-    return (leftMotor.getOutputCurrent()>kHomeCurrentThreshold && rightMotor.getOutputCurrent()>kHomeCurrentThreshold);
+  public Boolean isAtHomePosition() {
+    return (leftMotor.getOutputCurrent() > kHomeCurrentThreshold
+        && rightMotor.getOutputCurrent() > kHomeCurrentThreshold);
   }
 
-  public void setHomed(){
+  public void setHomed() {
     isHomed = true;
 
-    for(CANSparkBase motor : new CANSparkBase[]{leftMotor,rightMotor} ){
+    for (CANSparkBase motor : new CANSparkBase[] {leftMotor, rightMotor}) {
       motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
       motor.getEncoder().setPosition(0);
       motor.setSmartCurrentLimit(30);
       setIdleMode(IdleMode.kBrake);
-      //TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for drive team
-      motor.setSoftLimit(SoftLimitDirection.kReverse,(float) 9.5); //Should be 11.5 b/c climber double hook, previously 9.5
+      // TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for
+      // drive team
+      motor.setSoftLimit(
+          SoftLimitDirection.kReverse,
+          (float) 9.5); // Should be 11.5 b/c climber double hook, previously 9.5
     }
-
   }
 
-  public void setPosition(Measure<Distance> target){
+  public void setPosition(Measure<Distance> target) {
     setPosition(target.in(Units.Inches));
   }
 
   /** Takes target in inches */
-  private void setPosition(double target){
+  private void setPosition(double target) {
     this.positionSetpoint = target;
     var ff = 0.0;
 
-    if(leftMotor.getOutputCurrent() > kClimbingCurrentThreshold &&
-      rightMotor.getOutputCurrent() > kClimbingCurrentThreshold
-    ){
+    if (leftMotor.getOutputCurrent() > kClimbingCurrentThreshold
+        && rightMotor.getOutputCurrent() > kClimbingCurrentThreshold) {
       ff = -0.1;
     }
 
-    leftMotor.getPIDController().setReference(
-      target, ControlType.kPosition, 0,
-      ff,ArbFFUnits.kPercentOut);
-    rightMotor.getPIDController().setReference(
-      target, ControlType.kPosition, 0,
-      ff,ArbFFUnits.kPercentOut);
+    leftMotor
+        .getPIDController()
+        .setReference(target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
+    rightMotor
+        .getPIDController()
+        .setReference(target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
   }
 
-  public Boolean isAtSetpoint(){
-    var leftPosOk = Clamp.bounded(leftMotor.getEncoder().getPosition(), positionSetpoint-0.5, positionSetpoint+0.5); 
-    var rightPosOk = Clamp.bounded(rightMotor.getEncoder().getPosition(), positionSetpoint-0.5, positionSetpoint+0.5); 
-    if(leftPosOk==false || rightPosOk ==false ) return false; 
+  public Boolean isAtSetpoint() {
+    var leftPosOk =
+        Clamp.bounded(
+            leftMotor.getEncoder().getPosition(), positionSetpoint - 0.5, positionSetpoint + 0.5);
+    var rightPosOk =
+        Clamp.bounded(
+            rightMotor.getEncoder().getPosition(), positionSetpoint - 0.5, positionSetpoint + 0.5);
+    if (leftPosOk == false || rightPosOk == false) return false;
 
     return true;
   }
 
-  public Measure<Distance> getPosition(){
-    var average = (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition())/2;
+  public Measure<Distance> getPosition() {
+    var average =
+        (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition()) / 2;
     return Units.Inches.of(average);
   }
 
-  public void setReverseSoftLimit(double limit){
+  public void setReverseSoftLimit(double limit) {
     leftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
     rightMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
   }
@@ -167,8 +176,6 @@ public class Climber extends SubsystemBase {
     //   leftMotor.setSmartCurrentLimit(4);
     //   rightMotor.setSmartCurrentLimit(4);
     // })
-
-
 
   }
 }

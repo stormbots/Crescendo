@@ -4,18 +4,15 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
-import com.kauailabs.navx.frc.AHRS;
-
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.IntakeVision.IntakePipeline;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
+import frc.robot.subsystems.Chassis.Chassis;
+
+import java.util.function.DoubleSupplier;
 
 public class VisionTrackNote extends Command {
   private IntakeVision intakeVision;
@@ -30,17 +27,16 @@ public class VisionTrackNote extends Command {
 
   /** Creates a new VisionTrackNoteOnHeading. */
   public VisionTrackNote(
-    DoubleSupplier xSpeed, 
-    DoubleSupplier ySpeed,
-    DoubleSupplier rotSpeed,
-    Chassis chassis,
-    Intake intake,
-    Passthrough passthrough, 
-    IntakeVision intakeVision, 
-    Leds leds) {
+      DoubleSupplier xSpeed,
+      DoubleSupplier ySpeed,
+      DoubleSupplier rotSpeed,
+      Chassis chassis,
+      Intake intake,
+      Passthrough passthrough,
+      IntakeVision intakeVision,
+      Leds leds) {
 
-    //TODO: put all subsystems last in constructor;
-
+    // TODO: put all subsystems last in constructor;
 
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed;
@@ -62,7 +58,7 @@ public class VisionTrackNote extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //set the vision pipeline
+    // set the vision pipeline
     intakeVision.setPipeline(IntakePipeline.kNote);
   }
 
@@ -75,16 +71,24 @@ public class VisionTrackNote extends Command {
     var target = intakeVision.getVisibleTarget();
     var noteAdjustment = 0.0;
 
-    if(target.isPresent()){
+    if (target.isPresent()) {
       leds.ready();
-      noteAdjustment = -target.get().angleHorizontal * 1/360.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
+      noteAdjustment =
+          -target.get().angleHorizontal
+              * 1
+              / 360.0; // TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver
+      // happy
     } else {
       leds.preparing();
     }
 
-    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + noteAdjustment, true, true);
+    chassis.drive(
+        xSpeed.getAsDouble(),
+        ySpeed.getAsDouble(),
+        rotSpeed.getAsDouble() + noteAdjustment,
+        true,
+        true);
   }
-  
 
   // Called once the command ends or is interrupted.
   @Override
@@ -98,7 +102,7 @@ public class VisionTrackNote extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    //check lasercan to see if it sees a note, then end
+    // check lasercan to see if it sees a note, then end
     return intake.isBlocked();
   }
 }

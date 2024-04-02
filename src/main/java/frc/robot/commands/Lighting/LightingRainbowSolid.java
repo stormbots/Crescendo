@@ -4,7 +4,6 @@
 
 package frc.robot.commands.Lighting;
 
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Leds;
 
@@ -21,7 +20,7 @@ public class LightingRainbowSolid extends Command {
     this.leds = leds;
     this.secondsPerCycle = secondsPerCycle;
     this.percentOutput = percentOutput;
-    value = (int)Math.round((255*(percentOutput/100)));
+    value = (int) Math.round((255 * (percentOutput / 100)));
     addRequirements(leds);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -38,18 +37,16 @@ public class LightingRainbowSolid extends Command {
     double currentTime = leds.getTime();
     double elapsedTime = currentTime - startTime;
     double timePerColor = secondsPerCycle / 180;
-    
-    for(var i = 0;  i < leds.ledBuffer.getLength();i++){
-      int hue = (int)Math.round(startHue % 180);
+
+    for (var i = 0; i < leds.ledBuffer.getLength(); i++) {
+      int hue = (int) Math.round(startHue % 180);
       leds.ledBuffer.setHSV(i, hue, 255, value);
     }
-    if (secondsPerCycle > 0){
-      this.startHue += ((elapsedTime)/timePerColor);
+    if (secondsPerCycle > 0) {
+      this.startHue += ((elapsedTime) / timePerColor);
       this.startHue %= 180;
       this.startTime = leds.getTime();
     }
-    
-
   }
 
   // Called once the command ends or is interrupted.
@@ -63,5 +60,4 @@ public class LightingRainbowSolid extends Command {
   public boolean isFinished() {
     return finished;
   }
-
 }

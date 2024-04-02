@@ -4,33 +4,27 @@
 
 package frc.robot.commands;
 
-import java.util.ArrayList;
-import java.util.function.BooleanSupplier;
-
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import java.util.function.BooleanSupplier;
 
 public class DriverFeedback extends Command {
   /** Creates a new DriverFeedback. */
-
   CommandXboxController driverController;
+
   BooleanSupplier[] booleans;
 
-  public DriverFeedback(CommandXboxController driverController, BooleanSupplier ... conditions) {
+  public DriverFeedback(CommandXboxController driverController, BooleanSupplier... conditions) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.driverController = driverController;
     booleans = conditions;
-    //this.ignoringDisable(true);
+    // this.ignoringDisable(true);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
