@@ -147,6 +147,9 @@
       }
     }
   },
+  "NetworkTables Info": {
+    "visible": true
+  },
   "NetworkTables Log": {
     "visible": true
   },
@@ -406,7 +409,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 712,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -788,7 +791,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 314,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -821,7 +824,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 314,
+          "height": 0,
           "series": [
             {
               "color": [
