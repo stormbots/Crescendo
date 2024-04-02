@@ -14,6 +14,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.RangingMode;
+import au.grapplerobotics.LaserCan.TimingBudget;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
@@ -74,8 +75,10 @@ public class Passthrough extends SubsystemBase {
 
     motor.burnFlash();
     motorB.burnFlash();
+
     try {
       lasercan.setRangingMode(RangingMode.SHORT);
+      lasercan.setTimingBudget(TimingBudget.TIMING_BUDGET_20MS);
       SmartDashboard.putBoolean("passthrough/LaserConfig'd", true);
     } catch (ConfigurationFailedException e) {
       SmartDashboard.putBoolean("passthrough/LaserConfig'd", false);

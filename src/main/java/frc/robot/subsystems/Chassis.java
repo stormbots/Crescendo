@@ -53,25 +53,25 @@ public class Chassis extends SubsystemBase {
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.32343, 1.9409, 0.093383));
+      new SimpleMotorFeedforward(0.080663, 1.9711, 0.36785));
 
   private final MAXSwerveModule frontRight = new MAXSwerveModule(
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.18801, 1.9192, 0.35666));
+      new SimpleMotorFeedforward(0.12682, 1.971, 0.30547));
 
   private final MAXSwerveModule rearLeft = new MAXSwerveModule(
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.22046, 1.9493, 0.3172));
+      new SimpleMotorFeedforward(0.11553, 1.956, 0.33358));
 
   private final MAXSwerveModule rearRight = new MAXSwerveModule(
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.18495, 1.9683, 0.18806));
+      new SimpleMotorFeedforward(0.11616, 1.9571, 0.321));
 
   // The gyro sensor
   public AHRS navx;

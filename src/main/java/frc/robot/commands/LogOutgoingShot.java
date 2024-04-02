@@ -26,14 +26,16 @@ public class LogOutgoingShot extends Command {
 
     @Override
     public void initialize() {
-        System.out.print("Shot Info - ");
+        System.out.println("Shot Info - ");
         System.out.print(" X: " + pe.getEstimatedPosition().getX());
-        System.out.print(" Y: " + pe.getEstimatedPosition().getY());
-        System.out.print(" RPM: " + flywheel.getRPM());
-        System.out.println(" Angle: " + shooter.getShooterAngle());
-        System.out.println("Offset: " + RobotContainer.shooterOffset);
-        System.out.print("Target Rpm" + flywheel.getTargetRpm());
+        System.out.println(" Y: " + pe.getEstimatedPosition().getY());
+        System.out.print(" Target Rpm" + flywheel.getTargetRpm());
+        System.out.print(" Actual Average RPM: " + flywheel.getRPM());
+        System.out.print(" Top RPM: " + flywheel.topMotor.getEncoder().getVelocity());
+        System.out.println(" Bot RPM: " + flywheel.botMotor.getEncoder().getVelocity());
         System.out.print(" Target Shooter Angle"  + shooter.getTargetAngle());
+        System.out.print(" Shooter Angle: " + shooter.getShooterAngle());
+        System.out.print(" ShooterOffset: " + RobotContainer.shooterOffset);
     }
 
     @Override

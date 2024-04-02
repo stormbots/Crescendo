@@ -191,6 +191,11 @@ public class AutoFactory {
             .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
             .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
         );
+        
+        autoChooser.addOption("TestChoreoAuto", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+            .andThen(new PathPlannerAuto("TestChoreoAuto"))
+        );
 
         autoChooser.addOption("vv SysID vv", new InstantCommand());
         
@@ -202,13 +207,13 @@ public class AutoFactory {
         autoChooser.addOption("sysid Flywheel routine", 
             new InstantCommand()
                 .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(5))
-                .andThen(new WaitCommand(2))
+                .andThen(new WaitCommand(5))
                 .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(5))
-                .andThen(new WaitCommand(2))
+                .andThen(new WaitCommand(5))
                 .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(4))
+                .andThen(new WaitCommand(5))
                 .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(4))
+                .andThen(new WaitCommand(5))
 
         );
 
@@ -252,7 +257,7 @@ public class AutoFactory {
         };
 
         HolonomicPathFollowerConfig holonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
-            new PIDConstants(5*0.5), 
+            new PIDConstants(2.5), 
             new PIDConstants(5*0.5), 
             DriveConstants.kMaxSpeedMetersPerSecond, 
             DriveConstants.distanceToModuleFromCenter,
@@ -282,7 +287,7 @@ public class AutoFactory {
         );
 
         //this kinda sucks but its better than guessing values for now, fix code struct later
-        LUT shooterLUT = Shooter.lut;
+        LUT shooterLUT = Shooter.normalLUT;
         Measure<Distance> distance = Units.Meters.of(Math.hypot(4.3-0.4, 6.25-5.55));
         
         var angle = shooterLUT.get(distance.in(Units.Inches))[0];
@@ -293,7 +298,11 @@ public class AutoFactory {
 
         NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand());
         NamedCommands.registerCommand("intakeFull", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)));
-        NamedCommands.registerCommand("intakeShoot", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)).until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked()));
+        NamedCommands.registerCommand("intakeShoot", 
+            new ParallelCommandGroup(
+                new RunCommand(rc.intake::intake, rc.intake), 
+                new RunCommand(rc.passthrough::intake, rc.passthrough)
+            ).until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked()));
         NamedCommands.registerCommand("intakeStop", rc.sequenceFactory.getStopIntakingCommand().withTimeout(5));
 
         NamedCommands.registerCommand("subwooferShot", rc.sequenceFactory.getSetRPMandShootCommand(5500, 45));

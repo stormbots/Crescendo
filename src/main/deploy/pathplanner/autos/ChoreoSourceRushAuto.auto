@@ -31,7 +31,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -87,12 +87,6 @@
                       "data": {
                         "name": "intakeAndAlign"
                       }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeStop"
-                      }
                     }
                   ]
                 }
@@ -134,12 +128,6 @@
                       }
                     },
                     {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.01
-                      }
-                    },
-                    {
                       "type": "path",
                       "data": {
                         "pathName": "SourcePath.6"
@@ -162,12 +150,6 @@
                       "type": "named",
                       "data": {
                         "name": "intakeAndAlign"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeStop"
                       }
                     }
                   ]
@@ -232,12 +214,6 @@
                       "type": "named",
                       "data": {
                         "name": "intakeAndAlign"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeStop"
                       }
                     }
                   ]

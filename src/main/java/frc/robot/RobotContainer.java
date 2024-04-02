@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.CalibrateShooter;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.DriverFeedback;
@@ -40,6 +41,7 @@ import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
@@ -198,6 +200,10 @@ public class RobotContainer {
     .and(()->climber.isHomed==false)
     .whileTrue(new ClimberGoHome(climber).withTimeout(15));
 
+    // new Trigger(DriverStation::isEnabled)
+    // .and(()->shooter.isHomed==false)
+    // .whileTrue(new CalibrateShooter(shooter));
+
     new Trigger( ()-> dunkArm.getAngle()>45 )
     .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(0.1)))
     .onFalse(new InstantCommand(()->climber.setReverseSoftLimit(9.5)))
@@ -237,13 +243,13 @@ public class RobotContainer {
     ;
 
     intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
-    shooter.setDefaultCommand(
+
+    shooter.setDefaultCommand( //TODO: why jank?? :(
       new WaitCommand(1)
       .andThen(new SetShooterProfiled(0, shooter)
         .withTimeout(1)
       )
       .andThen(new WaitCommand(0.1))
-      //.andThen(new InstantCommand(()->shooter.syncEncoders()))
       .andThen(new RunCommand(shooter::stopShooter))
     );
 
@@ -436,10 +442,10 @@ public class RobotContainer {
         sequenceFactory.getDunkArmNoteTransferSequence(),
 
         new ParallelCommandGroup(
-          new IntakeNote(intake, passthrough).runForever(),
+          new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
           new SetShooterProfiled(0, shooter),
           //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
-          new SetFlywheelSlew(1500, shooterFlywheel)
+          new SetFlywheelSlew(500, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
@@ -485,9 +491,15 @@ public class RobotContainer {
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
-    ).whileTrue( 
+    )
+    .whileTrue( 
       new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
     )
+    .onTrue(new ConditionalCommand(
+      new ClimberSetPosition(climber, Units.Inches.of(11)),
+      new InstantCommand(), 
+      ()->climber.getPosition().in(Units.Inches)<2.0
+    ))
     ;
 
     operatorJoystick.button(11).onTrue(
@@ -516,9 +528,17 @@ public class RobotContainer {
 
     // Used for testing only.
 
-    // operatorJoystick.button(12).whileTrue(
+    // operatorJoystick.button(12)
+    // .whileTrue(
     //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
-    // );
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
+
+    // operatorJoystick.button(12).whileTrue(new ParallelCommandGroup( //shooting across field, not tested
+    //   new SetDunkArmSlew(20, dunkArm),
+    //   new SetShooterProfiled(15, shooter),
+    //   new SetFlywheelSlew(4000, shooterFlywheel)
+    // ));
   }
   
   /**
@@ -529,8 +549,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     // return Autos.exampleAuto(m_exampleSubsystem);
+    
 
-    return autoFactory.getAutoChooser().getSelected();
+    return new CalibrateShooter(shooter).andThen(autoFactory.getAutoChooser().getSelected());
     // return autoFactory.getBlueBottomAuto();
 
   }

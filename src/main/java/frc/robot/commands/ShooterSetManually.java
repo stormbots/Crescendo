@@ -38,9 +38,9 @@ public class ShooterSetManually extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        SmartDashboard.putNumber("manualshoot/angle", shooter.getShooterAngle());
         flywheel.setRPM(SmartDashboard.getNumber("manualshoot/rpm", 0));
         shooter.setAngle(Lerp.lerp(axis3.getAsDouble(), -1, 1, 0, 50));
+        SmartDashboard.putNumber("manualshoot/angle", shooter.getShooterAngle());
     }
 
     // Called once the command ends or is interrupted.

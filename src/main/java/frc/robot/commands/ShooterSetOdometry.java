@@ -29,7 +29,7 @@ public class ShooterSetOdometry extends Command {
     SwerveDrivePoseEstimator pe;
     Optional<Pose2d> manualPose = Optional.empty();
 
-    LUT lut = Shooter.lut;
+    LUT lut = Shooter.normalLUT;
     double x = 0.0;
     double y = 0.0;
     double distance = 0;

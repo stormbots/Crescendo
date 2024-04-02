@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7669041156768799,
-      "y": 6.669712543487549
+      "x": 0.7690313458442688,
+      "y": 6.636931419372559
     },
     "rotation": 59.99956734830468
   },
@@ -116,15 +116,15 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeAndAlign"
-                      }
-                    },
-                    {
                       "type": "wait",
                       "data": {
                         "waitTime": 0.2
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeAndAlign"
                       }
                     }
                   ]
