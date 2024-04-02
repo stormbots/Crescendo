@@ -185,7 +185,8 @@ public class MAXSwerveModule implements Sendable{
     SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
         new Rotation2d(turningEncoder.getPosition()));
 
-    var arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
+    // var arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
+    var arbFF = drivingMotorFeedforward.calculate(drivingEncoder.getVelocity(), optimizedDesiredState.speedMetersPerSecond, 0.08);
     drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity, 0, arbFF, ArbFFUnits.kVoltage);
 
     turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);

@@ -177,6 +177,11 @@ public class Chassis extends SubsystemBase {
     SmartDashboard.putNumber("modules/BrCurr", rearRight.getDriveCurrent());
     SmartDashboard.putNumber("modules/BlCurr", rearLeft.getDriveCurrent());
 
+    SmartDashboard.putNumber("modules/frPower", frontRight.getPowerOutput());
+    SmartDashboard.putNumber("modules/flPower", frontLeft.getPowerOutput());
+    SmartDashboard.putNumber("modules/BrPower", rearRight.getPowerOutput());
+    SmartDashboard.putNumber("modules/BlPower", rearLeft.getPowerOutput());
+
     // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
 
