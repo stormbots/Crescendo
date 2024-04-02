@@ -6,17 +6,19 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.IdleMode;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.RangingMode;
+import au.grapplerobotics.LaserCan.TimingBudget;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -29,6 +31,7 @@ public class Passthrough extends SubsystemBase {
   private double kPassthroughSpeed=1.0;
   //LaserCAN Sensor Setup
   public LaserCan lasercan = new LaserCan(20);
+  public Servo servo = new Servo(8);
 
   /** where we want the game piece under ideal conditions, in mm */
   public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
@@ -74,8 +77,10 @@ public class Passthrough extends SubsystemBase {
 
     motor.burnFlash();
     motorB.burnFlash();
+
     try {
       lasercan.setRangingMode(RangingMode.SHORT);
+      lasercan.setTimingBudget(TimingBudget.TIMING_BUDGET_20MS);
       SmartDashboard.putBoolean("passthrough/LaserConfig'd", true);
     } catch (ConfigurationFailedException e) {
       SmartDashboard.putBoolean("passthrough/LaserConfig'd", false);
@@ -116,6 +121,11 @@ public class Passthrough extends SubsystemBase {
   public boolean isBlocked() {
     var distance = getSensorDistance();
     return distance.in(Units.Millimeters) < kBlockedDistance;
+  }
+
+  public void lockServo(boolean block) {
+    if (block) servo.setPosition(1.0);
+    else servo.setPosition(-1.0);
   }
 
   @Override

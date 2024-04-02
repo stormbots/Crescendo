@@ -37,8 +37,8 @@ public class ShooterFlywheel extends SubsystemBase {
   public static final double kSlewForward = 4000/0.5;  //TODO: get rate limits
   public static final double kSlewBackward = -kSlewForward;
 
-  SimpleMotorFeedforward topFlywheelFeedforward = new SimpleMotorFeedforward(0.14872, 0.001077, 0.0001627);
-  SimpleMotorFeedforward botFlywheelFeedforward = new SimpleMotorFeedforward(0.1378, 0.001072, 0.00016379);
+  SimpleMotorFeedforward topFlywheelFeedforward = new SimpleMotorFeedforward(0.13399, 0.0011067*0.955, 0.00019121);
+  SimpleMotorFeedforward botFlywheelFeedforward = new SimpleMotorFeedforward(0.16668, 0.001071*0.98, 0.0001839);
 
    
 
@@ -116,7 +116,7 @@ public class ShooterFlywheel extends SubsystemBase {
 
     
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("/shooterFlywheel/targetRPM", targetRPM);
+    SmartDashboard.putNumber("/shooterFlywheel/targetRPM", targetRPM);
     // SmartDashboard.putBoolean("/shooterFlywheel/isOnTarget", isOnTarget());
     SmartDashboard.putNumber("/shooterFlywheel/topCurrent", topMotor.getOutputCurrent());
     SmartDashboard.putNumber("/shooterFlywheel/botCurrent", botMotor.getOutputCurrent());
@@ -166,7 +166,7 @@ public class ShooterFlywheel extends SubsystemBase {
   }
 
   public boolean isOnTarget(){
-    double tolerance = 60;
+    double tolerance = 80;
     //ADD RIGHT
     if ( ! Clamp.bounded(topMotor.getEncoder().getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;
     if ( ! Clamp.bounded(botMotor.getEncoder().getVelocity(), targetRPM-tolerance, targetRPM+tolerance)) return false;

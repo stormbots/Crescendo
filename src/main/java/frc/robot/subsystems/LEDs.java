@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.sql.Driver;
+import java.util.concurrent.BlockingDeque;
 import java.util.function.BooleanSupplier;
 
 import com.stormbots.BlinkenPattern;
@@ -24,8 +26,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Leds extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
-  Servo blinkin1 = new Servo(2);
-  Servo blinkin2 = new Servo(0);
+  Servo blinkin1 = new Servo(1);
+  Servo blinkin2 = new Servo(2);
 
   public class HSVColor{
     // private Color rgb;
@@ -140,6 +142,16 @@ public class Leds extends SubsystemBase {
   public Command showTeamColor() {
     return new RunCommand(()->{
       var color = DriverStation.getAlliance();
+
+      double timer = Timer.getMatchTime();
+
+      if (DriverStation.isTeleop() && timer<20) {
+        this.setColor(Color.kPurple);
+        blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
+        blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
+        return;
+      }
+
       if (color.isPresent()) {
         if (color.get() == DriverStation.Alliance.Red) {
           this.setColor(Color.kRed, this.matchBrightnessScaling(10, 100));
@@ -169,9 +181,9 @@ public class Leds extends SubsystemBase {
   }
   public Command showNoteIntake() {
     return new RunCommand(
-      ()->{this.setColor(Color.kOrangeRed);
-      this.blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
-      this.blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidRedOrange.us());
+      ()->{this.setColor(Color.kHotPink);
+      this.blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidHotPink.us());
+      this.blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidHotPink.us());
     }, this)
     .withTimeout(2);
   }

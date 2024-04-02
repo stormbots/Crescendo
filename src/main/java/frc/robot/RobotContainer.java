@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import javax.management.InstanceNotFoundException;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -32,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.AutomatedTrap;
+import frc.robot.commands.CalibrateShooter;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.DriverFeedback;
@@ -42,6 +45,7 @@ import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
@@ -200,18 +204,26 @@ public class RobotContainer {
     .and(()->climber.isHomed==false)
     .whileTrue(new ClimberGoHome(climber).withTimeout(15));
 
+    new Trigger(DriverStation::isEnabled)
+    .and(()->shooter.isHomed==false)
+    .whileTrue(new CalibrateShooter(shooter));
+
     new Trigger( ()-> dunkArm.getAngle()>45 )
-    .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(0.1)))
-    .onFalse(new InstantCommand(()->climber.setReverseSoftLimit(9.5)))
+    .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(climber.climbingReverseSoftLimit)).ignoringDisable(true))
+    .onFalse(
+      new InstantCommand(()->climber.setReverseSoftLimit(climber.defaultReverseSoftLimit)).ignoringDisable(true)
+    )
     ;
 
-    new Trigger(DriverStation::isTeleop)
-    .and(()-> Timer.getMatchTime()<20)
-    .onTrue(
-      new RunCommand(()->leds.setColor(Color.kPurple),leds).withTimeout(2)
-    );
+    // new Trigger(DriverStation::isTeleop)
+    // .and(()-> Timer.getMatchTime()<20)
+    // .onTrue(
+    //   new RunCommand(()->leds.setColor(Color.kPurple),leds).withTimeout(2)
+    // );
     
-    leds.setDefaultCommand(leds.set5vLedStrip().andThen(leds.showTeamColor()));
+    leds.setDefaultCommand
+      (leds.set5vLedStrip().andThen(leds.showTeamColor())
+    );
 
     new Trigger(intake::isBlocked)
     .onTrue(leds.showNoteIntake())
@@ -239,13 +251,13 @@ public class RobotContainer {
     ;
 
     intake.setDefaultCommand(new RunCommand(()->{intake.stop();}, intake));
-    shooter.setDefaultCommand(
+
+    shooter.setDefaultCommand( //TODO: why jank?? :(
       new WaitCommand(1)
       .andThen(new SetShooterProfiled(0, shooter)
         .withTimeout(1)
       )
       .andThen(new WaitCommand(0.1))
-      //.andThen(new InstantCommand(()->shooter.syncEncoders()))
       .andThen(new RunCommand(shooter::stopShooter))
     );
 
@@ -298,7 +310,8 @@ public class RobotContainer {
       .whileTrue(
         new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
       )
-      .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
+      .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget,shooter::isOnTarget, shooterVision::distanceInRange)
+      )
       .onTrue(
         new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
         .withTimeout(2)
@@ -448,10 +461,10 @@ public class RobotContainer {
         sequenceFactory.getDunkArmNoteTransferSequence(),
 
         new ParallelCommandGroup(
-          new IntakeNote(intake, passthrough).runForever(),
+          new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
           new SetShooterProfiled(0, shooter),
           //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
-          new SetFlywheelSlew(1500, shooterFlywheel)
+          new SetFlywheelSlew(500, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
@@ -473,7 +486,7 @@ public class RobotContainer {
       new RunCommand(intake::eject, intake),
       new RunCommand(passthrough::eject, passthrough),
       new SetShooterProfiled(0, shooter), 
-      new SetFlywheelSlew(-3000, shooterFlywheel),
+      new SetFlywheelSlew(-500, shooterFlywheel),
       new RunCommand(dunkArmRoller::eject, dunkArmRoller)
     )//TODO: set shooter/intake eject RPM properly
     .finallyDo((e)->passthrough.stop())
@@ -485,19 +498,22 @@ public class RobotContainer {
       new IntakeNote(intake, passthrough)
       .andThen(new PassthroughAlignNote(passthrough,intake))
     )
-    // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel))
+    // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel)
+    .onTrue(new InstantCommand(()->passthrough.lockServo(true)))
     .whileTrue(new SetShooterProfiled(0, shooter))
+    .onTrue(new ConditionalCommand(
+      new ClimberSetPosition(climber, Units.Inches.of(11)),
+      new InstantCommand(), 
+      ()->climber.getPosition().in(Units.Inches)<2.0&&climber.isHomed
+    )
+    )
     ;
-
-    //DEBUG CODE: manually adjust rollers
-    // operatorJoystick.button(9).whileTrue(
-    //   new RunCommand(()->dunkArmRoller.setSpeed(operatorJoystick.getRawAxis(3)*-60*0.05*0.05*0.5), dunkArmRoller)
-    // );0
 
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.25*operatorJoystick.getRawAxis(1)), dunkArm)
-    ).whileTrue( 
+    )
+    .onTrue( 
       new DunkArmRollerHoldNote(dunkArm, dunkArmRoller)
     )
     ;
@@ -505,6 +521,12 @@ public class RobotContainer {
     operatorJoystick.button(11).onTrue(
       new InstantCommand(()->dunkArm.syncEncoders())
     );
+
+    operatorJoystick.button(12).whileTrue(new ParallelCommandGroup( //shooting across field
+      new SetDunkArmSlew(0, dunkArm).runForever(),
+      new SetShooterProfiled(0, shooter),
+      new SetFlywheelSlew(3550, shooterFlywheel)
+    ));
 
     //climbers up
     operatorJoystick.button(13).whileTrue(
@@ -532,7 +554,7 @@ public class RobotContainer {
     //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
     // );
 
-    operatorJoystick.button(12).whileTrue(
+    operatorJoystick.button(17).whileTrue(
       new InstantCommand()
       // new RunCommand(()->{
       //   chassis.driveToBearing(0, 0, Math.toRadians(Clamp.clamp(60*Math.round((int)navx.getRotation2d().getDegrees()/60), -60, 60)));
@@ -542,14 +564,20 @@ public class RobotContainer {
           .andThen(new SetDunkArmSlew(20, dunkArm))
           .andThen(new AutomatedTrap(this))
           .andThen(
-        new ClimberSetPosition(climber, Units.Inches.of(0))
-        .alongWith(new RunCommand(()->{},dunkArm))
-      )
+            new ClimberSetPosition(climber, Units.Inches.of(0))
+            .alongWith(new RunCommand(()->{},dunkArm))
+          )
         )
       ).alongWith(new DunkArmRollerHoldNote(dunkArm, dunkArmRoller))
     )
     .onFalse(new RunCommand(()->{}, dunkArm))
     ;
+
+    // operatorJoystick.button(15)
+    // .whileTrue(
+    //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
   }
   
   /**

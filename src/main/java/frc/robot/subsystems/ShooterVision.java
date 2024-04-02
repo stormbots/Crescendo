@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -54,9 +55,10 @@ public class ShooterVision extends SubsystemBase {
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
     // if (hasValidTarget()) {SmartDashboard.putBoolean("shootervision/validtarget", true);}
-    // if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("manualshoot/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
+    if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("manualshoot/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
+    SmartDashboard.putBoolean("shooter/distanceinrange", distanceInRange());
   }
 
   public boolean hasValidTarget() {
@@ -134,6 +136,18 @@ public class ShooterVision extends SubsystemBase {
     return targetData;
   }
 
+  public void selectAllAprilTags(boolean yes) {
+    // camera.getEntry("pipeline"); //theoretically existing feature that sets different tags?
+  }
+
+  public void takeSnapshot() {
+    camera.getEntry("snapshot").setNumber(1);
+  }
+
+  public void resetSnapshot() {
+    camera.getEntry("snapshot").setNumber(0);
+  }
+
   public void setPipeline(LimelightPipeline pipeline) {
     switch(pipeline) {
       case kNoVision:
@@ -151,7 +165,7 @@ public class ShooterVision extends SubsystemBase {
     }
   }
 
-  //TODO: test this
+    //TODO: test this
   //Assuming path is linear
   public double getAngleToShooter(){
     var xToSpeaker = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue 
@@ -174,5 +188,12 @@ public class ShooterVision extends SubsystemBase {
     else {
       camera.getEntry("ledMode").setNumber(1);
     }
+  }
+
+  public boolean distanceInRange() {
+    var target = getVisibleTargetData();
+    if (target.isEmpty()) return false;
+    if (-target.get().distance.in(Units.Inches)<=Shooter.farthestShotDistance) return true;
+    else return false;
   }
 }

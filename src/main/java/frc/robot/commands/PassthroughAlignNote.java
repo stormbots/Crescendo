@@ -48,9 +48,11 @@ public class PassthroughAlignNote extends Command {
     var kpassresponse = (dist-nominal) * kpassthrough;
     var kintakeresponse = (dist-nominal) * kintake;
     kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
+    kpassthrough = Clamp.clamp(kpassthrough, -1, 0.2);
 
-    if (passthrough.isBlocked()) {
-      kpassresponse=0;
+    if (dist<nominal) {
+      kintakeresponse=0;
+      passthrough.lockServo(false);
     }
 
 
@@ -82,6 +84,7 @@ public class PassthroughAlignNote extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    passthrough.lockServo(false);
     intake.stop();
     passthrough.stop();
   }

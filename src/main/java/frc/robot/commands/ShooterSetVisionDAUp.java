@@ -6,75 +6,88 @@ package frc.robot.commands;
 
 import java.util.Optional;
 
-import com.stormbots.Clamp;
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
 
-public class ShooterSetVision extends Command {
-    private ShooterVision shooterVision;
-    private Shooter shooter;
-    private ShooterFlywheel flywheel;
-    Boolean exitsOnCompletion = true;
-    double targetAngle = 10;
-    double targetRPM = 4000;
-    double targetAngleSlew = 0.0;
-    double targetRPMSlew = 0.0;
+public class ShooterSetVisionDAUp extends Command {
+    DunkArm dunkArm;
+    Shooter shooter;
+    ShooterFlywheel flywheel;
+    ShooterVision shooterVision;
     LUT lut = Shooter.constantShortLUT;
+    double targetRPM = 0.0;
+    double targetAngle = 0.0;
+    double targetRPMSlew = 0.0;
+    double targetAngleSlew = 0.0;
+    double targetArmSlew = 0.0;
+    double targetArm = 105;
+    boolean exitsOnCompletion = true;
     SlewRateLimiter shooterRateLimiter =new SlewRateLimiter(
         Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
     SlewRateLimiter flywheelRateLimiter = new SlewRateLimiter(
         ShooterFlywheel.kSlewForward, ShooterFlywheel.kSlewBackward, 0); //TODO: get rate limits
+    SlewRateLimiter armRateLimiter =new SlewRateLimiter(
+        DunkArm.forwardSlewRateLimit, DunkArm.reverseSlewRateLimit, -20);
 
-    public ShooterSetVision(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
+    /** Creates a new DunkArmRollerHoldNote. */
+    public ShooterSetVisionDAUp(DunkArm dunkArm, Shooter shooter, ShooterFlywheel flywheel, ShooterVision shooterVision) {
+        // Use addRequirements() here to declare subsystem dependencies.
+        this.dunkArm = dunkArm; 
         this.shooter = shooter;
-        this.shooterVision = shooterVision;
         this.flywheel = flywheel;
+        this.shooterVision = shooterVision;
 
+        addRequirements(dunkArm);
         addRequirements(shooter);
         addRequirements(flywheel);
     }
 
+    // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
         shooterRateLimiter.reset(shooter.getShooterAngle());
         flywheelRateLimiter.reset(flywheel.getRPM());
+        armRateLimiter.reset(dunkArm.getAngle());
         shooterVision.setLEDOn(true);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        /**NOT TESTED!!!!!!!!!!!**/
         Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
         if (visionData.isPresent()) {
             double distance = -visionData.get().distance.in(Units.Inches);
-            distance = Clamp.clamp(distance, 0, Shooter.farthestShotDistance);
 
-            targetAngle = lut.get(distance)[0]; //get lut
+            targetAngle = lut.get(distance)[0];
             targetRPM = lut.get(distance)[1];
-            
+
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
             shooter.setAngle(targetAngleSlew);
 
             targetRPMSlew = flywheelRateLimiter.calculate(targetRPM); //set flywheel slew
             flywheel.setRPM(targetRPMSlew);
 
+            targetArmSlew = armRateLimiter.calculate(targetArm);
+            dunkArm.setArmAngle(targetArmSlew);
         }
         else {
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
             shooter.setAngle(targetAngleSlew);
             targetRPMSlew = flywheelRateLimiter.calculate(targetRPM);
             flywheel.setRPM(targetRPMSlew);
+            targetArmSlew = armRateLimiter.calculate(targetArm);
+            dunkArm.setArmAngle(targetArmSlew);
         }
-
-        SmartDashboard.putNumber("targetVisionRpm", targetRPM);
+        
     }
 
     // Called once the command ends or is interrupted.
@@ -85,6 +98,8 @@ public class ShooterSetVision extends Command {
             shooter.setAngle(targetAngleSlew);
             targetRPMSlew = flywheelRateLimiter.calculate(targetRPM);
             flywheel.setRPM(targetRPMSlew);
+            targetArmSlew = armRateLimiter.calculate(targetArm);
+            dunkArm.setArmAngle(targetArmSlew);
         }
         shooterVision.setLEDOn(false);
     }
@@ -92,10 +107,10 @@ public class ShooterSetVision extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return exitsOnCompletion && shooter.isOnTarget() && flywheel.isOnTarget();
+        return exitsOnCompletion && shooter.isOnTarget() && flywheel.isOnTarget() && dunkArm.isOnTarget();
     }
 
-    public ShooterSetVision runForever(){
+    public ShooterSetVisionDAUp runForever(){
         this.exitsOnCompletion = false;
         return this;
     }
