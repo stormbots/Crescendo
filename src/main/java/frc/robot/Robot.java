@@ -148,14 +148,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    //check slider
-    //map slider from initial to initial+2
-    // RobotContainer.shooterOffset = Lerp.lerp(
-    //   robotContainer.operatorJoystick.getRawAxis(3), 
-    //   1, -1,
-    //   //RobotContainer.INITIALSHOOTEROFFSET, RobotContainer.INITIALSHOOTEROFFSET+5
-    // );    
-    // SmartDashboard.putNumber("shooterOffset", RobotContainer.shooterOffset);
   }
 
   @Override

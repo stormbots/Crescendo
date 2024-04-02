@@ -74,7 +74,7 @@ public class RobotContainer {
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   // public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
-  public static final double INITIALSHOOTEROFFSET =1.0; 
+  public static final double INITIALSHOOTEROFFSET = 0; 
   public static double shooterOffset = INITIALSHOOTEROFFSET;//adjusted via slider
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
@@ -146,46 +146,6 @@ public class RobotContainer {
     .addSystem(shooterFlywheel, 80)
     ;
 
-    SmartDashboard.putNumber("navx/angle", navx.getRotation2d().getDegrees());
-    // SmartDashboard.putData("shooter/profile0", new SetShooterProfiled(0.0, shooter));
-    // SmartDashboard.putData("shooter/profile30", new SetShooterProfiled(30, shooter));
-    // SmartDashboard.putData("shooter/profile45", new SetShooterProfiled(45.0, shooter));
-    // SmartDashboard.putData("shooter/profile60", new SetShooterProfiled(60.0, shooter));
-    // SmartDashboard.putData("shooter/pidset0", shooter.getDebugSetAngle(0.0));
-    // SmartDashboard.putData("shooter/pidset30", shooter.getDebugSetAngle(30.0));
-    // SmartDashboard.putData("shooter/pidset60", shooter.getDebugSetAngle(60.0));
-
-    // SmartDashboard.putData("shooterFlywheel/set0",shooterFlywheel.getShooterSetRPMCommand(0));
-    // SmartDashboard.putData("shooterFlywheel/set1000",shooterFlywheel.getShooterSetRPMCommand(1000));
-    // SmartDashboard.putData("shooterFlywheel/set2500",shooterFlywheel.getShooterSetRPMCommand(2500));
-    // SmartDashboard.putData("shooterFlywheel/set5000",shooterFlywheel.getShooterSetRPMCommand(5000));
-
-    // SmartDashboard.putData("dunkArm/setProfile-20", new SetDunkArmProfiled(-20, dunkArm));
-    // SmartDashboard.putData("dunkArm/setProfile0", new SetDunkArmProfiled(0, dunkArm));
-    // SmartDashboard.putData("dunkArm/setProfile20", new SetDunkArmProfiled(20, dunkArm));
-    // SmartDashboard.putData("dunkArm/setProfile85", new SetDunkArmProfiled(85, dunkArm));
-    
-    // SmartDashboard.putData("dunkArm/setPID-20", new RunCommand(()->dunkArm.setArmAngle(-20), dunkArm));
-    // SmartDashboard.putData("dunkArm/setPID0", new RunCommand(()->dunkArm.setArmAngle(0), dunkArm));
-    // SmartDashboard.putData("dunkArm/setPID20", new RunCommand(()->dunkArm.setArmAngle(20), dunkArm));
-    // SmartDashboard.putData("dunkArm/setPID85", new RunCommand(()->dunkArm.setArmAngle(85), dunkArm));
-
-    // SmartDashboard.putData("dunkArm/setSlew-20", new SetDunkArmSlew(-20, dunkArm));
-    // SmartDashboard.putData("dunkArm/setSlew0", new SetDunkArmSlew(0, dunkArm));
-    // SmartDashboard.putData("dunkArm/setSlew20", new SetDunkArmSlew(20, dunkArm));
-    // SmartDashboard.putData("dunkArm/setSlew85", new SetDunkArmSlew(85, dunkArm));
-    // SmartDashboard.putData("NoteTransferToDunkArm/tester", sequenceFactory.getDunkArmNoteTransferSequence());
-    // SmartDashboard.putData("IntakeNote", new IntakeNote(intake, passthrough));
-    // SmartDashboard.putData("RunRollers", new RunCommand(()-> dunkArmRoller.intake(), dunkArmRoller));
-    SmartDashboard.putData("rumble", new DriverFeedback(driverController, ()->true));
-
-    SmartDashboard.putData("restTo0,0", new InstantCommand(()->chassis.resetOdometry(new Pose2d())));
-    SmartDashboard.putData("restToSpeaker", new InstantCommand(()->chassis.resetOdometry(new Pose2d(new Translation2d(1.2, 5.5), new Rotation2d()))));
-
-    SmartDashboard.putData("intakevision/tracknotecommand", new VisionTrackNote(
-      ()-> -driverController.getLeftX(), ()-> -driverController.getLeftY(), ()-> -driverTurnJoystickValue(),
-      chassis,  intake, passthrough, intakeVision,  leds
-    ));
   }
 
   private void configureDefaultCommands() {
@@ -214,12 +174,6 @@ public class RobotContainer {
       new InstantCommand(()->climber.setReverseSoftLimit(climber.defaultReverseSoftLimit)).ignoringDisable(true)
     )
     ;
-
-    // new Trigger(DriverStation::isTeleop)
-    // .and(()-> Timer.getMatchTime()<20)
-    // .onTrue(
-    //   new RunCommand(()->leds.setColor(Color.kPurple),leds).withTimeout(2)
-    // );
     
     leds.setDefaultCommand
       (leds.set5vLedStrip().andThen(leds.showTeamColor())
@@ -278,20 +232,11 @@ public class RobotContainer {
       ()->dunkArmRoller.setIdleMode(IdleMode.kBrake), 
       dunkArmRoller
     ));
-      //new StartEndCommand(dunkArm, onEnd, requirements)
-      // new RunCommand(()->dunkArmRoller.setSpeed(0), dunkArmRoller)
-      // ); 
 
     // shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
 
   private void configureDriverBindings() {
-    // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // // cancelling on release.
-    // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    // driverController.x().whileTrue(
-    //   new VisionTurnToAprilTag(shooterVision, intakeVision, chassis)
-    // );
 
     //face toward driver
     driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(180))); //Face toward driver
@@ -332,13 +277,6 @@ public class RobotContainer {
         ()-> -driverController.getLeftY(), 
         ()-> -driverController.getLeftX(), 
         ()->Units.Radians.of(Math.atan2(driverController.getRightY(), -driverController.getRightX())+Math.PI/2))
-    // new RunCommand(
-    //   () -> chassis.driveToBearing(
-    //       -MathUtil.applyDeadband(driverController.getRawAxis(1), OIConstants.kDriveDeadband),
-    //       -MathUtil.applyDeadband(driverController.getRawAxis(0), OIConstants.kDriveDeadband),
-    //       Math.atan2(-driverController.getRightY(), driverController.getRightX())
-    //       ),
-    //   chassis)
     );
    
    
@@ -359,36 +297,6 @@ public class RobotContainer {
 
 
   private void configureOperatorBindings(){
-    // operatorJoystick.button(2).onTrue(new InstantCommand()
-    //   .andThen( new SetDunkArmSlew(0, dunkArm))
-    // );
-    // // operatorJoystick.button(1).whileTrue(new InstantCommand());
-    // operatorJoystick.button(9)
-    // .whileTrue(new IntakeNote(intake, passthrough));
-
-    // operatorJoystick.button(10)
-    // .whileTrue(new RunCommand(intake::eject, intake));
-
-    // operatorJoystick.button(3).onTrue(new InstantCommand()
-    //   .andThen(new SetDunkArmSlew(100, dunkArm))
-    // );
-    // operatorJoystick.button(1).whileTrue(new InstantCommand());
-
-    //old score button, keeping just because 
-    // operatorJoystick.button(1)
-    // .whileTrue(new ConditionalCommand(
-    //   //Shoot using whatever shooter position/speed is set up elsewhere
-    //   new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
-    //     .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
-    //     .withTimeout(5),
-    //   //score out of rollers
-    //   new RunCommand(dunkArmRoller::scoreTrap, dunkArmRoller)
-    //     .withTimeout(3),
-    //   passthrough::isBlocked
-    // ))
-    // .onTrue(
-    //   new LogOutgoingShot(swerveDrivePoseEstimator, shooter, shooterFlywheel)
-    // );
     
     //Score button
     operatorJoystick.button(1)
@@ -436,20 +344,10 @@ public class RobotContainer {
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 
     //podium/far shot
-    // operatorJoystick.button(4) //far shooting
-    // .whileTrue(new ParallelCommandGroup(
-    //   new SetFlywheelSlew(4500, shooterFlywheel),
-    //   new SetShooterProfiled(20+1, shooter).runForever())
-    // )
-    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    // )
-    // ;
-
-//testing shooter at different rpms
     operatorJoystick.button(4) //far shooting
     .whileTrue(new ParallelCommandGroup(
-      new SetFlywheelSlew(6000, shooterFlywheel),
-      new SetShooterProfiled(10, shooter).runForever())
+      new SetFlywheelSlew(4500, shooterFlywheel),
+      new SetShooterProfiled(20+1, shooter).runForever())
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
     )
@@ -463,7 +361,6 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
           new SetShooterProfiled(0, shooter),
-          //Unnecesary change, made to warm up flywheel while debugging, may still be wanted
           new SetFlywheelSlew(500, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
@@ -476,7 +373,6 @@ public class RobotContainer {
     ;
 
     //arm to amp
-    //TODO: This should be whileHeld, need to validate control issues with operator 
     operatorJoystick.button(6).whileTrue(
       new SetDunkArmSlew(105, dunkArm).runForever()
     );
@@ -505,7 +401,7 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(11)),
       new InstantCommand(), 
       ()->climber.getPosition().in(Units.Inches)<2.0&&climber.isHomed
-    )
+      )
     )
     ;
 
@@ -538,10 +434,6 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
 
-    // operatorJoystick.button(15).whileTrue(
-    //   new RunCommand(()->shooterFlywheel.setRPMProfiled(4000), shooterFlywheel)
-    // );
-
     operatorJoystick.button(16).whileTrue(
       new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
     )
@@ -549,10 +441,6 @@ public class RobotContainer {
     );
 
     // Used for testing only.
-
-    // operatorJoystick.button(12).whileTrue(
-    //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
-    // );
 
     operatorJoystick.button(17).whileTrue(
       new InstantCommand()
