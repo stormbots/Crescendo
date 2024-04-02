@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import javax.management.InstanceNotFoundException;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -485,7 +487,7 @@ public class RobotContainer {
       .andThen(new PassthroughAlignNote(passthrough,intake))
     )
     // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel)
-    
+    .onTrue(new InstantCommand(()->passthrough.lockServo(true)))
     .whileTrue(new SetShooterProfiled(0, shooter))
     .onTrue(new ConditionalCommand(
       new ClimberSetPosition(climber, Units.Inches.of(11)),
