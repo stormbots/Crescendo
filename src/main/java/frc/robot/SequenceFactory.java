@@ -131,8 +131,8 @@ public class SequenceFactory {
 
     public Command getIntakeThenAlignCommand(){
         return new InstantCommand()
-            .andThen(new IntakeNote(rc.intake, rc.passthrough))
-            .andThen(new PassthroughAlignNote(rc.passthrough, rc.intake)
+            .andThen(new ParallelDeadlineGroup(new IntakeNote(rc.intake, rc.passthrough), new RunCommand(()->rc.passthrough.lockServo(true))))
+            .andThen(new ParallelDeadlineGroup(new PassthroughAlignNote(rc.passthrough, rc.intake), new WaitCommand(0.5).andThen(new RunCommand(()->rc.passthrough.lockServo(false))))
             );
     }
 

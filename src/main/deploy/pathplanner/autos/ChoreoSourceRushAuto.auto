@@ -5,7 +5,7 @@
       "x": 0.42111900448799133,
       "y": 4.079969882965088
     },
-    "rotation": -1.6360674465955254e-25
+    "rotation": 1.0826910125876121e-25
   },
   "command": {
     "type": "sequential",
@@ -24,7 +24,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "botNoteShotNoStop"
+                  "name": "botSpinUpShotNoStop"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "servoDown"
                 }
               }
             ]

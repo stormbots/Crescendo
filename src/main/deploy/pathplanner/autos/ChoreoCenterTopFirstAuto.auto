@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7690313458442688,
-      "y": 6.636931419372559
+      "x": 1.3191369771957395,
+      "y": 5.608746528625488
     },
-    "rotation": 59.99956734830468
+    "rotation": 5.381806911189696e-41
   },
   "command": {
     "type": "sequential",
@@ -22,7 +22,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.1"
+                        "pathName": "CenterMidShare.1"
                       }
                     }
                   ]
@@ -31,7 +31,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "topSpinUpShotNoStop"
+                  "name": "midSpinUpShotNoStop"
                 }
               },
               {
@@ -73,10 +73,16 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.2"
+                        "pathName": "CenterMidShare.2"
                       }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "servoDown"
                 }
               },
               {
@@ -88,13 +94,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "topNoteShotNoStop"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "servoDown"
+                  "name": "midNoteShotNoStop"
                 }
               }
             ]
@@ -111,13 +111,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.3"
+                        "pathName": "CenterMidShare.3"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.4"
+                        "pathName": "CenterMidShareToShot.1"
                       }
                     }
                   ]
@@ -175,13 +175,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.5"
+                        "pathName": "CenterBotMidShare.1"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.6"
+                        "pathName": "CenterBotMidShare.2"
                       }
                     }
                   ]
@@ -239,13 +239,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.7"
+                        "pathName": "CenterTopMidShare.1"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.8"
+                        "pathName": "CenterTopMidShare.2"
                       }
                     }
                   ]

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7690313458442688,
-      "y": 6.636931419372559
+      "x": 1.5,
+      "y": 3.589
     },
-    "rotation": 59.99956734830468
+    "rotation": 9.433121946841378e-26
   },
   "command": {
     "type": "sequential",
@@ -16,22 +16,15 @@
           "data": {
             "commands": [
               {
-                "type": "sequential",
+                "type": "path",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "AmpPath.1"
-                      }
-                    }
-                  ]
+                  "pathName": "FarStartSourceRush.1"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "topSpinUpShotNoStop"
+                  "name": "botShootPosShotNoStop"
                 }
               },
               {
@@ -73,51 +66,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.2"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeFull"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "topNoteShotNoStop"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "servoDown"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "AmpPath.3"
+                        "pathName": "FarStartSourceRush.2"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.4"
+                        "pathName": "SourceSharePath.1"
                       }
                     }
                   ]
@@ -175,13 +130,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.5"
+                        "pathName": "SourceSharePath.2"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.6"
+                        "pathName": "SourceSharePath.3"
                       }
                     }
                   ]
@@ -239,13 +194,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.7"
+                        "pathName": "SourceSharePath.4"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "AmpPath.8"
+                        "pathName": "SourceSharePath.5"
                       }
                     }
                   ]

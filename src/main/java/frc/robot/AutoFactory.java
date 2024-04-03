@@ -88,8 +88,8 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         
-        // initAutoChooser(); //aktes too long, run in background
-        initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
+        initAutoChooser(); //aktes too long, run in background
+        // initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
@@ -196,11 +196,20 @@ public class AutoFactory {
             .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
             .andThen(new PathPlannerAuto("ChoreoSourceRushAuto"))
         );
-        
-        autoChooser.addOption("TestChoreoAuto", new InstantCommand()
+        // autoChooser.addOption("FarStart4NoteSourceRushChoreo", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("FarStartChoreoSourceRushAuto"))
+        // );
+
+        autoChooser.addOption("5NoteCenterTopFirstChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-            .andThen(new PathPlannerAuto("TestChoreoAuto"))
+            .andThen(new PathPlannerAuto("ChoreoCenterTopFirstAuto"))
         );
+        
+        // autoChooser.addOption("TestChoreoAuto", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("TestChoreoAuto"))
+        // );
 
         autoChooser.addOption("vv SysID vv", new InstantCommand());
         
@@ -318,6 +327,10 @@ public class AutoFactory {
         NamedCommands.registerCommand("dunkArmUp", new SetDunkArmSlew(80, rc.dunkArm));
         NamedCommands.registerCommand("dunkArmDown", new SetDunkArmSlew(-25, rc.dunkArm));
 
+        NamedCommands.registerCommand("servoDown", new RunCommand(()->rc.passthrough.lockServo(false)));
+        NamedCommands.registerCommand("servoUp", new RunCommand(()->rc.passthrough.lockServo(true)));
+
+
         // NamedCommands.registerCommand("topSpinUpShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(2.15, 6.5, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("midSpinUpShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(2.15, 6.5, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("botSpinUpShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(2.15, 6.5, new Rotation2d())).runForever());
@@ -331,18 +344,18 @@ public class AutoFactory {
         // NamedCommands.registerCommand("botShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(3, 2.8, new Rotation2d())).runForever());
 
         NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28.5-0.5));
-        NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
-        NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28));
+        NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 32));
+        NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 25)); //previously 28 but we only use sourceRush auto for source side
 
         NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.7));
-        NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(1000, 32.5));
+        NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 23));
         NamedCommands.registerCommand("botNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.5));
 
         NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
-        NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 15));
-        NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14));
+        NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14.5));
+        NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("visionShot", new ParallelCommandGroup(
             new VisionTurnToAprilTag(()->0, ()->0, ()->0, rc.shooterVision, rc.chassis, rc.navx).withTimeout(1),
             new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel)
