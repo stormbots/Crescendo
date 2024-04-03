@@ -17,8 +17,8 @@ public class PassthroughAlignNote extends Command {
   private final Passthrough passthrough;
   private final Intake intake;
   double stuckTimer = 0.0;
-  double superStuckTimer = 0.5;
-  double backwardTimer = 0.05;
+  double superStuckTimer = 0.5/2;
+  double backwardTimer = 0.05*2;
 
 
   /** Creates a new PassthroughAlignNote. */
@@ -56,7 +56,7 @@ public class PassthroughAlignNote extends Command {
     }
 
 
-    if ( !passthrough.isBlocked() && intake.getVelocity() < 500) {
+    if ( !passthrough.isBlocked() && intake.getVelocity() < 1000) {
       kintake=1; //known power that moves it if blocked
       SmartDashboard.putBoolean("unstick", true);
       //stuck timer start if at 
@@ -76,6 +76,9 @@ public class PassthroughAlignNote extends Command {
     if(Clamp.bounded(stuckTimer, stuckTimer+superStuckTimer, stuckTimer+superStuckTimer+backwardTimer)) {
       kintakeresponse = -1.0;
     }
+    SmartDashboard.putNumber("timer/superStuckTimer", superStuckTimer);
+    SmartDashboard.putNumber("timer/stuckTimer", stuckTimer);
+    SmartDashboard.putNumber("timer/backwardTimer", backwardTimer);
 
     intake.setPower(kintakeresponse);
     passthrough.setPower(kpassresponse);

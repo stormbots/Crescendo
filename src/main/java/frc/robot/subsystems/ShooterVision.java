@@ -181,13 +181,8 @@ public class ShooterVision extends SubsystemBase {
     return angle;
   }
 
-  public void setLEDOn(boolean isOn) {
-    if (isOn) {
-      camera.getEntry("ledMode").setNumber(3);
-    }
-    else {
-      camera.getEntry("ledMode").setNumber(1);
-    }
+  public void setLEDMode(double mode) {
+    camera.getEntry("ledMode").setNumber(mode);
   }
 
   public boolean distanceInRange() {
@@ -195,5 +190,9 @@ public class ShooterVision extends SubsystemBase {
     if (target.isEmpty()) return false;
     if (-target.get().distance.in(Units.Inches)<=Shooter.farthestShotDistance) return true;
     else return false;
+  }
+
+  public void setIDFilter(double[] filteredIDS) {
+    camera.getEntry("fiducial_id_filters_set").setDoubleArray(filteredIDS);
   }
 }

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.time.Instant;
 import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.commands.FollowPathHolonomic;
@@ -63,8 +64,8 @@ public class SequenceFactory {
         )
         .andThen(
             new NoteTransferToDunkArm(rc.shooterFlywheel, rc.dunkArmRoller),
-            new RunCommand(rc.passthrough::stop,rc.passthrough),
-            new RunCommand(rc.intake::stop,rc.intake)
+            new InstantCommand(rc.passthrough::stop,rc.passthrough),
+            new InstantCommand(rc.intake::stop,rc.intake)
         );
     }
 

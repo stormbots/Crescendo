@@ -1,14 +1,16 @@
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.FieldPosition;
+import frc.robot.subsystems.FieldPosition.TargetType;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.FieldPosition.TargetType;
 
 public class VisionTurnToTargetPose extends Command{
     private IntakeVision intakeVision;
@@ -16,18 +18,32 @@ public class VisionTurnToTargetPose extends Command{
     private Chassis chassis;
     private TargetType targetType;
     private Field2d field = new Field2d();
+    private DoubleSupplier xSpeed;
+    private DoubleSupplier ySpeed;
+    private DoubleSupplier rotSpeed;
 
-    public VisionTurnToTargetPose(TargetType targetType, ShooterVision shooterVision, Chassis chassis)
-    {
+    public VisionTurnToTargetPose(
+        DoubleSupplier xSpeed, 
+        DoubleSupplier ySpeed, 
+        DoubleSupplier rotSpeed, 
+        TargetType targetType, 
+        ShooterVision shooterVision,
+        Chassis chassis) {
         this.shooterVision = shooterVision;
         this.chassis = chassis;
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+        this.rotSpeed = rotSpeed;
         
         addRequirements(shooterVision);
         addRequirements(chassis);
     }
 
     @Override
-    public void initialize(){}
+    public void initialize(){
+        shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
+        //TODO: fiducial id filter
+    }
     
     @Override
     public void execute()

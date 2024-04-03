@@ -71,7 +71,12 @@ public class Shooter extends SubsystemBase {
     {153, 15.75, 5500}
   });
 
-  public static LUT lobLut = new LUT(new double[][]{});
+  public static LUT lobLUT = new LUT(new double[][]{
+    {36*12, 35.6, 4000},
+    {32*12, 32.3, 4000},
+    {28*12, 44.9, 3750},
+    {26*12, 45, 3750}
+  });
 
   public static final double kSlewForward = 150;
   public static final double kSlewBackward = -150;

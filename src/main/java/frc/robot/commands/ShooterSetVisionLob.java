@@ -17,23 +17,22 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
 
-public class ShooterSetVision extends Command {
+public class ShooterSetVisionLob extends Command {
     private ShooterVision shooterVision;
     private Shooter shooter;
     private ShooterFlywheel flywheel;
     Boolean exitsOnCompletion = true;
-    Boolean fullRange = false;
     double targetAngle = 10;
     double targetRPM = 4000;
     double targetAngleSlew = 0.0;
     double targetRPMSlew = 0.0;
-    LUT lut = Shooter.constantShortLUT;
+    LUT lut = Shooter.lobLUT;
     SlewRateLimiter shooterRateLimiter =new SlewRateLimiter(
         Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
     SlewRateLimiter flywheelRateLimiter = new SlewRateLimiter(
         ShooterFlywheel.kSlewForward, ShooterFlywheel.kSlewBackward, 0); //TODO: get rate limits
 
-    public ShooterSetVision(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
+    public ShooterSetVisionLob(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
         this.shooter = shooter;
         this.shooterVision = shooterVision;
         this.flywheel = flywheel;
@@ -56,10 +55,6 @@ public class ShooterSetVision extends Command {
         Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
         if (visionData.isPresent()) {
             double distance = -visionData.get().distance.in(Units.Inches);
-            
-            if (!fullRange) {
-                distance = Clamp.clamp(distance, 0, Shooter.farthestShotDistance);
-            }
 
             targetAngle = lut.get(distance)[0]; //get lut
             targetRPM = lut.get(distance)[1];
@@ -99,13 +94,8 @@ public class ShooterSetVision extends Command {
         return exitsOnCompletion && shooter.isOnTarget() && flywheel.isOnTarget();
     }
 
-    public ShooterSetVision runForever(){
+    public ShooterSetVisionLob runForever(){
         this.exitsOnCompletion = false;
-        return this;
-    }
-
-    public ShooterSetVision fullRange() {
-        fullRange = true;
         return this;
     }
 }

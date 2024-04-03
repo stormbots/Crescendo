@@ -183,7 +183,7 @@ public class RobotContainer {
     new Trigger(intake::isBlocked)
     .onTrue(leds.showNoteIntake())
     .onTrue(
-      new DriverFeedback(driverController, intake::isBlocked)
+      new DriverFeedback(shooterVision, driverController, intake::isBlocked)
       .withTimeout(2)
     );
     //TODO: When shooter is aligned with target, and at rpm, show show green lights
@@ -244,7 +244,29 @@ public class RobotContainer {
     driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
     driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
     driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
-    driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/5.0, ()->-driverController.getLeftX()/5.0, ()->-driverTurnJoystickValue()/5.0));
+   // driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/5.0, ()->-driverController.getLeftX()/5.0, ()->-driverTurnJoystickValue()/5.0));
+
+    driverController.button(5)
+      .and(shooterVision::distanceInRange)
+      .whileTrue(new VisionTurnToSpeakerOpticalOnly(
+          ()-> -driverController.getLeftY()/5.0*.4,
+          ()-> -driverController.getLeftX()/5.0*0.6,
+          ()-> -driverTurnJoystickValue()/5.0,
+          shooterVision, chassis, navx)
+      )
+      .whileTrue(
+        new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+      )
+      .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget)
+      )
+      .onTrue(
+        new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
+        .withTimeout(2)
+      )
+      .onTrue(
+        new InstantCommand(()->passthrough.lockServo(false))
+      )   
+    ;
 
     driverController.button(6).whileTrue(
       new VisionTurnToSpeakerOpticalOnly(
@@ -266,28 +288,6 @@ public class RobotContainer {
         new InstantCommand(()->passthrough.lockServo(false))
       )
     ;
-
-    // driverController.button(5)
-    // .and(driverController.button(6))
-    //   .whileTrue(new VisionTurnToSpeakerOpticalOnly(
-    //       ()-> -driverController.getLeftY()/5.0,
-    //       ()-> -driverController.getLeftX()/5.0,
-    //       ()-> -driverTurnJoystickValue()/5.0,
-    //       shooterVision, chassis, navx)
-    //   )
-    //   .whileTrue(
-    //     new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-    //   )
-    //   .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget)
-    //   )
-    //   .onTrue(
-    //     new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    //     .withTimeout(2)
-    //   )
-    //   .onTrue(
-    //     new InstantCommand(()->passthrough.lockServo(false))
-    //   )   
-    // ;
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
 
@@ -477,6 +477,10 @@ public class RobotContainer {
     )
     .onTrue(new InstantCommand(()->passthrough.lockServo(true))
     )
+    .onTrue(
+        new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
+        .withTimeout(2)
+    )
     ;
 
     //move dunkarm manually
@@ -525,12 +529,12 @@ public class RobotContainer {
     // .onFalse(new RunCommand(()->{}, dunkArm))
     // ;
 
-    // operatorJoystick.button(15)
-    // .whileTrue(
-    //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
-    // )
-    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
-  }
+    operatorJoystick.button(15)
+    .whileTrue(
+      new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
+    )
+    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
+}
   
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

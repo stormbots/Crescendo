@@ -145,7 +145,7 @@ public class Leds extends SubsystemBase {
 
       double timer = Timer.getMatchTime();
 
-      if (DriverStation.isTeleop() && timer<20) {
+      if (DriverStation.isTeleop() && timer>0 && timer<20) {
         this.setColor(Color.kPurple);
         blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
         blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());

@@ -59,7 +59,7 @@ public class ShooterSetVisionDAUp extends Command {
         shooterRateLimiter.reset(shooter.getShooterAngle());
         flywheelRateLimiter.reset(flywheel.getRPM());
         armRateLimiter.reset(dunkArm.getAngle());
-        shooterVision.setLEDOn(true);
+        shooterVision.setLEDMode(2.0);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -106,7 +106,7 @@ public class ShooterSetVisionDAUp extends Command {
             targetArmSlew = armRateLimiter.calculate(targetArm);
             dunkArm.setArmAngle(targetArmSlew);
         }
-        shooterVision.setLEDOn(false);
+        shooterVision.setLEDMode(1.0);
     }
 
     // Returns true when the command should end.

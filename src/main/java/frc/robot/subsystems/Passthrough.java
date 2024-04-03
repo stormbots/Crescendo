@@ -125,8 +125,8 @@ public class Passthrough extends SubsystemBase {
 
   public void lockServo(boolean block) {
     // servo.setPosition(0);
-    if (block) servo.setPosition(0);
-    else servo.setPosition(0.25);
+    if (block) servo.setPosition(0.25);
+    else servo.setPosition(0.5);
   }
 
   @Override
