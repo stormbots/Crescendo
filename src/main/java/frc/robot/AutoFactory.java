@@ -187,9 +187,14 @@ public class AutoFactory {
             .andThen(()->rc.chassis.setFieldCentricOffset(90, isBlue))
             .andThen(new PathPlannerAuto("CircleAuto")));
 
-        autoChooser.addOption("5NoteChoreo", new InstantCommand()
+        autoChooser.addOption("5NoteAmpChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
             .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
+        );
+
+        autoChooser.addOption("4NoteSourceRushChoreo", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+            .andThen(new PathPlannerAuto("ChoreoSourceRushAuto"))
         );
         
         autoChooser.addOption("TestChoreoAuto", new InstantCommand()

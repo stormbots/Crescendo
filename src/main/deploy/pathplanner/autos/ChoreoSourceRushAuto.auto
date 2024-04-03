@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.7753955125808716,
-      "y": 4.522815704345703
+      "x": 0.42111900448799133,
+      "y": 4.079969882965088
     },
-    "rotation": -59.99956734830468
+    "rotation": -1.6360674465955254e-25
   },
   "command": {
     "type": "sequential",
@@ -18,13 +18,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SourceRushNote.1"
+                  "pathName": "WallStartSourceRush.1"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "botSpinUpShotNoStop"
+                  "name": "botNoteShotNoStop"
                 }
               }
             ]
@@ -60,13 +60,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourceRushNote.2"
+                        "pathName": "WallStartSourceRush.2"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourcePath.4"
+                        "pathName": "SourceSharePath.1"
                       }
                     }
                   ]
@@ -124,13 +124,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourcePath.5"
+                        "pathName": "SourceSharePath.2"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourcePath.6"
+                        "pathName": "SourceSharePath.3"
                       }
                     }
                   ]
@@ -188,13 +188,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourcePath.7"
+                        "pathName": "SourceSharePath.4"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourcePath.8"
+                        "pathName": "SourceSharePath.5"
                       }
                     }
                   ]
@@ -217,6 +217,25 @@
                       }
                     }
                   ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.4
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeShoot"
                 }
               }
             ]

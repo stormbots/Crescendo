@@ -25,6 +25,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.ChassisConstants.ModuleConstants;
@@ -185,8 +186,13 @@ public class MAXSwerveModule implements Sendable{
     SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
         new Rotation2d(turningEncoder.getPosition()));
 
-    // var arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
-    var arbFF = drivingMotorFeedforward.calculate(drivingEncoder.getVelocity(), optimizedDesiredState.speedMetersPerSecond, 0.08);
+    var arbFF = 0.0;
+    if(DriverStation.isAutonomous()){
+      arbFF = drivingMotorFeedforward.calculate(drivingEncoder.getVelocity(), optimizedDesiredState.speedMetersPerSecond, 0.08);
+    }
+    else{
+      arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
+    }
     drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity, 0, arbFF, ArbFFUnits.kVoltage);
 
     turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
