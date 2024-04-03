@@ -55,7 +55,10 @@ public class ShooterVision extends SubsystemBase {
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
     // if (hasValidTarget()) {SmartDashboard.putBoolean("shootervision/validtarget", true);}
-    if (getVisibleTargetData().isPresent()) {SmartDashboard.putNumber("manualshoot/distance", getVisibleTargetData().get().distance.in(Units.Inches));}
+    // var target = getVisibleTargetData();
+    // if (target.isPresent()) {
+    //   SmartDashboard.putNumber("manualshoot/distance", target.get().distance.in(Units.Inches));
+    // }
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
     SmartDashboard.putBoolean("shooter/distanceinrange", distanceInRange());
