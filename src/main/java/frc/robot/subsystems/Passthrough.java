@@ -44,6 +44,7 @@ public class Passthrough extends SubsystemBase {
 
   /** Creates a new Passthrough. */
   public Passthrough() {
+    lockServo(false);
     motor.restoreFactoryDefaults();
     motor.clearFaults();
     motorB.restoreFactoryDefaults();

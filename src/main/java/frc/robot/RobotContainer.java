@@ -247,46 +247,37 @@ public class RobotContainer {
    // driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/5.0, ()->-driverController.getLeftX()/5.0, ()->-driverTurnJoystickValue()/5.0));
 
     driverController.button(5)
-      .and(shooterVision::distanceInRange)
-      .whileTrue(new VisionTurnToSpeakerOpticalOnly(
-          ()-> -driverController.getLeftY()/5.0*.4,
-          ()-> -driverController.getLeftX()/5.0*0.6,
-          ()-> -driverTurnJoystickValue()/5.0,
-          shooterVision, chassis, navx)
-      )
-      .whileTrue(
-        new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-      )
-      .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget)
-      )
-      .onTrue(
-        new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
-        .withTimeout(2)
-      )
-      .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
-      )   
+    .and(shooterVision::distanceInRange)
+    .debounce(0.1)
+    .whileTrue(new VisionTurnToSpeakerOpticalOnly(
+        ()-> -driverController.getLeftY()/5.0*.4,
+        ()-> -driverController.getLeftX()/5.0*0.6,
+        ()-> -driverTurnJoystickValue()/5.0,
+        shooterVision, chassis, navx)
+    )
     ;
 
-    driverController.button(6).whileTrue(
+    driverController.button(5)
+    .or(driverController.button(6))
+    .whileTrue(
       new VisionTurnToSpeakerOpticalOnly(
         ()-> -driverController.getLeftY(),
         ()-> -driverController.getLeftX(),
         ()-> -driverTurnJoystickValue(),
         shooterVision, chassis, navx)
-      )
-      .whileTrue(
-        new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-      )
-      .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget)
-      )
-      .onTrue(
-        new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
-        .withTimeout(2)
-      )
-      .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
-      )
+    )
+    .whileTrue(
+      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+    )
+    .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget)
+    )
+    .onTrue(
+      new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
+      .withTimeout(2)
+    )
+    .onTrue(
+      new InstantCommand(()->passthrough.lockServo(false))
+    )
     ;
 
     driverController.button(7).onTrue(new ClimberGoHome(climber));
@@ -400,7 +391,8 @@ public class RobotContainer {
     //load rollers / intake to rollers
     operatorJoystick.button(5).whileTrue(
       new ConditionalCommand(
-        sequenceFactory.getDunkArmNoteTransferSequence(),
+        sequenceFactory.getDunkArmNoteTransferSequence()
+        .alongWith(new InstantCommand(()->passthrough.lockServo(false))),
 
         new ParallelCommandGroup(
           new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
