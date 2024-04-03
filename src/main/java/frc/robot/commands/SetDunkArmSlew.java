@@ -19,7 +19,7 @@ public class SetDunkArmSlew extends Command {
   boolean exitsOnCompletion = true;
 
   SlewRateLimiter armRateLimiter =new SlewRateLimiter(
-    90*1.7, -90*1.7, -20); //TODO: get rate limits
+    DunkArm.forwardSlewRateLimit, DunkArm.reverseSlewRateLimit, -20); //TODO: get rate limits
   /**
    * Creates a new ExampleCommand.
    *

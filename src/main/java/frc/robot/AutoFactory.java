@@ -88,7 +88,7 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         
-        // initAutoChooser(); //This for somereason had to be made for the autos to deploy
+        // initAutoChooser(); //aktes too long, run in background
         initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);

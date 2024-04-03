@@ -35,7 +35,7 @@ public class LogOutgoingShot extends Command {
         System.out.println(" Bot RPM: " + flywheel.botMotor.getEncoder().getVelocity());
         System.out.print(" Target Shooter Angle"  + shooter.getTargetAngle());
         System.out.print(" Shooter Angle: " + shooter.getShooterAngle());
-        System.out.print(" ShooterOffset: " + RobotContainer.shooterOffset);
+        //System.out.print(" ShooterOffset: " + RobotContainer.shooterOffset);
     }
 
     @Override

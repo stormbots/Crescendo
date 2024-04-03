@@ -33,6 +33,8 @@ public class DunkArm extends SubsystemBase {
   private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
   private double reverseSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kReverse);
   private double forwardSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kForward);
+  public static double reverseSlewRateLimit = -90*1.7;
+  public static double forwardSlewRateLimit = 90*1.7;
   private double armSetpoint = 0.0;
 
   ArmFeedforward armff = new ArmFeedforward(.015, .035, 0.13/45);  // (0.025+0.055)/2.0;
@@ -75,7 +77,7 @@ public class DunkArm extends SubsystemBase {
     syncEncoders();
 
     armMotor.setSoftLimit(SoftLimitDirection.kReverse, -25);
-    armMotor.setSoftLimit(SoftLimitDirection.kForward,112); //112 hardstop, 7.3 inch after note transfer to safep trap pos
+    armMotor.setSoftLimit(SoftLimitDirection.kForward,120); //112 hardstop, 7.3 inch after note transfer to safep trap pos
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
     armMotor.setSmartCurrentLimit(40);

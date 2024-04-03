@@ -39,7 +39,7 @@ public class ShooterSetManually extends Command {
     @Override
     public void execute() {
         flywheel.setRPM(SmartDashboard.getNumber("manualshoot/rpm", 0));
-        shooter.setAngle(Lerp.lerp(axis3.getAsDouble(), -1, 1, 0, 50));
+        shooter.setAngle(Lerp.lerp(axis3.getAsDouble(), -1, 1, 0, 20));
         SmartDashboard.putNumber("manualshoot/angle", shooter.getShooterAngle());
     }
 

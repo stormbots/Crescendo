@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.sql.Driver;
 import java.util.concurrent.BlockingDeque;
 import java.util.function.BooleanSupplier;
 
@@ -141,6 +142,16 @@ public class Leds extends SubsystemBase {
   public Command showTeamColor() {
     return new RunCommand(()->{
       var color = DriverStation.getAlliance();
+
+      double timer = Timer.getMatchTime();
+
+      if (DriverStation.isTeleop() && timer<20) {
+        this.setColor(Color.kPurple);
+        blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
+        blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidViolet.us());
+        return;
+      }
+
       if (color.isPresent()) {
         if (color.get() == DriverStation.Alliance.Red) {
           this.setColor(Color.kRed, this.matchBrightnessScaling(10, 100));
@@ -180,6 +191,27 @@ public class Leds extends SubsystemBase {
     
   public Command readyLights(BooleanSupplier ...  conditions) {
     return new RunCommand(()->{
+      for (BooleanSupplier condition : conditions) {
+        if (!condition.getAsBoolean()) {
+          preparing();
+          return;
+        }
+      }
+      ready();
+    }, this);
+  } 
+
+  public Command readyLightsPossible(BooleanSupplier possible, BooleanSupplier ...  conditions) {
+    return new RunCommand(()->{
+
+      if (!possible.getAsBoolean()) {
+        this.setColor(Color.kHotPink);
+        this.blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidHotPink.us());
+        this.blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidHotPink.us());
+
+        return;
+      }
+      
       for (BooleanSupplier condition : conditions) {
         if (!condition.getAsBoolean()) {
           preparing();
