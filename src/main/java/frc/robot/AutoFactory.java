@@ -88,8 +88,8 @@ public class AutoFactory {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         
-        initAutoChooser(); //aktes too long, run in background
-        // initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
+        // initAutoChooser(); //aktes too long, run in background
+        initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
@@ -105,11 +105,11 @@ public class AutoFactory {
 
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
 
-        autoChooser.addOption("untested autos", new InstantCommand());
+        // autoChooser.addOption("untested autos", new InstantCommand());
 
-        autoChooser.addOption("vv Test Autos vv", new InstantCommand());
+        // autoChooser.addOption("vv Test Autos vv", new InstantCommand());
 
-        autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
+        // autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
 
 
 
@@ -133,32 +133,32 @@ public class AutoFactory {
         //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(16.6-1.3, 5.65, new Rotation2d(Units.Degrees.of(180)))))
         // );
 
-        autoChooser.addOption("vv PathPlanner Untested Autos vv", new InstantCommand());
+        // autoChooser.addOption("vv PathPlanner Untested Autos vv", new InstantCommand());
 
         // autoChooser.addOption("basicAmpAuto", 
         // new InstantCommand()
         // .andThen(()->rc.chassis.setFieldCentricOffset(-60))
         // .andThen(new PathPlannerAuto("basicAmpAuto")));
 
-        autoChooser.addOption("5NoteAmp", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-            .andThen(new PathPlannerAuto("5NoteAmpAuto"))
-        );
+        // autoChooser.addOption("5NoteAmp", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+        //     .andThen(new PathPlannerAuto("5NoteAmpAuto"))
+        // );
 
         // autoChooser.addOption("4noteAmp", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
         //     .andThen(new PathPlannerAuto("4NoteAmpAuto"))
         // );
 
-        autoChooser.addOption("4NoteSource", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-            .andThen(new PathPlannerAuto("4NoteSourceAuto"))
-        );
+        // autoChooser.addOption("4NoteSource", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
+        //     .andThen(new PathPlannerAuto("4NoteSourceAuto"))
+        // );
 
-        autoChooser.addOption("5NoteCenter", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-            .andThen(new PathPlannerAuto("5NoteCenterAuto"))
-        );
+        // autoChooser.addOption("5NoteCenter", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("5NoteCenterAuto"))
+        // );
 
         // autoChooser.addOption("Vision5NoteAmp", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
@@ -183,9 +183,9 @@ public class AutoFactory {
         // .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
         // .andThen(new PathPlannerAuto("2NoteSourceAuto")));
 
-        autoChooser.addOption("Circle", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(90, isBlue))
-            .andThen(new PathPlannerAuto("CircleAuto")));
+        // autoChooser.addOption("Circle", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(90, isBlue))
+        //     .andThen(new PathPlannerAuto("CircleAuto")));
 
         autoChooser.addOption("5NoteAmpChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
