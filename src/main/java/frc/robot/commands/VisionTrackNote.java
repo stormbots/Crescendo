@@ -77,7 +77,7 @@ public class VisionTrackNote extends Command {
 
     if(target.isPresent()){
       leds.ready();
-      noteAdjustment = -target.get().angleHorizontal * 1/360.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
+      noteAdjustment = -target.get().angleHorizontal * 1/360.0*5; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
     } else {
       leds.preparing();
     }
@@ -92,7 +92,7 @@ public class VisionTrackNote extends Command {
     intake.stop();
     passthrough.stop();
 
-    intakeVision.setPipeline(IntakePipeline.kDriverView);
+    //intakeVision.setPipeline(IntakePipeline.kDriverView);
   }
 
   // Returns true when the command should end.

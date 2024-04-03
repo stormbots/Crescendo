@@ -22,6 +22,7 @@ public class ShooterSetVision extends Command {
     private Shooter shooter;
     private ShooterFlywheel flywheel;
     Boolean exitsOnCompletion = true;
+    Boolean fullRange = false;
     double targetAngle = 10;
     double targetRPM = 4000;
     double targetAngleSlew = 0.0;
@@ -55,11 +56,14 @@ public class ShooterSetVision extends Command {
         Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
         if (visionData.isPresent()) {
             double distance = -visionData.get().distance.in(Units.Inches);
-            distance = Clamp.clamp(distance, 0, Shooter.farthestShotDistance);
+            
+            if (!fullRange) {
+                distance = Clamp.clamp(distance, 0, Shooter.farthestShotDistance);
+            }
 
             targetAngle = lut.get(distance)[0]; //get lut
             targetRPM = lut.get(distance)[1];
-            
+
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
             shooter.setAngle(targetAngleSlew);
 
@@ -97,6 +101,11 @@ public class ShooterSetVision extends Command {
 
     public ShooterSetVision runForever(){
         this.exitsOnCompletion = false;
+        return this;
+    }
+
+    public ShooterSetVision fullRange() {
+        fullRange = true;
         return this;
     }
 }

@@ -21,14 +21,17 @@ public class ShooterSetVisionDAUp extends Command {
     Shooter shooter;
     ShooterFlywheel flywheel;
     ShooterVision shooterVision;
+
     LUT lut = Shooter.constantShortLUT;
     double targetRPM = 0.0;
     double targetAngle = 0.0;
+    double targetArm = 105;
     double targetRPMSlew = 0.0;
     double targetAngleSlew = 0.0;
     double targetArmSlew = 0.0;
-    double targetArm = 105;
+
     boolean exitsOnCompletion = true;
+    
     SlewRateLimiter shooterRateLimiter =new SlewRateLimiter(
         Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
     SlewRateLimiter flywheelRateLimiter = new SlewRateLimiter(
@@ -96,8 +99,10 @@ public class ShooterSetVisionDAUp extends Command {
         if (!interrupted) {
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
             shooter.setAngle(targetAngleSlew);
+
             targetRPMSlew = flywheelRateLimiter.calculate(targetRPM);
             flywheel.setRPM(targetRPMSlew);
+
             targetArmSlew = armRateLimiter.calculate(targetArm);
             dunkArm.setArmAngle(targetArmSlew);
         }

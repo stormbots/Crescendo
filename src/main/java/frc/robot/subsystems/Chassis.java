@@ -95,7 +95,7 @@ public class Chassis extends SubsystemBase {
    * 1/pi is good
    * 2/pi is too much, cause backlash 
    */
-  PIDController turnpid = new PIDController(1/Math.PI,0,0);
+  PIDController turnpid = new PIDController(2/Math.PI,0,0.01);
 
   private final SysIdRoutine sysIdRoutine =
   new SysIdRoutine(
