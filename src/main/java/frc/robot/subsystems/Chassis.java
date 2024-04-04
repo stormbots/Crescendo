@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -25,13 +26,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -55,25 +53,25 @@ public class Chassis extends SubsystemBase {
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.14435, 1.9123, 0.21404));
+      new SimpleMotorFeedforward(0.080663, 1.9711, 0.36785));
 
   private final MAXSwerveModule frontRight = new MAXSwerveModule(
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.15645, 1.9194, 0.26905));
+      new SimpleMotorFeedforward(0.12682, 1.971, 0.30547));
 
   private final MAXSwerveModule rearLeft = new MAXSwerveModule(
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.095901, 1.9072, 0.33214));
+      new SimpleMotorFeedforward(0.11553, 1.956, 0.33358));
 
   private final MAXSwerveModule rearRight = new MAXSwerveModule(
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
       0,
-      new SimpleMotorFeedforward(0.18284, 1.9105, 0.18241));
+      new SimpleMotorFeedforward(0.11616, 1.9571, 0.321));
 
   // The gyro sensor
   public AHRS navx;
@@ -164,15 +162,29 @@ public class Chassis extends SubsystemBase {
     // SmartDashboard.putData("modules/rr", rearRight);
     // SmartDashboard.putData("modules/rl", rearLeft);
 
-    // SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
-    // SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
-    // SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
-    // SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BrVel", rearRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BlVel", rearLeft.getState().speedMetersPerSecond);
+  
+    SmartDashboard.putNumber("modules/frVelDiff", frontRight.getDesiredSate().speedMetersPerSecond - frontRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/flVelDiff", frontLeft.getState().speedMetersPerSecond - frontLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BrVelDiff", rearRight.getState().speedMetersPerSecond - rearRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("modules/BlVelDiff", rearLeft.getState().speedMetersPerSecond - rearLeft.getState().speedMetersPerSecond);
+    
+    SmartDashboard.putNumber("modules/frCurr", frontRight.getDriveCurrent());
+    SmartDashboard.putNumber("modules/flCurr", frontLeft.getDriveCurrent());
+    SmartDashboard.putNumber("modules/BrCurr", rearRight.getDriveCurrent());
+    SmartDashboard.putNumber("modules/BlCurr", rearLeft.getDriveCurrent());
+
+    SmartDashboard.putNumber("modules/frPower", frontRight.getPowerOutput());
+    SmartDashboard.putNumber("modules/flPower", frontLeft.getPowerOutput());
+    SmartDashboard.putNumber("modules/BrPower", rearRight.getPowerOutput());
+    SmartDashboard.putNumber("modules/BlPower", rearLeft.getPowerOutput());
 
     // SmartDashboard.putNumber("/angle/rawnavx", navx.getAngle());
     SmartDashboard.putNumber("/angle/navxproccessed", navx.getRotation2d().getDegrees());
 
-    // SmartDashboard.putNumber("modules/frVel",frontRight.drivingEncoder.getVelocity());
   }
 
   public Pose2d getPose() {
@@ -364,6 +376,7 @@ public class Chassis extends SubsystemBase {
   /** Apply an offset from initial navx zero to the intended "forward" direction
    * for fieldcentric controls.
    * positive value rotates zero CW
+   * In degrees
    */
   public void setFieldCentricOffset(double offset){
     setFieldCentricOffset(offset, ()->true);

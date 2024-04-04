@@ -165,9 +165,9 @@ public class RobotContainer {
     .and(()->climber.isHomed==false)
     .whileTrue(new ClimberGoHome(climber).withTimeout(15));
 
-    new Trigger(DriverStation::isEnabled)
-    .and(()->shooter.isHomed==false)
-    .whileTrue(new CalibrateShooter(shooter));
+    // new Trigger(DriverStation::isEnabled)
+    // .and(()->shooter.isHomed==false)
+    // .whileTrue(new CalibrateShooter(shooter));
 
     new Trigger( ()-> dunkArm.getAngle()>45 )
     .onTrue(new InstantCommand(()->climber.setReverseSoftLimit(climber.climbingReverseSoftLimit)).ignoringDisable(true))
@@ -536,8 +536,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     // return Autos.exampleAuto(m_exampleSubsystem);
+    
 
-    return autoFactory.getAutoChooser().getSelected();
+    return new CalibrateShooter(shooter).andThen(autoFactory.getAutoChooser().getSelected());
     // return autoFactory.getBlueBottomAuto();
 
   }

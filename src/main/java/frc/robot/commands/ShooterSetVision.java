@@ -69,7 +69,6 @@ public class ShooterSetVision extends Command {
 
             targetRPMSlew = flywheelRateLimiter.calculate(targetRPM); //set flywheel slew
             flywheel.setRPM(targetRPMSlew);
-
         }
         else {
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
