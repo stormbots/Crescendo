@@ -41,18 +41,24 @@ public class PassthroughAlignNote extends Command {
   @Override
   public void execute() {
     var dist = passthrough.getSensorDistance().in(Units.Inches);
-    var nominal = 0.9;
+    var nominal = 0.9+0.1;
     var kpassthrough = 0.1;
     var kintake = 0.1;
 
     var kpassresponse = (dist-nominal) * kpassthrough;
     var kintakeresponse = (dist-nominal) * kintake;
-    kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
-    kpassthrough = Clamp.clamp(kpassthrough, -1, 0.2);
+    SmartDashboard.putNumber("distMinusNominal", dist-nominal);
+    kintakeresponse = Clamp.clamp(kintakeresponse, 0, 0.4-0.1-0.2-0.05);//0.05
+    kpassresponse = Clamp.clamp(kpassresponse, -1, 0.15);
 
     if (dist<nominal) {
       kintakeresponse=0;
       passthrough.lockServo(false);
+    }
+
+    if (passthrough.isBlocked()) {
+      kpassresponse = Clamp.clamp(kintakeresponse, 0, 0.05);
+      kintakeresponse = Clamp.clamp(kpassresponse, -1, 0.04);
     }
 
 
@@ -79,6 +85,11 @@ public class PassthroughAlignNote extends Command {
     SmartDashboard.putNumber("timer/superStuckTimer", superStuckTimer);
     SmartDashboard.putNumber("timer/stuckTimer", stuckTimer);
     SmartDashboard.putNumber("timer/backwardTimer", backwardTimer);
+
+    SmartDashboard.putNumber("intakeResponse",kintakeresponse);
+    SmartDashboard.putNumber("passthroughresponse",kpassresponse);
+
+
 
     intake.setPower(kintakeresponse);
     passthrough.setPower(kpassresponse);

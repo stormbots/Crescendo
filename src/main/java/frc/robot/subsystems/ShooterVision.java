@@ -117,7 +117,8 @@ public class ShooterVision extends SubsystemBase {
     }
   }
 
-  public LimelightReadings getTargetDataOdometry(Pose3d target) {
+  public Optional<LimelightReadings> getTargetDataOdometry(Pose3d target) {
+    if (target==null) return Optional.empty();
     LimelightReadings targetData = new LimelightReadings();
 
     Pose2d botPose = poseEstimator.getEstimatedPosition();
@@ -136,7 +137,7 @@ public class ShooterVision extends SubsystemBase {
     targetData.angleVertical = 0;
     targetData.time = Timer.getFPGATimestamp();
 
-    return targetData;
+    return Optional.of(targetData);
   }
 
   public void selectAllAprilTags(boolean yes) {

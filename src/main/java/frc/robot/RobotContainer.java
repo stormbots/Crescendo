@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import javax.management.InstanceNotFoundException;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -17,24 +15,18 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.commands.AutomatedTrap;
 import frc.robot.commands.CalibrateShooter;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
@@ -48,8 +40,10 @@ import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.ShooterSetVisionLob;
 import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
+import frc.robot.commands.VisionTurnToTargetPose;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
@@ -251,7 +245,7 @@ public class RobotContainer {
     .debounce(0.1)
     .whileTrue(new VisionTurnToSpeakerOpticalOnly(
         ()-> -driverController.getLeftY()/5.0*.4,
-        ()-> -driverController.getLeftX()/5.0*0.6,
+        ()-> -driverController.getLeftX()/5.0*0.5,
         ()-> -driverTurnJoystickValue()/5.0,
         shooterVision, chassis, navx)
     )
@@ -280,11 +274,15 @@ public class RobotContainer {
     )
     ;
 
-    driverController.button(7).onTrue(new ClimberGoHome(climber));
+    driverController.button(7).onTrue(new ClimberGoHome(climber)
+    .andThen(new InstantCommand(()->shooter.stopShooter()))
+    .andThen(new WaitCommand(0.1))
+    .alongWith(new CalibrateShooter(shooter)));
 
     //Reset Gyro
     driverController.button(8).onTrue(new InstantCommand()
-    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis)));
+    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis))
+    );
 
     driverController
     .axisGreaterThan(2, 0.5)
@@ -397,7 +395,7 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
           new SetShooterProfiled(0, shooter),
-          new SetFlywheelSlew(500, shooterFlywheel)
+          new SetFlywheelSlew(500*2+500, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
@@ -475,6 +473,10 @@ public class RobotContainer {
     )
     ;
 
+    operatorJoystick.button(9).whileTrue(
+      new RunCommand(()->dunkArmRoller.setSpeed(Clamp.clamp(operatorJoystick.getRawAxis(3), 0.1, -0.1)))
+    );
+
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
       new RunCommand(()->dunkArm.setPowerFF(-.35*operatorJoystick.getRawAxis(1)), dunkArm)
@@ -520,13 +522,26 @@ public class RobotContainer {
     // )
     // .onFalse(new RunCommand(()->{}, dunkArm))
     // ;
-
-    operatorJoystick.button(15)
-    .whileTrue(
-      new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
+    operatorJoystick.button(15).whileTrue(
+      new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
     )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
+    .whileTrue(
+      new VisionTurnToTargetPose(
+        ()-> -driverController.getLeftY(),
+        ()-> -driverController.getLeftX(),
+        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx)
+      
+    )
+    .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
+    .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget));
+
+    // operatorJoystick.button(15)
+    // .whileTrue(
+    //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 }
+
   
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

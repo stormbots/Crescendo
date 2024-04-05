@@ -52,14 +52,14 @@ public class SequenceFactory {
         return new ParallelCommandGroup(
             new SetDunkArmSlew(-25, rc.dunkArm),
             new SetShooterProfiled(0, rc.shooter),
-            rc.shooterFlywheel.getShooterSetRPMCommand(500).until(()->rc.shooterFlywheel.isOnTarget())
+            rc.shooterFlywheel.getShooterSetRPMCommand(500*2+500).until(()->rc.shooterFlywheel.isOnTarget())
         )
         .andThen(
             new ParallelCommandGroup(
                 new RunCommand(()->rc.dunkArmRoller.setSpeed(0.1), rc.dunkArmRoller),
                 new RunCommand(()->rc.passthrough.intake(), rc.passthrough),
                 new RunCommand(()->rc.intake.intake(), rc.intake),
-                rc.shooterFlywheel.getShooterSetRPMCommand(500)
+                rc.shooterFlywheel.getShooterSetRPMCommand(500*2+500)
             ).until(()->rc.passthrough.isBlocked()==false)
         )
         .andThen(

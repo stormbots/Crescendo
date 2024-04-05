@@ -1,10 +1,14 @@
 package frc.robot.commands;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.FieldPosition;
@@ -16,21 +20,25 @@ public class VisionTurnToTargetPose extends Command{
     private IntakeVision intakeVision;
     private ShooterVision shooterVision;
     private Chassis chassis;
+    private AHRS gyro;
     private TargetType targetType;
     private Field2d field = new Field2d();
     private DoubleSupplier xSpeed;
     private DoubleSupplier ySpeed;
     private DoubleSupplier rotSpeed;
+    private Pose3d lobTarget = new Pose3d();
+    double targetAngle = 0.0;
 
     public VisionTurnToTargetPose(
         DoubleSupplier xSpeed, 
         DoubleSupplier ySpeed, 
-        DoubleSupplier rotSpeed, 
-        TargetType targetType, 
+        DoubleSupplier rotSpeed,  
         ShooterVision shooterVision,
-        Chassis chassis) {
+        Chassis chassis,
+        AHRS gyro) {
         this.shooterVision = shooterVision;
         this.chassis = chassis;
+        this.gyro = gyro;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
         this.rotSpeed = rotSpeed;
@@ -41,23 +49,25 @@ public class VisionTurnToTargetPose extends Command{
 
     @Override
     public void initialize(){
-        shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
+        Alliance color = DriverStation.getAlliance().orElse(Alliance.Blue);
+        lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
         //TODO: fiducial id filter
     }
     
     @Override
     public void execute()
     {
-        //target readings + uploading
-        Pose3d target = FieldPosition.getTargetList(targetType);
-        field.getObject("targetpose").setPose(target.toPose2d());
-        SmartDashboard.putData("targetposefield", field);
+        Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getTargetDataOdometry(lobTarget);
 
-        //rotating to target
-        ShooterVision.LimelightReadings shooterAngleToTarget = shooterVision.getTargetDataOdometry(target);
-        double x = -shooterAngleToTarget.angleHorizontal; //angleHorizontal is angle offset from botpose angle to targetpose angle
-        var rotation = 0.5/60.0 * x;
-        chassis.drive(0, 0, rotation, true, true);
+        if (shooterData.isPresent()) {
+            targetAngle = shooterData.get().angleHorizontal;
+            targetAngle = Math.toRadians(targetAngle);
+            //brian correctly pointed out that "rotspeed" is (-1..1) and thus is 1 degree bearing change, making it useless.
+            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
+        }
+        else{
+        chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
+        }
         
     }
 

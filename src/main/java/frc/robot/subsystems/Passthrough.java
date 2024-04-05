@@ -126,7 +126,7 @@ public class Passthrough extends SubsystemBase {
 
   public void lockServo(boolean block) {
     // servo.setPosition(0);
-    if (block) servo.setPosition(0.25);
+    if (block) servo.setPosition(0.25-0.1);
     else servo.setPosition(0.5);
   }
 
@@ -136,7 +136,7 @@ public class Passthrough extends SubsystemBase {
     SmartDashboard.putNumber("currenttesting/passthroughA", motor.getOutputCurrent());
     SmartDashboard.putNumber("currenttesting/passthroughB", motorB.getOutputCurrent());
     SmartDashboard.putBoolean("passthrough/isBlocked", isBlocked());
-    SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Millimeters));
+    SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Inches));
     // SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Inches));
 
     // SmartDashboard.putNumber("passthrough/outputCurrent", motor.getOutputCurrent());
