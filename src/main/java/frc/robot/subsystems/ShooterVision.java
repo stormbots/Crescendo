@@ -129,8 +129,12 @@ public class ShooterVision extends SubsystemBase {
     double dy = targetPose.getY() - botPose.getY();
     double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
     //bot rotations at current pose
-    double botPoseAngle = botPose.getRotation().getDegrees()%360;
+    double botPoseAngle = botPose.getRotation().getDegrees();
     double angleOffset = botPoseAngle - orthogonalAngle;
+    angleOffset%=180;
+
+    // targetPose.getRotation().minus(botPose.getRotation());
+    // targetPose.getTranslation().getDistance(other)
 
     targetData.angleHorizontal = angleOffset; //degrees
     targetData.distance = Units.Meters.of(Math.hypot(dx, dy)); //meters
@@ -155,13 +159,13 @@ public class ShooterVision extends SubsystemBase {
   public void setPipeline(LimelightPipeline pipeline) {
     switch(pipeline) {
       case kNoVision:
-      camera.getEntry("pipeline").setNumber(0);
+      camera.getEntry("pipeline").setNumber(3);
       break;
       case kOdometry:
-      camera.getEntry("pipeline").setNumber(1);
+      camera.getEntry("pipeline").setNumber(3);
       break;
       case kZoom:
-      camera.getEntry("pipeline").setNumber(2);
+      camera.getEntry("pipeline").setNumber(3);
       break;
       case kSpeaker:
       camera.getEntry("pipeline").setNumber(3);

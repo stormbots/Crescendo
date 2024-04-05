@@ -4,34 +4,21 @@
 
 package frc.robot;
 
-import java.time.Instant;
-import java.util.function.DoubleSupplier;
-
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.NoteTransferToDunkArm;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
-import frc.robot.subsystems.DunkArm;
-import frc.robot.commands.ShooterSetVision;
-import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterFlywheel;
 
 /** 
  * A place to keep/generate useful, reusable code sequences and commands.
@@ -49,17 +36,18 @@ public class SequenceFactory {
     }
 
     public Command getDunkArmNoteTransferSequence(){
-        return new ParallelCommandGroup(
-            new SetDunkArmSlew(-25, rc.dunkArm),
-            new SetShooterProfiled(0, rc.shooter),
-            rc.shooterFlywheel.getShooterSetRPMCommand(500*2+500).until(()->rc.shooterFlywheel.isOnTarget())
-        )
+        return new ParallelDeadlineGroup(
+            new SetDunkArmSlew(-30, rc.dunkArm)
+            .alongWith(new SetShooterProfiled(0, rc.shooter)),
+            rc.shooterFlywheel.getShooterSetRPMCommand(ShooterFlywheel.kDunkArmTransferRPM)
+            .until(()->rc.shooterFlywheel.isOnTarget())
+        ).withTimeout(1)
         .andThen(
             new ParallelCommandGroup(
                 new RunCommand(()->rc.dunkArmRoller.setSpeed(0.1), rc.dunkArmRoller),
                 new RunCommand(()->rc.passthrough.intake(), rc.passthrough),
                 new RunCommand(()->rc.intake.intake(), rc.intake),
-                rc.shooterFlywheel.getShooterSetRPMCommand(500*2+500)
+                rc.shooterFlywheel.getShooterSetRPMCommand(ShooterFlywheel.kDunkArmTransferRPM)
             ).until(()->rc.passthrough.isBlocked()==false)
         )
         .andThen(

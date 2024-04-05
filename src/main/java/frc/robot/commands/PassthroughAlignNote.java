@@ -48,8 +48,8 @@ public class PassthroughAlignNote extends Command {
     var kpassresponse = (dist-nominal) * kpassthrough;
     var kintakeresponse = (dist-nominal) * kintake;
     SmartDashboard.putNumber("distMinusNominal", dist-nominal);
-    kintakeresponse = Clamp.clamp(kintakeresponse, 0, 0.4-0.1-0.2-0.05);//0.05
-    kpassresponse = Clamp.clamp(kpassresponse, -1, 0.15);
+    kintakeresponse = Clamp.clamp(kintakeresponse, 0, 0.07);//0.05
+    kpassresponse = Clamp.clamp(kpassresponse, -1, 0.05);
 
     if (dist<nominal) {
       kintakeresponse=0;
@@ -57,8 +57,8 @@ public class PassthroughAlignNote extends Command {
     }
 
     if (passthrough.isBlocked()) {
-      kpassresponse = Clamp.clamp(kintakeresponse, 0, 0.05);
-      kintakeresponse = Clamp.clamp(kpassresponse, -1, 0.04);
+      kpassresponse = Clamp.clamp(kpassresponse, -1, 0.05);
+      kintakeresponse = Clamp.clamp(kintakeresponse, 0, 0.04);
     }
 
 

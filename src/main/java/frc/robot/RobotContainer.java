@@ -393,9 +393,9 @@ public class RobotContainer {
         .alongWith(new InstantCommand(()->passthrough.lockServo(false))),
 
         new ParallelCommandGroup(
-          new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
-          new SetShooterProfiled(0, shooter),
-          new SetFlywheelSlew(500*2+500, shooterFlywheel)
+          new IntakeNote(intake, passthrough).runForever(),
+          new SetShooterProfiled(0, shooter).runForever(),
+          new SetFlywheelSlew(ShooterFlywheel.kDunkArmTransferRPM, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
@@ -404,6 +404,7 @@ public class RobotContainer {
         passthrough::isBlocked
       )
     )
+    .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
     ;
 
     //arm to amp
@@ -500,7 +501,8 @@ public class RobotContainer {
       new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    );
+    )
+    .whileTrue(new InstantCommand(()->passthrough.lockServo(false)));
 
     // Used for testing only.
 
@@ -525,15 +527,15 @@ public class RobotContainer {
     operatorJoystick.button(15).whileTrue(
       new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
     )
-    .whileTrue(
-      new VisionTurnToTargetPose(
-        ()-> -driverController.getLeftY(),
-        ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx)
+    // .whileTrue(
+    //   new VisionTurnToTargetPose(
+    //     ()-> -driverController.getLeftY(),
+    //     ()-> -driverController.getLeftX(),
+    //     ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
       
-    )
+    // )
     .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
-    .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget));
+    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
 
     // operatorJoystick.button(15)
     // .whileTrue(

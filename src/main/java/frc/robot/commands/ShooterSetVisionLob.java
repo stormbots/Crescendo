@@ -25,7 +25,7 @@ public class ShooterSetVisionLob extends Command {
     private Shooter shooter;
     private ShooterFlywheel flywheel;
     Boolean exitsOnCompletion = true;
-    double targetAngle = 10;
+    double targetAngle = 35.6;
     double targetRPM = 4000;
     double targetAngleSlew = 0.0;
     double targetRPMSlew = 0.0;

@@ -192,6 +192,11 @@ public class AutoFactory {
             .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
         );
 
+        // autoChooser.addOption("4NoteAmpRushChoreo", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("FarStartChoreoAmpRushAuto"))
+        // );
+
         autoChooser.addOption("4NoteSourceRushChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
             .andThen(new PathPlannerAuto("ChoreoSourceRushAuto"))
@@ -345,7 +350,7 @@ public class AutoFactory {
 
         NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28.5-0.5));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 32));
-        NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 25)); //previously 28 but we only use sourceRush auto for source side
+        NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 25.5)); //previously 28 but we only use sourceRush auto for source side
 
         NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.7));
         NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 23));

@@ -206,7 +206,7 @@ public class Shooter extends SubsystemBase {
 
   }
   public boolean isOnTarget(double position){
-    var tolerance = 0.75;
+    var tolerance = 1;
     position = Clamp.clamp(position, reverseSoftLimit, forwardSoftLimit); 
     //TODO figure out better tolerances that make sense
     return Clamp.bounded(shooterMotor.getEncoder().getPosition(), position-tolerance, position+tolerance);

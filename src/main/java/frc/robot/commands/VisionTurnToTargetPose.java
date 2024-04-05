@@ -5,10 +5,12 @@ import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.FieldPosition;
@@ -23,6 +25,7 @@ public class VisionTurnToTargetPose extends Command{
     private AHRS gyro;
     private TargetType targetType;
     private Field2d field = new Field2d();
+    private SwerveDrivePoseEstimator swervePE;
     private DoubleSupplier xSpeed;
     private DoubleSupplier ySpeed;
     private DoubleSupplier rotSpeed;
@@ -35,10 +38,12 @@ public class VisionTurnToTargetPose extends Command{
         DoubleSupplier rotSpeed,  
         ShooterVision shooterVision,
         Chassis chassis,
-        AHRS gyro) {
+        AHRS gyro,
+        SwerveDrivePoseEstimator swervePE) {
         this.shooterVision = shooterVision;
         this.chassis = chassis;
         this.gyro = gyro;
+        this.swervePE = swervePE;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
         this.rotSpeed = rotSpeed;
@@ -63,7 +68,9 @@ public class VisionTurnToTargetPose extends Command{
             targetAngle = shooterData.get().angleHorizontal;
             targetAngle = Math.toRadians(targetAngle);
             //brian correctly pointed out that "rotspeed" is (-1..1) and thus is 1 degree bearing change, making it useless.
-            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
+            // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
+            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), swervePE.getEstimatedPosition().getRotation().getRadians() + targetAngle);
+            SmartDashboard.putNumber("targetAngle", targetAngle);   
         }
         else{
         chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
