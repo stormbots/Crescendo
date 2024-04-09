@@ -5,7 +5,7 @@
       "x": 0.42111900448799133,
       "y": 4.079969882965088
     },
-    "rotation": 1.0826910125876121e-25
+    "rotation": -1.705424480428677e-25
   },
   "command": {
     "type": "sequential",
@@ -37,19 +37,32 @@
           }
         },
         {
-          "type": "race",
+          "type": "deadline",
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "race",
                 "data": {
-                  "waitTime": 0.4
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.4
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeShoot"
+                      }
+                    }
+                  ]
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "intakeShoot"
+                  "name": "servoDown"
                 }
               }
             ]

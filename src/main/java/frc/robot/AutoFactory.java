@@ -201,10 +201,10 @@ public class AutoFactory {
             .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
             .andThen(new PathPlannerAuto("ChoreoSourceRushAuto"))
         );
-        // autoChooser.addOption("FarStart4NoteSourceRushChoreo", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-        //     .andThen(new PathPlannerAuto("FarStartChoreoSourceRushAuto"))
-        // );
+        autoChooser.addOption("FarStart4NoteSourceRushChoreo", new InstantCommand()
+            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+            .andThen(new PathPlannerAuto("FarStartChoreoSourceRushAuto"))
+        );
 
         autoChooser.addOption("5NoteCenterTopFirstChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
@@ -315,7 +315,7 @@ public class AutoFactory {
 
         
 
-        NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand());
+        NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand().finallyDo(()->rc.passthrough.lockServo(false)));
         NamedCommands.registerCommand("intakeFull", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)));
         NamedCommands.registerCommand("intakeShoot", 
             new ParallelCommandGroup(
@@ -350,7 +350,7 @@ public class AutoFactory {
 
         NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28.5-0.5));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 32));
-        NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 25.5)); //previously 28 but we only use sourceRush auto for source side
+        NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 26)); //previously 28 but we only use sourceRush auto for source side
 
         NamedCommands.registerCommand("topNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 20.7));
         NamedCommands.registerCommand("midNoteShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5000, 23));

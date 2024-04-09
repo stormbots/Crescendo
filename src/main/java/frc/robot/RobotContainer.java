@@ -293,7 +293,20 @@ public class RobotContainer {
         ()-> -driverController.getLeftX(), 
         ()->Units.Radians.of(Math.atan2(driverController.getRightY(), -driverController.getRightX())+Math.PI/2))
     );
-   
+
+   driverController.povDown()
+   .whileTrue(
+      new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
+    )
+    .whileTrue(
+      new VisionTurnToTargetPose(
+        ()-> -driverController.getLeftY(),
+        ()-> -driverController.getLeftX(),
+        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
+      
+    )
+    .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
+    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
    
 
 
@@ -523,10 +536,10 @@ public class RobotContainer {
     //   ).alongWith(new DunkArmRollerHoldNote(dunkArm, dunkArmRoller))
     // )
     // .onFalse(new RunCommand(()->{}, dunkArm))
-    // ;
-    operatorJoystick.button(15).whileTrue(
-      new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
-    )
+    // // ;
+    // operatorJoystick.button(15).whileTrue(
+    //   new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
+    // )
     // .whileTrue(
     //   new VisionTurnToTargetPose(
     //     ()-> -driverController.getLeftY(),
@@ -534,8 +547,8 @@ public class RobotContainer {
     //     ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
       
     // )
-    .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
-    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
+    // .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
+    // .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
 
     // operatorJoystick.button(15)
     // .whileTrue(

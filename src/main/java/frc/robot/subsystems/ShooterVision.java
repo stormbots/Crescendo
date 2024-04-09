@@ -141,7 +141,28 @@ public class ShooterVision extends SubsystemBase {
     targetData.angleVertical = 0;
     targetData.time = Timer.getFPGATimestamp();
 
+    // double distance = botPose.getTranslation().getDistance(targetPose.getTranslation());
+    // double deltaAngle = botPose.getRotation().minus(targetPose.getRotation()).getDegrees();
+
+    // targetData.distance = Units.Meters.of(distance);
+    // targetData.angleVertical = 0;
+    // targetData.time = Timer.getFPGATimestamp();
+    // targetData.angleHorizontal = botPoseAngle +angleOffset;
+
     return Optional.of(targetData);
+  }
+
+  public Optional<Double> getOrthogonalAngle(Pose3d target) {
+    if (target==null) return Optional.empty();
+
+    Pose2d botPose = poseEstimator.getEstimatedPosition();
+    Pose2d targetPose = target.toPose2d();
+
+    //data from field positions
+    double dx = targetPose.getX() - botPose.getX();
+    double dy = targetPose.getY() - botPose.getY();
+    Double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+    return Optional.of(orthogonalAngle);
   }
 
   public void selectAllAprilTags(boolean yes) {

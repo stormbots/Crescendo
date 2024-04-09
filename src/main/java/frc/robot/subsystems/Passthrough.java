@@ -32,6 +32,7 @@ public class Passthrough extends SubsystemBase {
   //LaserCAN Sensor Setup
   public LaserCan lasercan = new LaserCan(20);
   public Servo servo = new Servo(3);
+  public static boolean servoBlocked = true;
 
   /** where we want the game piece under ideal conditions, in mm */
   public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
@@ -126,8 +127,14 @@ public class Passthrough extends SubsystemBase {
 
   public void lockServo(boolean block) {
     // servo.setPosition(0);
-    if (block) servo.setPosition(0.25-0.1);
-    else servo.setPosition(0.5);
+    if (block) {
+      servo.setPosition(0.25-0.1);
+      servoBlocked = true;
+    }
+    else {
+      servo.setPosition(0.5);
+      servoBlocked = false;
+    }
   }
 
   @Override

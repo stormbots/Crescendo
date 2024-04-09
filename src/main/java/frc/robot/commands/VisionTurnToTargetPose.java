@@ -3,6 +3,8 @@ package frc.robot.commands;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
+import javax.swing.text.html.Option;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -57,19 +59,20 @@ public class VisionTurnToTargetPose extends Command{
         Alliance color = DriverStation.getAlliance().orElse(Alliance.Blue);
         lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
         //TODO: fiducial id filter
+        
     }
     
     @Override
     public void execute()
     {
         Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getTargetDataOdometry(lobTarget);
+        Optional<Double> orthognalAngle = shooterVision.getOrthogonalAngle(lobTarget);
 
-        if (shooterData.isPresent()) {
-            targetAngle = shooterData.get().angleHorizontal;
-            targetAngle = Math.toRadians(targetAngle);
+        if (shooterData.isPresent()&&orthognalAngle.isPresent()) {
+           
             //brian correctly pointed out that "rotspeed" is (-1..1) and thus is 1 degree bearing change, making it useless.
             // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
-            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), swervePE.getEstimatedPosition().getRotation().getRadians() + targetAngle);
+            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), Math.toRadians(orthognalAngle.get()));
             SmartDashboard.putNumber("targetAngle", targetAngle);   
         }
         else{
