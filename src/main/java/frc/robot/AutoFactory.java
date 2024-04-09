@@ -26,6 +26,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -51,6 +52,8 @@ import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.VisionTrackNote;
+import frc.robot.commands.VisionTrackNoteButBetter;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.Shooter;
@@ -105,87 +108,16 @@ public class AutoFactory {
 
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
 
-        // autoChooser.addOption("untested autos", new InstantCommand());
-
         // autoChooser.addOption("vv Test Autos vv", new InstantCommand());
-
-        // autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
-
 
 
         // autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
-        // autoChooser.addOption("Rotate + Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterRotation"));
 
         // autoChooser.addOption("auto Trap", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(60))
         //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(4.9, 4.1, new Rotation2d(Units.Degrees.of(-60)))))
         //     .andThen(rc.sequenceFactory.getTrapSequenceCommand(pathPlannerFollowPathManual("ampTrap"), Units.Degrees.of(-60)))
         // );
-
-        // autoChooser.addOption("twoMeterRotation", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0))
-        //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(0,0,new Rotation2d())))
-        //     .andThen(pathPlannerFollowPathManual("twoMeterRotation"))
-        //     );
-        
-        // autoChooser.addOption("resetCenterPositionRed", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0))
-        //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(16.6-1.3, 5.65, new Rotation2d(Units.Degrees.of(180)))))
-        // );
-
-        // autoChooser.addOption("vv PathPlanner Untested Autos vv", new InstantCommand());
-
-        // autoChooser.addOption("basicAmpAuto", 
-        // new InstantCommand()
-        // .andThen(()->rc.chassis.setFieldCentricOffset(-60))
-        // .andThen(new PathPlannerAuto("basicAmpAuto")));
-
-        // autoChooser.addOption("5NoteAmp", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        //     .andThen(new PathPlannerAuto("5NoteAmpAuto"))
-        // );
-
-        // autoChooser.addOption("4noteAmp", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteAmpAuto"))
-        // );
-
-        // autoChooser.addOption("4NoteSource", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteSourceAuto"))
-        // );
-
-        // autoChooser.addOption("5NoteCenter", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-        //     .andThen(new PathPlannerAuto("5NoteCenterAuto"))
-        // );
-
-        // autoChooser.addOption("Vision5NoteAmp", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteAmpAutoVision"))
-        // );
-
-        // autoChooser.addOption("4NoteCenter", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteCenterAuto"))
-        // );
-
-        // autoChooser.addOption("closeNote", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        //     .andThen(new PathPlannerAuto("closeNoteAuto"))
-        // );
-
-        // autoChooser.addOption("2NoteAmp", new InstantCommand()
-        // .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        // .andThen(new PathPlannerAuto("2NoteAmpAuto")));
-
-        // autoChooser.addOption("2NoteSource", new InstantCommand()
-        // .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        // .andThen(new PathPlannerAuto("2NoteSourceAuto")));
-
-        // autoChooser.addOption("Circle", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(90, isBlue))
-        //     .andThen(new PathPlannerAuto("CircleAuto")));
 
         autoChooser.addOption("5NoteAmpChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
@@ -260,6 +192,16 @@ public class AutoFactory {
                 .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
                 .andThen(new WaitCommand(2))
 
+        );
+
+        autoChooser.addOption("funkyfunkyauto", 
+            pathPlannerFollowPathManual("choreo/FunkyFunkyPath.1.traj")
+            .until(()->rc.intakeVision.hasValidTarget())
+            // .andThen(new VisionTrackNote(()->0, ()->0, ()->0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds))
+            //Just to see if it tracks right
+            .andThen(new VisionTrackNoteButBetter(rc))
+            .andThen(makePathFindToPoseCommand(new Pose2d(1.9, 5.5, new Rotation2d())))
+            .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel))
         );
 
         return false; //will bryan cry tonight 
@@ -392,8 +334,8 @@ public class AutoFactory {
     
     Command makePathFindToPoseCommand(Pose2d pose){
         PathConstraints constraints = new PathConstraints(
-        1.0, 1.0,
-        Math.PI, Math.PI);
+        3.5, 5.1,
+        8.4, 8.1);
 
         return AutoBuilder.pathfindToPose(pose, constraints);
     }
@@ -401,113 +343,6 @@ public class AutoFactory {
     public Command ExampleAuto(){
         return new InstantCommand(()->{},rc.chassis,rc.climber);
     }
-
-
-    SwerveControllerCommand generateSwerveControllerCommand(Trajectory trajectory){
-    
-        SwerveControllerCommand swerveControllerCommand = new
-        SwerveControllerCommand(
-          trajectory,
-          rc.chassis::getPose, // Functional interface to feed supplier
-          rc.swerveDriveKinematics,
-          //Probably percent per error (so 0.1 means 10% output for every meter)
-          new PIDController(AutoConstants.kPDrivingP, 0, 0),
-          new PIDController(AutoConstants.kPDrivingP, 0, 0),
-          thetaController,
-          rc.chassis::setModuleStates,
-          rc.chassis
-        );
-    
-        return swerveControllerCommand;
-    }
-
-    SwerveControllerCommand generateSwerveControllerCommand(Pose2d start, List<Translation2d> midpoints, Pose2d end){
-        return generateSwerveControllerCommand(
-            TrajectoryGenerator.generateTrajectory(start, midpoints, end, trajectoryConfig)
-        );
-    }
-
-    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end, double rpm, double angle){
-        //Setting gyro offset + odometry
-        //Preparing shooting
-        //Shooting
-        //Running path to note + intake
-
-        //todo Shooting for the second time
-        double gyroOffset = 0;
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){//Checking if blue
-            gyroOffset = -start.getRotation().getRadians();
-        }
-        else{
-            gyroOffset = MathUtil.angleModulus(Math.PI-start.getRotation().getRadians());
-        }
-        final double fgyroOffset = Math.toDegrees(gyroOffset);
-
-        return new InstantCommand()
-        .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
-        .andThen(()->rc.chassis.resetOdometry(start))
-        // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(rpm, angle))
-        .andThen(new ParallelDeadlineGroup(
-            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
-            rc.sequenceFactory.getIntakeThenAlignCommand()
-        ))
-        ;
-    }
-
-    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end){
-        return makeBasicAuto(start, midpoints, end, 5500, 47);
-
-    }
-
-    public Command makeBasicAuto(Pose2d start, Pose2d end){
-        return makeBasicAuto(start, List.of(), end);
-    }
-
-
-    public Command makeBasicAutoWithTurn(Pose2d start, List<Translation2d> midpoints,Pose2d end, double gyroAngleDegrees){
-        //Setting gyro offset + odometry
-        //Preparing shooting
-        //Shooting
-        //Running path to note + intake
-
-        //todo Shooting for the second time
-        double gyroOffset = 0;
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){//Checking if blue
-            gyroOffset = -start.getRotation().getRadians();
-        }
-        else{
-            gyroOffset = MathUtil.angleModulus(Math.PI-start.getRotation().getRadians());
-        }
-        final double fgyroOffset = Math.toDegrees(gyroOffset);
-
-        return new InstantCommand()
-        .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
-        .andThen(()->rc.chassis.resetOdometry(start))
-        .andThen(()->rc.chassis.driveToBearing(Math.toRadians(gyroAngleDegrees)))
-        // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(5500,50))
-        .andThen(new ParallelDeadlineGroup(
-            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
-            rc.sequenceFactory.getIntakeThenAlignCommand()
-        ))
-        ;
-    }
-
-    public Command makeNoteToMidIntake(Pose2d start, List<Translation2d> midpoints, Pose2d end){
-        return new InstantCommand()
-        .andThen(new ParallelDeadlineGroup(
-            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
-            rc.sequenceFactory.getIntakeThenAlignCommand()
-        ))
-        .andThen(generateSwerveControllerCommand(end, midpoints, start).withTimeout(6))
-        ;
-    }
-
-    public Command makeNoteToMidIntake(Pose2d start, Pose2d end){
-        return makeNoteToMidIntake(start, List.of(), end);
-    }
-
 
     public SendableChooser<Command> getAutoChooser(){
         try{

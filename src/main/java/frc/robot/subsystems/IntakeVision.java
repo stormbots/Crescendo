@@ -35,7 +35,7 @@ public class IntakeVision extends SubsystemBase {
     SmartDashboard.putNumber("intakevision/tv", camera.getEntry("tv").getDouble(0.0));
   }
 
-  private boolean hasValidTarget() {
+  public boolean hasValidTarget() {
     double tv = camera.getEntry("tv").getDouble(0.0);
     return tv >= 1;
   }
