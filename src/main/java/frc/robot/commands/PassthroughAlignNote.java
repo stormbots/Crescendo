@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Clamp;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Passthrough;
+import frc.robot.subsystems.PassthroughLock;
 
 public class PassthroughAlignNote extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -53,7 +54,7 @@ public class PassthroughAlignNote extends Command {
 
     if (dist<nominal) {
       kintakeresponse=0;
-      passthrough.lockServo(false);
+      PassthroughLock.getInstance().unlock();
     }
 
     if (passthrough.isBlocked()) {
@@ -98,7 +99,7 @@ public class PassthroughAlignNote extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    passthrough.lockServo(false);
+    PassthroughLock.getInstance().unlock();
     intake.stop();
     passthrough.stop();
   }

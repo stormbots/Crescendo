@@ -18,6 +18,7 @@ import frc.robot.commands.NoteTransferToDunkArm;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
+import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.ShooterFlywheel;
 
 /** 
@@ -120,8 +121,8 @@ public class SequenceFactory {
 
     public Command getIntakeThenAlignCommand(){
         return new InstantCommand()
-            .andThen(new ParallelDeadlineGroup(new IntakeNote(rc.intake, rc.passthrough), new InstantCommand(()->rc.passthrough.lockServo(true))))
-            .andThen(new ParallelDeadlineGroup(new PassthroughAlignNote(rc.passthrough, rc.intake), new WaitCommand(0.5).andThen(new InstantCommand(()->rc.passthrough.lockServo(false))))
+            .andThen(new ParallelDeadlineGroup(new IntakeNote(rc.intake, rc.passthrough), PassthroughLock.setLocked()))
+            .andThen(new ParallelDeadlineGroup(new PassthroughAlignNote(rc.passthrough, rc.intake), new WaitCommand(0.5).andThen(PassthroughLock.setUnlocked()))
             );
     }
 

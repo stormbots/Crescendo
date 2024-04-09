@@ -13,6 +13,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
@@ -61,7 +62,7 @@ public class ShooterSetVision extends Command {
                 distance = Clamp.clamp(distance, 0, Shooter.farthestShotDistance);
             }
 
-            targetAngle = lut.get(distance)[0]; //get lut
+            targetAngle = lut.get(distance)[0] + RobotContainer.shooterOffset; //get lut
             targetRPM = lut.get(distance)[1];
 
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew

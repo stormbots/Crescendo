@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -46,6 +45,9 @@ public class ShooterVision extends SubsystemBase {
     this.poseEstimator = poseEstimator;
 
     setPipeline(LimelightPipeline.kSpeaker);
+
+    field.getObject("Blue Lob").setPose(FieldPosition.BlueLob.toPose2d());
+    field.getObject("Red Lob").setPose(FieldPosition.RedLob.toPose2d());
     // this.camera.getEntry("ledMode").setNumber(3);
   }
 
@@ -116,7 +118,6 @@ public class ShooterVision extends SubsystemBase {
       setPipeline(LimelightPipeline.kOdometry);
     }
   }
-
   public Optional<LimelightReadings> getTargetDataOdometry(Pose3d target) {
     if (target==null) return Optional.empty();
     LimelightReadings targetData = new LimelightReadings();
@@ -133,6 +134,7 @@ public class ShooterVision extends SubsystemBase {
     double angleOffset = botPoseAngle - orthogonalAngle;
     angleOffset%=180;
 
+    //do it this way next year, no copy paste :P
     // targetPose.getRotation().minus(botPose.getRotation());
     // targetPose.getTranslation().getDistance(other)
 
@@ -163,6 +165,25 @@ public class ShooterVision extends SubsystemBase {
     double dy = targetPose.getY() - botPose.getY();
     Double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
     return Optional.of(orthogonalAngle);
+  }
+
+  public Optional<Double> getOrthogonalAngle(Pose2d target) {
+    if (target==null) return Optional.empty();
+    
+    Pose2d botPose = poseEstimator.getEstimatedPosition();
+
+    //data from field positions
+    double dx = target.getX() - botPose.getX();
+    double dy = target.getY() - botPose.getY();
+    Double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+    return Optional.of(orthogonalAngle);
+  }
+
+  public Optional<Double> getDistance(Pose2d target) {
+    if (target==null) return Optional.empty();
+
+    Pose2d botPose = poseEstimator.getEstimatedPosition();
+    return Optional.of(botPose.getTranslation().getDistance(target.getTranslation()));
   }
 
   public void selectAllAprilTags(boolean yes) {

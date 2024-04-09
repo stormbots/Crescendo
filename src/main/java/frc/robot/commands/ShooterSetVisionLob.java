@@ -4,18 +4,16 @@
 
 package frc.robot.commands;
 
-import java.util.Optional;
-
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
@@ -34,7 +32,8 @@ public class ShooterSetVisionLob extends Command {
         Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
     SlewRateLimiter flywheelRateLimiter = new SlewRateLimiter(
         ShooterFlywheel.kSlewForward, ShooterFlywheel.kSlewBackward, 0); //TODO: get rate limits
-    Pose3d lobTarget = new Pose3d();
+    Pose2d lobTarget = new Pose2d();
+    Field2d field = new Field2d();
 
     public ShooterSetVisionLob(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
         this.shooter = shooter;
@@ -48,7 +47,8 @@ public class ShooterSetVisionLob extends Command {
     @Override
     public void initialize() {
         Alliance color = DriverStation.getAlliance().orElse(Alliance.Blue);
-        lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
+        // lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
+        lobTarget = color==Alliance.Red ? field.getObject("Red Lob").getPose() : field.getObject("Blue Lob").getPose();
         shooterRateLimiter.reset(shooter.getShooterAngle());
         flywheelRateLimiter.reset(flywheel.getRPM());
     }
@@ -56,10 +56,9 @@ public class ShooterSetVisionLob extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        var visionData = shooterVision.getTargetDataOdometry(lobTarget);
-        if (visionData.isPresent()) {
-            double distance = visionData.get().distance.in(Units.Inches);
-
+        var shooterData = shooterVision.getDistance(lobTarget);
+        if (shooterData.isPresent()) {
+            var distance = shooterData.get();
             targetAngle = lut.get(distance)[0]; //get lut
             targetRPM = lut.get(distance)[1];
 

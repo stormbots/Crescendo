@@ -53,6 +53,7 @@ import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.DunkArm;
+import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.Shooter;
 
 
@@ -315,7 +316,7 @@ public class AutoFactory {
 
         
 
-        NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand().finallyDo(()->rc.passthrough.lockServo(false)));
+        NamedCommands.registerCommand("intakeAndAlign", rc.sequenceFactory.getIntakeThenAlignCommand().finallyDo((e)->PassthroughLock.getInstance().unlock()));
         NamedCommands.registerCommand("intakeFull", new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)));
         NamedCommands.registerCommand("intakeShoot", 
             new ParallelCommandGroup(
@@ -332,8 +333,8 @@ public class AutoFactory {
         NamedCommands.registerCommand("dunkArmUp", new SetDunkArmSlew(80, rc.dunkArm));
         NamedCommands.registerCommand("dunkArmDown", new SetDunkArmSlew(-25, rc.dunkArm));
 
-        NamedCommands.registerCommand("servoDown", new RunCommand(()->rc.passthrough.lockServo(false)));
-        NamedCommands.registerCommand("servoUp", new RunCommand(()->rc.passthrough.lockServo(true)));
+        NamedCommands.registerCommand("servoDown", PassthroughLock.setUnlocked());
+        NamedCommands.registerCommand("servoUp", PassthroughLock.setLocked());
 
 
         // NamedCommands.registerCommand("topSpinUpShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(2.15, 6.5, new Rotation2d())).runForever());

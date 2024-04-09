@@ -53,6 +53,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
+import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
@@ -140,7 +141,6 @@ public class RobotContainer {
     .addSystem(shooter, 0)
     .addSystem(shooterFlywheel, 80)
     ;
-
   }
 
   private void configureDefaultCommands() {
@@ -181,7 +181,6 @@ public class RobotContainer {
       .withTimeout(2)
     );
     //TODO: When shooter is aligned with target, and at rpm, show show green lights
-
 
     shooterFlywheel.setDefaultCommand(
       new WaitCommand(0.5)
@@ -227,7 +226,6 @@ public class RobotContainer {
       ()->dunkArmRoller.setIdleMode(IdleMode.kBrake), 
       dunkArmRoller
     ));
-
     // shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
 
@@ -270,7 +268,7 @@ public class RobotContainer {
       .withTimeout(2)
     )
     .onTrue(
-      new InstantCommand(()->passthrough.lockServo(false))
+      PassthroughLock.setUnlocked()
     )
     ;
 
@@ -305,7 +303,7 @@ public class RobotContainer {
         ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
       
     )
-    .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
+    .onTrue(PassthroughLock.setUnlocked())
     .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
    
 
@@ -313,13 +311,18 @@ public class RobotContainer {
     // Limelight Intake Vision
     driverController
     .axisGreaterThan(3, 0.5) //left trigger?
+    .onTrue(PassthroughLock.setLocked())
+    .whileTrue(
+      new SetShooterProfiled(0, shooter)
+    )
     .whileTrue(
       new VisionTrackNote(
       ()-> -driverController.getLeftY(), 
       ()-> -driverController.getLeftX(),
       ()-> -driverTurnJoystickValue(), 
       chassis, intake, passthrough, intakeVision, leds)
-    );
+    )
+    ;
 
     driverController.povUp()
     .whileTrue(
@@ -337,7 +340,8 @@ public class RobotContainer {
         new SetShooterProfiled(0, shooter),
         new SetFlywheelSlew(3550, shooterFlywheel)
       )
-    );
+    )
+    .onTrue(PassthroughLock.setUnlocked());
     
     //Score button
     operatorJoystick.button(1)
@@ -368,12 +372,13 @@ public class RobotContainer {
     );
 
     //defense position
-    operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
+    operatorJoystick.button(2)
+    .onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
       new SetDunkArmSlew(-25, dunkArm)
       ).withTimeout(3)
-      )
-      ;
+    )
+    ;
 
     //speaker shot
     operatorJoystick.button(3)
@@ -384,7 +389,7 @@ public class RobotContainer {
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
     .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
+        PassthroughLock.setUnlocked()
     );
 
     //podium/far shot
@@ -395,7 +400,7 @@ public class RobotContainer {
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
     .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
+        PassthroughLock.setUnlocked()
     )
     ;
 
@@ -403,7 +408,7 @@ public class RobotContainer {
     operatorJoystick.button(5).whileTrue(
       new ConditionalCommand(
         sequenceFactory.getDunkArmNoteTransferSequence()
-        .alongWith(new InstantCommand(()->passthrough.lockServo(false))),
+        .alongWith(PassthroughLock.setLocked()),
 
         new ParallelCommandGroup(
           new IntakeNote(intake, passthrough).runForever(),
@@ -417,7 +422,7 @@ public class RobotContainer {
         passthrough::isBlocked
       )
     )
-    .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
+    .onTrue(PassthroughLock.setUnlocked())
     ;
 
     //arm to amp
@@ -462,7 +467,7 @@ public class RobotContainer {
       ()->intake.isBlocked()
     ))
     .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
+        PassthroughLock.setUnlocked()
     );
 
     //intake note
@@ -471,7 +476,6 @@ public class RobotContainer {
       .andThen(new PassthroughAlignNote(passthrough,intake))
     )
     // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel)
-    .onTrue(new InstantCommand(()->passthrough.lockServo(true)))
     .whileTrue(new SetShooterProfiled(0, shooter))
     .onTrue(new ConditionalCommand(
       new ClimberSetPosition(climber, Units.Inches.of(11)),
@@ -479,7 +483,7 @@ public class RobotContainer {
       ()->climber.getPosition().in(Units.Inches)<2.0&&climber.isHomed
       )
     )
-    .onTrue(new InstantCommand(()->passthrough.lockServo(true))
+    .onTrue(PassthroughLock.setLocked()
     )
     .onTrue(
         new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
@@ -515,7 +519,7 @@ public class RobotContainer {
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
     )
-    .whileTrue(new InstantCommand(()->passthrough.lockServo(false)));
+    .whileTrue(PassthroughLock.setUnlocked());
 
     // Used for testing only.
 

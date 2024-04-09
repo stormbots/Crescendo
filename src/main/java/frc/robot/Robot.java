@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.ApplyShooterOffset;
 import frc.robot.commands.ClimberSetPosition;
 
 /**
@@ -143,6 +144,9 @@ public class Robot extends TimedRobot {
 
     // robotContainer.chassis.resetOdometry(new Pose2d());
     // robotContainer.chassis.resetEncoders();
+
+    var shotadjust = new ApplyShooterOffset(()->robotContainer.operatorJoystick.getRawAxis(3));
+    shotadjust.schedule();
   }
 
   /** This function is called periodically during operator control. */

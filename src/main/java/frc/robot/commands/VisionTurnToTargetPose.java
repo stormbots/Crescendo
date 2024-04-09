@@ -3,19 +3,16 @@ package frc.robot.commands;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
-import javax.swing.text.html.Option;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Chassis;
-import frc.robot.subsystems.FieldPosition;
 import frc.robot.subsystems.FieldPosition.TargetType;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.ShooterVision;
@@ -31,7 +28,7 @@ public class VisionTurnToTargetPose extends Command{
     private DoubleSupplier xSpeed;
     private DoubleSupplier ySpeed;
     private DoubleSupplier rotSpeed;
-    private Pose3d lobTarget = new Pose3d();
+    private Pose2d lobTarget = new Pose2d();
     double targetAngle = 0.0;
 
     public VisionTurnToTargetPose(
@@ -57,7 +54,8 @@ public class VisionTurnToTargetPose extends Command{
     @Override
     public void initialize(){
         Alliance color = DriverStation.getAlliance().orElse(Alliance.Blue);
-        lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
+        // lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
+        lobTarget = color==Alliance.Red ? field.getObject("Red Lob").getPose() : field.getObject("Blue Lob").getPose();
         //TODO: fiducial id filter
         
     }
@@ -65,10 +63,9 @@ public class VisionTurnToTargetPose extends Command{
     @Override
     public void execute()
     {
-        Optional<ShooterVision.LimelightReadings> shooterData = shooterVision.getTargetDataOdometry(lobTarget);
         Optional<Double> orthognalAngle = shooterVision.getOrthogonalAngle(lobTarget);
 
-        if (shooterData.isPresent()&&orthognalAngle.isPresent()) {
+        if (orthognalAngle.isPresent()) {
            
             //brian correctly pointed out that "rotspeed" is (-1..1) and thus is 1 degree bearing change, making it useless.
             // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
