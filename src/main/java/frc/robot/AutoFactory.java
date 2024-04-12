@@ -45,12 +45,14 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTrackNote;
@@ -195,19 +197,79 @@ public class AutoFactory {
 
         );
 
+        //absolute pain in the butt to read and debug
         autoChooser.addOption("ampGamePieceVisionChoreo", 
             new InstantCommand(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
             .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(0.747,6.659,new Rotation2d(1.052)))))
-            .andThen(pathPlannerFollowPathManual("AmpRunThrough.1").until(()->rc.intakeVision.hasValidTarget()))
-            .andThen(new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3))
-            // .andThen(new ParallelDeadlineGroup(
-            //     makePathFindToPoseCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185))),
-            //     new ConditionalCommand(
-            //         new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel), 
-            //         new WaitCommand(0.5).andThen(new RunCommand(()->{}))
-            //     , rc.shooterVision::hasValidTarget)
-            // ))
-
+            //Probably a better way to do what is shown below
+            .andThen(
+                new ParallelRaceGroup(
+                    pathPlannerFollowPathManual("AmpRunThrough.1"),
+                    new WaitCommand(1.6)
+                        .andThen(
+                            new RunCommand(()->{}).until(()->rc.intakeVision.hasValidTarget())
+                        )
+                )
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                new ParallelCommandGroup(
+                    new RunCommand(rc.intake::intake, rc.intake), 
+                    new RunCommand(rc.passthrough::intake, rc.passthrough)
+                )
+                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked())
+            )
+            .andThen(
+                pathPlannerFollowPathManual("TopShootTopMidShare.1").until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                new ParallelCommandGroup(
+                    new RunCommand(rc.intake::intake, rc.intake), 
+                    new RunCommand(rc.passthrough::intake, rc.passthrough)
+                )
+                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked())
+            )
+            .andThen(
+                pathPlannerFollowPathManual("TopShootMidShare.1")
+                .andThen(pathPlannerFollowPathManual("TopShootMidShare.1"))
+                .andThen(new WaitCommand(10))
+                //makes sure if we dont see any notes that we just stay on that edge.
+                .until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                new ParallelCommandGroup(
+                    new RunCommand(rc.intake::intake, rc.intake), 
+                    new RunCommand(rc.passthrough::intake, rc.passthrough)
+                )
+                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked())
+            )
+            
         );
 
         return false; //will bryan cry tonight 

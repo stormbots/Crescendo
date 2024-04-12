@@ -389,9 +389,9 @@ public class Chassis extends SubsystemBase {
    * 
    * @param isBlue Control over whether bot is blue, makes overload backwards compatible
    */
-  public void setFieldCentricOffset(double offset, BooleanSupplier isBlue){
+  public void setFieldCentricOffset(double degrees, BooleanSupplier isBlue){
     zeroHeading();
-    navx.setAngleAdjustment(isBlue.getAsBoolean() ? offset : -offset);
+    navx.setAngleAdjustment(isBlue.getAsBoolean() ? degrees : -degrees);
   }
 
   /** Apply an offset from initial navx zero to the intended "forward" direction
