@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.sql.Driver;
 import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -31,6 +32,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -211,6 +213,25 @@ public class Chassis extends SubsystemBase {
         },
         pose);
   }
+
+  public void resetOdometryAllianceManaged(Pose2d pose){
+    if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+      pose = new Pose2d(16.642-pose.getX(), pose.getY(), new Rotation2d(Math.PI-pose.getRotation().getRadians())); 
+    }
+
+    var rot = navx.getRotation2d(); 
+
+    swerveDrivePoseEstimator.resetPosition(
+        navx.getRotation2d(),
+        new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            rearLeft.getPosition(),
+            rearRight.getPosition()
+        },
+        pose);
+  }
+  
   /**
    * Method to drive the robot using joystick info.
    *

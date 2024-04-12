@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -53,7 +54,7 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTrackNote;
-import frc.robot.commands.VisionTrackNoteButBetter;
+import frc.robot.commands.VisionTrackNoteAuto;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.Shooter;
@@ -194,14 +195,19 @@ public class AutoFactory {
 
         );
 
-        autoChooser.addOption("funkyfunkyauto", 
-            pathPlannerFollowPathManual("choreo/FunkyFunkyPath.1.traj")
-            .until(()->rc.intakeVision.hasValidTarget())
-            // .andThen(new VisionTrackNote(()->0, ()->0, ()->0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds))
-            //Just to see if it tracks right
-            .andThen(new VisionTrackNoteButBetter(rc))
-            .andThen(makePathFindToPoseCommand(new Pose2d(1.9, 5.5, new Rotation2d())))
-            .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel))
+        autoChooser.addOption("ampGamePieceVisionChoreo", 
+            new InstantCommand(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+            .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(0.747,6.659,new Rotation2d(1.052)))))
+            .andThen(pathPlannerFollowPathManual("AmpRunThrough.1").until(()->rc.intakeVision.hasValidTarget()))
+            .andThen(new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3))
+            // .andThen(new ParallelDeadlineGroup(
+            //     makePathFindToPoseCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185))),
+            //     new ConditionalCommand(
+            //         new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel), 
+            //         new WaitCommand(0.5).andThen(new RunCommand(()->{}))
+            //     , rc.shooterVision::hasValidTarget)
+            // ))
+
         );
 
         return false; //will bryan cry tonight 
@@ -290,6 +296,9 @@ public class AutoFactory {
         // NamedCommands.registerCommand("midShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(4.3, 4.85, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("botShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(3, 2.8, new Rotation2d())).runForever());
 
+        NamedCommands.registerCommand("topSpinUpShotNoStopOnTheRun", rc.sequenceFactory.getToShooterStateCommand(5000, 28));
+        NamedCommands.registerCommand("topNoteShotNoStopOnTheRun", rc.sequenceFactory.getToShooterStateCommand(5000, 20.7));
+
         NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28.5-0.5));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 32));
         NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 26)); //previously 28 but we only use sourceRush auto for source side
@@ -327,7 +336,8 @@ public class AutoFactory {
     }
 
     Command pathPlannerFollowPathManual(String pathName){
-        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        // PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(pathName);
         
         return AutoBuilder.followPath(path);
     }

@@ -8,11 +8,8 @@ import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
@@ -20,28 +17,47 @@ import frc.robot.subsystems.IntakeVision.IntakePipeline;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
 
-public class VisionTrackNoteButBetter extends Command {
+public class VisionTrackNoteAuto extends Command {
   private IntakeVision intakeVision;
+  private IntakePipeline pipeline;
   private Chassis chassis;
+  private DoubleSupplier xSpeed;
+  private DoubleSupplier ySpeed;
+  private DoubleSupplier rotSpeed;
   private Intake intake;
   private Passthrough passthrough;
   private Leds leds;
-  private RobotContainer rc;
+  private boolean isFieldcentric = true; 
 
   /** Creates a new VisionTrackNoteOnHeading. */
-  public VisionTrackNoteButBetter(RobotContainer rc) {
+  public VisionTrackNoteAuto(
+    DoubleSupplier xSpeed, 
+    DoubleSupplier ySpeed,
+    DoubleSupplier rotSpeed,
+    Chassis chassis,
+    Intake intake,
+    Passthrough passthrough, 
+    IntakeVision intakeVision, 
+    Leds leds) {
 
     //TODO: put all subsystems last in constructor;
 
-    this.chassis = rc.chassis;
-    this.intake = rc.intake;
-    this.passthrough = rc.passthrough;
-    this.intakeVision = rc.intakeVision;
-    this.leds = rc.leds;
-    this.rc = rc;
+
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+    this.rotSpeed = rotSpeed;
+    this.chassis = chassis;
+    this.intake = intake;
+    this.passthrough = passthrough;
+    this.intakeVision = intakeVision;
+    this.leds = leds;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(chassis, intake, passthrough, leds);
+    addRequirements(chassis);
+    addRequirements(intake);
+    addRequirements(passthrough);
+    addRequirements(intakeVision);
+    addRequirements(leds);
   }
 
   // Called when the command is initially scheduled.
@@ -55,24 +71,19 @@ public class VisionTrackNoteButBetter extends Command {
   @Override
   public void execute() {
     intake.intake();
-    passthrough.intake();
+    passthrough.setPower(0.1);
 
     var target = intakeVision.getVisibleTarget();
     var noteAdjustment = 0.0;
 
     if(target.isPresent()){
       leds.ready();
-      noteAdjustment = -target.get().angleHorizontal * 1/360.0*5/2.0*5.4; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
+      noteAdjustment = -target.get().angleHorizontal * 1/360.0*5/2.0; //TODO roughly tuned PID borrowed from chassis.turnpid, but makes driver happy
     } else {
       leds.preparing();
     }
 
-    double scalar = 3;//If we would ever like to pid to the note rather than stop immediately
-
-    SwerveModuleState[] desiredModuleStates = rc.swerveDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(0, scalar, noteAdjustment));
-    
-    chassis.setModuleStates(desiredModuleStates);
-
+    chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + noteAdjustment, false, true);
   }
   
 
@@ -89,6 +100,7 @@ public class VisionTrackNoteButBetter extends Command {
   @Override
   public boolean isFinished() {
     //check lasercan to see if it sees a note, then end
-    return intake.isBlocked();
+    return passthrough.isBlocked();
   }
+
 }
