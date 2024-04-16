@@ -65,6 +65,10 @@ public class VisionTrackNoteAuto extends Command {
   public void initialize() {
     //set the vision pipeline
     intakeVision.setPipeline(IntakePipeline.kNote);
+    //Although would like to lock servo, the issue becomes during align note when it has to be up
+    //raising it now wouldn't do anything, so keep it down before a better solution is found
+    // passthrough.lockServo(true);
+    passthrough.lockServo(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -100,7 +104,7 @@ public class VisionTrackNoteAuto extends Command {
   @Override
   public boolean isFinished() {
     //check lasercan to see if it sees a note, then end
-    return passthrough.isBlocked();
+    return intake.isBlocked();
   }
 
 }

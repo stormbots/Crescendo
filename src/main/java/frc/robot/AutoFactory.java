@@ -211,6 +211,7 @@ public class AutoFactory {
                         )
                 )
             )
+            //main issue is 1. we dont find a note 2.opponent takes note and we just keep driving at 0.2 of max
             .andThen(
                 new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
@@ -221,11 +222,7 @@ public class AutoFactory {
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
             )
             .andThen(
-                new ParallelCommandGroup(
-                    new RunCommand(rc.intake::intake, rc.intake), 
-                    new RunCommand(rc.passthrough::intake, rc.passthrough)
-                )
-                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked())
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
             )
             .andThen(
                 pathPlannerFollowPathManual("TopShootTopMidShare.1").until(()->rc.intakeVision.hasValidTarget())
@@ -240,15 +237,11 @@ public class AutoFactory {
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
             )
             .andThen(
-                new ParallelCommandGroup(
-                    new RunCommand(rc.intake::intake, rc.intake), 
-                    new RunCommand(rc.passthrough::intake, rc.passthrough)
-                )
-                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked())
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
             )
             .andThen(
                 pathPlannerFollowPathManual("TopShootMidShare.1")
-                .andThen(pathPlannerFollowPathManual("TopShootMidShare.1"))
+                .andThen(pathPlannerFollowPathManual("TopShootMidShare.2"))
                 .andThen(new WaitCommand(10))
                 //makes sure if we dont see any notes that we just stay on that edge.
                 .until(()->rc.intakeVision.hasValidTarget())
@@ -263,11 +256,69 @@ public class AutoFactory {
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
             )
             .andThen(
-                new ParallelCommandGroup(
-                    new RunCommand(rc.intake::intake, rc.intake), 
-                    new RunCommand(rc.passthrough::intake, rc.passthrough)
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            
+        );
+
+        //absolute pain in the butt to read and debug
+        autoChooser.addOption("ampGamePieceVisionChoreo", 
+            new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+            .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))))
+            //Probably a better way to do what is shown below
+            .andThen(
+                new ParallelRaceGroup(
+                    pathPlannerFollowPathManual("FarStartSourceRunThrough.1"),
+                    new WaitCommand(1.0)
+                        .andThen(
+                            new RunCommand(()->{}).until(()->rc.intakeVision.hasValidTarget())
+                        )
                 )
-                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            .andThen(
+                pathPlannerFollowPathManual("BotShootBotMidShare.1").until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            .andThen(
+                pathPlannerFollowPathManual("BotShootMidShare.1")
+                .andThen(new WaitCommand(10))
+                //makes sure if we dont see any notes that we just stay on that edge.
+                .until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
             )
             
         );

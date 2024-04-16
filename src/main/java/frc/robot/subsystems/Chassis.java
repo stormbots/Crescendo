@@ -216,7 +216,7 @@ public class Chassis extends SubsystemBase {
 
   public void resetOdometryAllianceManaged(Pose2d pose){
     if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
-      pose = new Pose2d(16.642-pose.getX(), pose.getY(), new Rotation2d(Math.PI-pose.getRotation().getRadians())); 
+      pose = new Pose2d(16.542-pose.getX(), pose.getY(), new Rotation2d(Math.PI-pose.getRotation().getRadians())); 
     }
 
     var rot = navx.getRotation2d(); 

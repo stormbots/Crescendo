@@ -175,29 +175,34 @@ public class SequenceFactory {
     }
 
     public Command getVisionAlignmentShotCommand(){
-        return new ParallelCommandGroup(
+        return new ParallelDeadlineGroup(
             new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel),
+            //hope were at a close enough angle, may want to consider runForever kind of architecture as well or implement an until statement
             new VisionTurnToSpeakerOpticalOnly(
             ()->0.0,
             ()->0.0,
             ()->0.0,
             rc.shooterVision, rc.chassis, rc.navx)
         )
-        .until(()->rc.shooterFlywheel.isOnTarget()&&rc.shooter.isOnTarget())
         ;
     }
 
     public Command getVisionPathFindCommand(Pose2d pose, double flywheelRpm, double shooterAngle){
         return new ParallelDeadlineGroup(
                     rc.autoFactory.makePathFindToPoseCommand(pose),
-
-                    new ConditionalCommand(
-                        new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel), 
-                        new WaitCommand(0.5).andThen(new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(flywheelRpm, shooterAngle))), 
-                        rc.shooterVision::hasValidTarget),
-                        
+                    //spinup before we see target in case w e see last second
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(flywheelRpm, shooterAngle)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel)),
                     new PassthroughAlignNote(rc.passthrough, rc.intake)
                 );
+    }
+
+    public Command getIntakeShootCommand(){
+        return new ParallelCommandGroup(
+                    new RunCommand(rc.intake::intake, rc.intake), 
+                    new RunCommand(rc.passthrough::intake, rc.passthrough)
+                )
+                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked());
     }
 
 }

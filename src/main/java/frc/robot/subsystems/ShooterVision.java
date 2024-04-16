@@ -88,7 +88,7 @@ public class ShooterVision extends SubsystemBase {
 
   private void updateOdometry() {
     if (hasValidTarget()==false) {return;}
-
+    //could use botpose_wpiblue to mitigate the units being added around line 95
     double[] bp = camera.getEntry("botpose").getDoubleArray(new double[]{0,0,0,0,0,0});
 
     if (bp.length<6) {return;}
