@@ -6,8 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -91,18 +90,30 @@ public class ShooterVision extends SubsystemBase {
   private void updateOdometry() {
     if (hasValidTarget()==false) {return;}
 
-    double[] bp = camera.getEntry("botpose").getDoubleArray(new double[]{0,0,0,0,0,0});
+    // double[] bp = camera.getEntry("botpose").getDoubleArray(new double[]{0,0,0,0,0,0});
 
-    if (bp.length<6) {return;}
-    Rotation2d rot = new Rotation2d(Math.toRadians(bp[5]));
-    Pose2d botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
-    poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
+    // if (bp.length<6) {return;}
+    // Rotation2d rot = new Rotation2d(Math.toRadians(bp[5]));
+    // Pose2d botPose = new Pose2d(bp[0]+15.980/2.0, bp[1]+8.210/2.0, rot);
+    // poseEstimator.addVisionMeasurement(botPose, Timer.getFPGATimestamp());
 
-    var stdevs = new Matrix<>(Nat.N3(), Nat.N1(), new double[]{1,1,1}); //confidence checker
-    poseEstimator.setVisionMeasurementStdDevs(stdevs);
+    // var stdevs = new Matrix<>(Nat.N3(), Nat.N1(), new double[]{1,1,1}); //confidence checker
+    // poseEstimator.setVisionMeasurementStdDevs(stdevs);
 
-    field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
-    field.getObject("shootervisionpose").setPose(botPose);
+    // field.getRobotObject().setPose(poseEstimator.getEstimatedPosition());
+    // field.getObject("shootervisionpose").setPose(botPose);
+
+    camera.getEntry("robot_orientation_set").setDoubleArray(new double[]{poseEstimator.getEstimatedPosition().getRotation().getDegrees(),0.0,0.0,0.0,0.0,0.0});
+    poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999)); //Megatag depends on gyro never changing/us constantly knowing it, default values
+    var megaTagEntry = camera.getEntry("botpose_orb_wpiblue");//blue side origin, dont need to manage origin
+    double[] bp = megaTagEntry.getDoubleArray(new double[]{0,0,0,0,0,0,0});
+
+    if (bp.length<7) {return;}
+    var timestamp = megaTagEntry.getLastChange()/1000000.0 - bp[6]/1000.0; //lastchange(microseconds) - latency(milliseconds) in seconds;
+    var pose = new Pose2d(bp[0], bp[1], new Rotation2d(Units.Radians.convertFrom(bp[5], Units.Degrees)));
+    if(true){//if we want to add in other checks
+      poseEstimator.addVisionMeasurement(pose, timestamp);
+    }
   }
 
   public void zoomIfPossible() {
@@ -244,5 +255,15 @@ public class ShooterVision extends SubsystemBase {
 
   public void setIDFilter(double[] filteredIDS) {
     camera.getEntry("fiducial_id_filters_set").setDoubleArray(filteredIDS);
+  }
+
+  public void selectAllAprilTags() {
+    double[] idFilter = {0.0, 1.0, 2.0, 3.0, 4.0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    setIDFilter(idFilter);
+  }
+
+  public void selectSpeakerAprilTags() {
+    double[] idFilter = {4, 7};
+    setIDFilter(idFilter);
   }
 }

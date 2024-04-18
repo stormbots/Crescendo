@@ -32,7 +32,8 @@ public class IntakeNote extends Command {
   @Override
   public void execute() {
     intake.intake();
-    passthrough.intake();
+    // passthrough.intake();
+    passthrough.setPower(0.1);
 
     if (exitsOnCompletion==false) {
       passthrough.intake();

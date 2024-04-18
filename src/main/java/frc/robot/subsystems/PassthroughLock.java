@@ -26,7 +26,7 @@ public class PassthroughLock extends SubsystemBase{
     }
 
     public void unlock() {
-        servo.setPulseTimeMicroseconds(2000);
+        servo.setPulseTimeMicroseconds(2500);
     }
 
     public static Command setUnlocked(){

@@ -37,8 +37,8 @@ public class ApplyShooterOffset extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        if (axis3.getAsDouble() >= -0.95) wentDown = true;
-        if (axis3.getAsDouble() <= 0.95) wentUp = true;
+        if (axis3.getAsDouble() <= -0.95) wentDown = true;
+        if (axis3.getAsDouble() >= 0.95) wentUp = true;
         if (wentUp && wentDown) {
             RobotContainer.shooterOffset = Lerp.lerp(
               axis3.getAsDouble(), 

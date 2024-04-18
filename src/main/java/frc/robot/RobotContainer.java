@@ -70,7 +70,7 @@ public class RobotContainer {
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   // public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
-  public static final double INITIALSHOOTEROFFSET = 0; 
+  public static final double INITIALSHOOTEROFFSET = 0.976378-0.4; 
   public static double shooterOffset = INITIALSHOOTEROFFSET;//adjusted via slider
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
@@ -407,8 +407,8 @@ public class RobotContainer {
     //load rollers / intake to rollers
     operatorJoystick.button(5).whileTrue(
       new ConditionalCommand(
-        sequenceFactory.getDunkArmNoteTransferSequence()
-        .alongWith(PassthroughLock.setLocked()),
+        sequenceFactory.getDunkArmNoteTransferSequence(),
+        // .alongWith(PassthroughLock.setLocked()),
 
         new ParallelCommandGroup(
           new IntakeNote(intake, passthrough).runForever(),
@@ -456,9 +456,12 @@ public class RobotContainer {
       new ParallelCommandGroup(
         new RunCommand(intake::eject, intake),
         new RunCommand(passthrough::eject, passthrough),
-        new SetShooterProfiled(0, shooter), 
         new SetFlywheelSlew(-500, shooterFlywheel),
-        new RunCommand(dunkArmRoller::eject, dunkArmRoller)
+        new ConditionalCommand(
+          new RunCommand(dunkArmRoller::eject, dunkArmRoller),
+          new RunCommand(()->{}, dunkArmRoller),
+          ()->dunkArm.getAngle()<-20 && shooter.getShooterAngle()<5
+        )
       )
       .until(()->passthrough.isBlocked())
       .andThen(new PassthroughAlignNote(passthrough, intake))
@@ -477,12 +480,12 @@ public class RobotContainer {
     )
     // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel)
     .whileTrue(new SetShooterProfiled(0, shooter))
-    .onTrue(new ConditionalCommand(
-      new ClimberSetPosition(climber, Units.Inches.of(11)),
-      new InstantCommand(), 
-      ()->climber.getPosition().in(Units.Inches)<2.0&&climber.isHomed
-      )
-    )
+    // .onTrue(new ConditionalCommand(
+    //   new ClimberSetPosition(climber, Units.Inches.of(11)),
+    //   new InstantCommand(), 
+    //   ()->climber.getPosition().in(Units.Inches)<2.0&&climber.isHomed
+    //   )
+    // )
     .onTrue(PassthroughLock.setLocked()
     )
     .onTrue(
@@ -541,18 +544,19 @@ public class RobotContainer {
     // )
     // .onFalse(new RunCommand(()->{}, dunkArm))
     // // ;
-    // operatorJoystick.button(15).whileTrue(
-    //   new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
-    // )
-    // .whileTrue(
-    //   new VisionTurnToTargetPose(
-    //     ()-> -driverController.getLeftY(),
-    //     ()-> -driverController.getLeftX(),
-    //     ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
+    operatorJoystick.button(15).whileTrue(
+      new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
+    )
+    .whileTrue(
+      new VisionTurnToTargetPose(
+        ()-> -driverController.getLeftY(),
+        ()-> -driverController.getLeftX(),
+        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
       
-    // )
-    // .onTrue(new InstantCommand(()->passthrough.lockServo(false)))
-    // .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
+    )
+    .onTrue(PassthroughLock.setUnlocked())
+    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
+    .whileTrue(new StartEndCommand(shooterVision::selectSpeakerAprilTags, shooterVision::selectAllAprilTags));
 
     // operatorJoystick.button(15)
     // .whileTrue(
