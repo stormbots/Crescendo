@@ -217,7 +217,7 @@ public class AutoFactory {
                 new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(2) //Find a better value than 0.2
             )
             .andThen(
-                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+                getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -232,7 +232,7 @@ public class AutoFactory {
                 new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
-                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+                getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -251,7 +251,7 @@ public class AutoFactory {
                 new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
-                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+                getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -280,7 +280,7 @@ public class AutoFactory {
                 new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
-                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -295,7 +295,7 @@ public class AutoFactory {
                 new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
-                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -313,7 +313,7 @@ public class AutoFactory {
                 new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
-                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -424,7 +424,7 @@ public class AutoFactory {
         NamedCommands.registerCommand("topShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("topShootPosShotNoStop3", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("topShootPosShotNoStop4", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
-        NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14.5));
+        NamedCommands.registerCommand("midShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(6000, 14));
         NamedCommands.registerCommand("botShootPosShotNoStop", rc.sequenceFactory.getToShooterStateCommand(5500, 14));
         NamedCommands.registerCommand("visionShot", new ParallelCommandGroup(
             new VisionTurnToAprilTag(()->0, ()->0, ()->0, rc.shooterVision, rc.chassis, rc.navx).withTimeout(1),
@@ -462,6 +462,16 @@ public class AutoFactory {
         8.4, 8.1);
 
         return AutoBuilder.pathfindToPose(pose, constraints);
+    }
+
+    public Command getVisionPathFindCommand(Pose2d pose, double flywheelRpm, double shooterAngle){
+        return new ParallelDeadlineGroup(
+                    makePathFindToPoseCommand(pose),
+                    //spinup before we see target in case w e see last second
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(flywheelRpm, shooterAngle)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                    new PassthroughAlignNote(rc.passthrough, rc.intake)
+                );
     }
 
     public Command ExampleAuto(){

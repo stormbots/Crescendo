@@ -20,6 +20,7 @@ import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -75,6 +76,7 @@ public class DunkArm extends SubsystemBase {
     armMotor.setClosedLoopRampRate(0.05);
     armPID.setOutputRange(-0.2, 0.2);
     syncEncoders();
+    Timer.delay(0.02);
     reverseSoftLimit = getAngle() + 1;
     armMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
     // armMotor.setSoftLimit(SoftLimitDirection.kReverse, -30);
@@ -107,6 +109,7 @@ public class DunkArm extends SubsystemBase {
     SmartDashboard.putNumber("dunkArm/position", armMotor.getEncoder().getPosition());
     SmartDashboard.putNumber("dunkArm/setpoint", armSetpoint);
     SmartDashboard.putNumber("currenttesting/dunkArm", armMotor.getOutputCurrent());
+    SmartDashboard.putNumber("dunkArm/reverseSoftLimit", reverseSoftLimit);
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

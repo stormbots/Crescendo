@@ -43,7 +43,7 @@ public class ApplyShooterOffset extends Command {
             RobotContainer.shooterOffset = Lerp.lerp(
               axis3.getAsDouble(), 
               1, -1,
-              RobotContainer.INITIALSHOOTEROFFSET-2, RobotContainer.INITIALSHOOTEROFFSET+5
+              RobotContainer.INITIALSHOOTEROFFSET-2, RobotContainer.INITIALSHOOTEROFFSET+2
             );
         }
         System.out.println("Shooter OffsetL" + RobotContainer.shooterOffset);

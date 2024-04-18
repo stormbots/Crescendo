@@ -42,6 +42,7 @@ import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.ShooterSetVisionLob;
 import frc.robot.commands.VisionTrackNote;
+import frc.robot.commands.VisionTrackNoteAuto;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.commands.VisionTurnToTargetPose;
 import frc.robot.subsystems.Chassis;
@@ -70,7 +71,7 @@ public class RobotContainer {
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   // public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
-  public static final double INITIALSHOOTEROFFSET = 0.976378-0.4; 
+  public static final double INITIALSHOOTEROFFSET = 0; 
   public static double shooterOffset = INITIALSHOOTEROFFSET;//adjusted via slider
   public SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
     new Translation2d(DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
@@ -308,7 +309,7 @@ public class RobotContainer {
    
 
 
-    // Limelight Intake Vision
+    // // Limelight Intake Vision
     driverController
     .axisGreaterThan(3, 0.5) //left trigger?
     .onTrue(PassthroughLock.setLocked())
@@ -323,6 +324,11 @@ public class RobotContainer {
       chassis, intake, passthrough, intakeVision, leds)
     )
     ;
+
+    // driverController
+    // .axisGreaterThan(3, 0.5) //left trigger?
+    // .whileTrue(new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, chassis, intake, passthrough, intakeVision, leds));
+
 
     driverController.povUp()
     .whileTrue(

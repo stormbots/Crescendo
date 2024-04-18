@@ -188,16 +188,6 @@ public class SequenceFactory {
         ;
     }
 
-    public Command getVisionPathFindCommand(Pose2d pose, double flywheelRpm, double shooterAngle){
-        return new ParallelDeadlineGroup(
-                    rc.autoFactory.makePathFindToPoseCommand(pose),
-                    //spinup before we see target in case w e see last second
-                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(flywheelRpm, shooterAngle)).until(rc.shooterVision::hasValidTarget)
-                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
-                    new PassthroughAlignNote(rc.passthrough, rc.intake)
-                );
-    }
-
     public Command getIntakeShootCommand(){
         return new ParallelCommandGroup(
                     new RunCommand(rc.intake::intake, rc.intake), 

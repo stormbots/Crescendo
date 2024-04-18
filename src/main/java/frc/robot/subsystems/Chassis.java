@@ -159,10 +159,15 @@ public class Chassis extends SubsystemBase {
     field.setRobotPose(pose);
     
     SmartDashboard.putData("chassis", field);
-    // SmartDashboard.putData("modules/fr", frontRight);
-    // SmartDashboard.putData("modules/fl", frontLeft);
-    // SmartDashboard.putData("modules/rr", rearRight);
-    // SmartDashboard.putData("modules/rl", rearLeft);
+    SmartDashboard.putData("modules/fr", frontRight);
+    SmartDashboard.putData("modules/fl", frontLeft);
+    SmartDashboard.putData("modules/rr", rearRight);
+    SmartDashboard.putData("modules/rl", rearLeft);
+
+    SmartDashboard.putNumber("modules/frTurn", frontRight.getPosition().angle.getDegrees());
+    SmartDashboard.putNumber("modules/flTurn", frontLeft.getPosition().angle.getDegrees());
+    SmartDashboard.putNumber("modules/rrTurn", rearRight.getPosition().angle.getDegrees());
+    SmartDashboard.putNumber("modules/rlTurn", rearLeft.getPosition().angle.getDegrees());
 
     SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
     SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
