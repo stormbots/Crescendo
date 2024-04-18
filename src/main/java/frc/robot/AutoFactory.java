@@ -235,7 +235,7 @@ public class AutoFactory {
                 rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
             )
             .andThen(
                 rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
@@ -254,7 +254,7 @@ public class AutoFactory {
                 rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
             )
             .andThen(
                 rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
@@ -263,7 +263,7 @@ public class AutoFactory {
         );
 
         //absolute pain in the butt to read and debug
-        autoChooser.addOption("ampGamePieceVisionChoreo", 
+        autoChooser.addOption("sourceGamePieceVisionChoreo", 
             new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue))
             .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))))
             //Probably a better way to do what is shown below
@@ -283,7 +283,7 @@ public class AutoFactory {
                 rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
             )
             .andThen(
                 rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
@@ -316,7 +316,7 @@ public class AutoFactory {
                 rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
             )
             .andThen(
                 rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
