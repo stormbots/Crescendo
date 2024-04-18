@@ -209,7 +209,7 @@ public class RobotContainer {
       .andThen(new RunCommand(shooter::stopShooter))
     );
 
-    var teleopdunkarm = new SetDunkArmSlew(-25, dunkArm)
+    var teleopdunkarm = new SetDunkArmSlew(-30, dunkArm) //might as well
     .andThen(new WaitCommand(0.2))
     .andThen(new RunCommand(()->dunkArm.stop(), dunkArm));
     
@@ -375,7 +375,7 @@ public class RobotContainer {
     operatorJoystick.button(2)
     .onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
-      new SetDunkArmSlew(-25, dunkArm)
+      new SetDunkArmSlew(-30, dunkArm)
       ).withTimeout(3)
     )
     ;
@@ -417,7 +417,7 @@ public class RobotContainer {
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
-        .andThen(new SetDunkArmSlew(-25, dunkArm)),
+        .andThen(new SetDunkArmSlew(-30, dunkArm)),
         
         passthrough::isBlocked
       )
@@ -457,6 +457,7 @@ public class RobotContainer {
         new RunCommand(intake::eject, intake),
         new RunCommand(passthrough::eject, passthrough),
         new SetFlywheelSlew(-500, shooterFlywheel),
+        new SetShooterProfiled(0, shooter), 
         new ConditionalCommand(
           new RunCommand(dunkArmRoller::eject, dunkArmRoller),
           new RunCommand(()->{}, dunkArmRoller),

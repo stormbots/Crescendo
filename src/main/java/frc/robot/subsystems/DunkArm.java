@@ -88,6 +88,9 @@ public class DunkArm extends SubsystemBase {
     armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
     
     armMotor.burnFlash();
+
+    armSetpoint = reverseSoftLimit;
+    setArmAngle(getAngle());
   }
 
   @Override
