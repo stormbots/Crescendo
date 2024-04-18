@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import javax.swing.text.StyleContext.SmallAttributeSet;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -39,6 +41,12 @@ public class ShooterVision extends SubsystemBase {
   Field2d field = new Field2d();
   FieldPosition fieldPos = new FieldPosition();
   public SwerveDrivePoseEstimator poseEstimator;
+  private double lasthHeartbeat=-1;
+  private double lastOKHeartBeatTimer = 0.0;
+  private boolean heartBeatOK = false;
+  private boolean autoVisionOdometryEnabled = false;
+  private boolean printedHeartBeat = false;
+
 
   public ShooterVision(SwerveDrivePoseEstimator poseEstimator){ //need to add pose estimator
     this.poseEstimator = poseEstimator;
@@ -52,7 +60,7 @@ public class ShooterVision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if(DriverStation.isAutonomous()){return;}
+    if(DriverStation.isAutonomous() && !autoVisionOdometryEnabled){return;}
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
     // if (hasValidTarget()) {SmartDashboard.putBoolean("shootervision/validtarget", true);}
@@ -63,6 +71,25 @@ public class ShooterVision extends SubsystemBase {
     SmartDashboard.putData("shootervisionfield", field);
     SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
     SmartDashboard.putBoolean("shooter/distanceinrange", distanceInRange());
+
+    var heartBeat = camera.getEntry("hb").getDouble(0.0);
+    if ( heartBeat - lasthHeartbeat <1) {
+      //all good
+      lastOKHeartBeatTimer = Timer.getFPGATimestamp();
+      heartBeatOK = true;
+    }
+    else {
+      heartBeatOK = false;
+    }
+
+    if (Timer.getFPGATimestamp() - lastOKHeartBeatTimer > 0.5 && !printedHeartBeat){
+      System.err.println("Limelight disconnect!");
+      printedHeartBeat = true;
+    }
+    
+    SmartDashboard.putBoolean("shootervision/heartbeat", heartBeatOK);
+    lasthHeartbeat = heartBeat;
+
   }
 
   public boolean hasValidTarget() {
@@ -265,5 +292,9 @@ public class ShooterVision extends SubsystemBase {
   public void selectSpeakerAprilTags() {
     double[] idFilter = {4, 7};
     setIDFilter(idFilter);
+  }
+
+  public void enableAutoVision(boolean enabled){
+    autoVisionOdometryEnabled = enabled;
   }
 }

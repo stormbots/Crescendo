@@ -76,9 +76,9 @@ public class DunkArm extends SubsystemBase {
     armMotor.setClosedLoopRampRate(0.05);
     armPID.setOutputRange(-0.2, 0.2);
     syncEncoders();
-    Timer.delay(0.02);
+    Timer.delay(0.05);
     reverseSoftLimit = getAngle() + 1;
-    armMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
+    armMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) -31);
     // armMotor.setSoftLimit(SoftLimitDirection.kReverse, -30);
     armMotor.setSoftLimit(SoftLimitDirection.kForward,120); //112 hardstop, 7.3 inch after note transfer to safep trap pos
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);

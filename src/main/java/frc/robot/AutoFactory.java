@@ -202,6 +202,7 @@ public class AutoFactory {
         autoChooser.addOption("ampGamePieceVisionChoreo", 
             new InstantCommand(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
             .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(0.747,6.659,new Rotation2d(1.052)))))
+            .andThen(new InstantCommand(()->rc.shooterVision.enableAutoVision(true)))
             //Probably a better way to do what is shown below
             .andThen(
                 new ParallelRaceGroup(
@@ -214,7 +215,7 @@ public class AutoFactory {
             )
             //main issue is 1. we dont find a note 2.opponent takes note and we just keep driving at 0.2 of max
             .andThen(
-                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(2) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(2) //Find a better value than 0.2
             )
             .andThen(
                 getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
@@ -229,7 +230,7 @@ public class AutoFactory {
                 pathPlannerFollowPathManual("TopShootTopMidShare.1").until(()->rc.intakeVision.hasValidTarget())
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
                 getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
@@ -248,7 +249,7 @@ public class AutoFactory {
                 .until(()->rc.intakeVision.hasValidTarget())
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
                 getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
@@ -266,6 +267,7 @@ public class AutoFactory {
         autoChooser.addOption("sourceGamePieceVisionChoreo", 
             new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue))
             .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))))
+            .andThen(new InstantCommand(()->rc.shooterVision.enableAutoVision(true)))
             //Probably a better way to do what is shown below
             .andThen(
                 new ParallelRaceGroup(
@@ -277,9 +279,10 @@ public class AutoFactory {
                 )
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
+                // makePathFindToPoseCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)))
                 getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
             )
             .andThen(
@@ -292,7 +295,7 @@ public class AutoFactory {
                 pathPlannerFollowPathManual("BotShootBotMidShare.1").until(()->rc.intakeVision.hasValidTarget())
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
                 getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
@@ -310,7 +313,7 @@ public class AutoFactory {
                 .until(()->rc.intakeVision.hasValidTarget())
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
                 getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)

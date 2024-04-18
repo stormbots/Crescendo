@@ -325,14 +325,19 @@ public class RobotContainer {
     )
     ;
 
-    // driverController
-    // .axisGreaterThan(3, 0.5) //left trigger?
-    // .whileTrue(new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, chassis, intake, passthrough, intakeVision, leds));
+    driverController.povRight()
+    .whileTrue(new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, chassis, intake, passthrough, intakeVision, leds));
 
 
     driverController.povUp()
     .whileTrue(
       new RunCommand(()->chassis.setX())
+    );
+
+    driverController.povLeft()
+    .whileTrue(
+      new InstantCommand(()->chassis.resetOdometryAllianceManaged(new Pose2d(2, 5, new Rotation2d())))
+      .andThen(autoFactory.makePathFindToPoseCommand(new Pose2d(2.8, 5.6, new Rotation2d())))
     );
 
   }
