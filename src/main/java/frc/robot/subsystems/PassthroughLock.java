@@ -12,7 +12,7 @@ public class PassthroughLock extends SubsystemBase{
 
     private PassthroughLock() {
         servo.setBoundsMicroseconds(2500, 1501, 1500, 1499, 500);  
-        
+        unlock();
         // this.setDefaultCommand(new RunCommand(this::unlock,this));
     }
 

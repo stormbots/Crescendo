@@ -4,10 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -19,6 +22,8 @@ import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.PassthroughLock;
+import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.ShooterFlywheel;
 
 /** 
@@ -168,6 +173,37 @@ public class SequenceFactory {
         return Clamp.bounded(rc.shooterFlywheel.getRPM(), flywheelRpm-300, flywheelRpm+300)&& 
         Clamp.bounded(rc.shooter.getShooterAngle(), shooterAngle-3, shooterAngle+3) && 
         Clamp.bounded(rc.shooter.getState().velocity, -5, 5);
+    }
+
+    public Command getVisionAlignmentShotCommand(){
+        return new ParallelDeadlineGroup(
+            new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel),
+            //hope were at a close enough angle, may want to consider runForever kind of architecture as well or implement an until statement
+            new VisionTurnToSpeakerOpticalOnly(
+            ()->0.0,
+            ()->0.0,
+            ()->0.0,
+            rc.shooterVision, rc.chassis, rc.navx)
+        )
+        ;
+    }
+
+    public Command getVisionPathFindCommand(Pose2d pose, double flywheelRpm, double shooterAngle){
+        return new ParallelDeadlineGroup(
+                    rc.autoFactory.makePathFindToPoseCommand(pose),
+                    //spinup before we see target in case w e see last second
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(flywheelRpm, shooterAngle)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                    new PassthroughAlignNote(rc.passthrough, rc.intake)
+                );
+    }
+
+    public Command getIntakeShootCommand(){
+        return new ParallelCommandGroup(
+                    new RunCommand(rc.intake::intake, rc.intake), 
+                    new RunCommand(rc.passthrough::intake, rc.passthrough)
+                )
+                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked());
     }
 
 }

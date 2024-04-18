@@ -31,7 +31,7 @@ public class Passthrough extends SubsystemBase {
   private double kPassthroughSpeed=1.0;
   //LaserCAN Sensor Setup
   public LaserCan lasercan = new LaserCan(20);
-  public Servo servo = new Servo(8);
+  public Servo servo = new Servo(8); // not used!!!
   public static boolean servoBlocked = true;
 
   /** where we want the game piece under ideal conditions, in mm */
@@ -45,7 +45,7 @@ public class Passthrough extends SubsystemBase {
 
   /** Creates a new Passthrough. */
   public Passthrough() {
-    lockServo(false);
+    // lockServo(false);
     motor.restoreFactoryDefaults();
     motor.clearFaults();
     motorB.restoreFactoryDefaults();

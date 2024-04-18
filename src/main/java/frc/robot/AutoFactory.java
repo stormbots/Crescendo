@@ -26,6 +26,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -40,17 +41,22 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.VisionTrackNote;
+import frc.robot.commands.VisionTrackNoteAuto;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.PassthroughLock;
@@ -106,87 +112,16 @@ public class AutoFactory {
 
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
 
-        // autoChooser.addOption("untested autos", new InstantCommand());
-
         // autoChooser.addOption("vv Test Autos vv", new InstantCommand());
-
-        // autoChooser.addOption("rpmandShoot", rc.sequenceFactory.getSetRPMandShootCommand(3000, 20));
-
 
 
         // autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
-        // autoChooser.addOption("Rotate + Two Meter Auto Path Planner", pathPlannerFollowPathManual("twoMeterRotation"));
 
         // autoChooser.addOption("auto Trap", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(60))
         //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(4.9, 4.1, new Rotation2d(Units.Degrees.of(-60)))))
         //     .andThen(rc.sequenceFactory.getTrapSequenceCommand(pathPlannerFollowPathManual("ampTrap"), Units.Degrees.of(-60)))
         // );
-
-        // autoChooser.addOption("twoMeterRotation", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0))
-        //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(0,0,new Rotation2d())))
-        //     .andThen(pathPlannerFollowPathManual("twoMeterRotation"))
-        //     );
-        
-        // autoChooser.addOption("resetCenterPositionRed", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0))
-        //     .andThen(()->rc.chassis.resetOdometry(new Pose2d(16.6-1.3, 5.65, new Rotation2d(Units.Degrees.of(180)))))
-        // );
-
-        // autoChooser.addOption("vv PathPlanner Untested Autos vv", new InstantCommand());
-
-        // autoChooser.addOption("basicAmpAuto", 
-        // new InstantCommand()
-        // .andThen(()->rc.chassis.setFieldCentricOffset(-60))
-        // .andThen(new PathPlannerAuto("basicAmpAuto")));
-
-        // autoChooser.addOption("5NoteAmp", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        //     .andThen(new PathPlannerAuto("5NoteAmpAuto"))
-        // );
-
-        // autoChooser.addOption("4noteAmp", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteAmpAuto"))
-        // );
-
-        // autoChooser.addOption("4NoteSource", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteSourceAuto"))
-        // );
-
-        // autoChooser.addOption("5NoteCenter", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-        //     .andThen(new PathPlannerAuto("5NoteCenterAuto"))
-        // );
-
-        // autoChooser.addOption("Vision5NoteAmp", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteAmpAutoVision"))
-        // );
-
-        // autoChooser.addOption("4NoteCenter", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-        //     .andThen(new PathPlannerAuto("4NoteCenterAuto"))
-        // );
-
-        // autoChooser.addOption("closeNote", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        //     .andThen(new PathPlannerAuto("closeNoteAuto"))
-        // );
-
-        // autoChooser.addOption("2NoteAmp", new InstantCommand()
-        // .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-        // .andThen(new PathPlannerAuto("2NoteAmpAuto")));
-
-        // autoChooser.addOption("2NoteSource", new InstantCommand()
-        // .andThen(()->rc.chassis.setFieldCentricOffset(60, isBlue))
-        // .andThen(new PathPlannerAuto("2NoteSourceAuto")));
-
-        // autoChooser.addOption("Circle", new InstantCommand()
-        //     .andThen(()->rc.chassis.setFieldCentricOffset(90, isBlue))
-        //     .andThen(new PathPlannerAuto("CircleAuto")));
 
         autoChooser.addOption("5NoteAmpChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
@@ -261,6 +196,132 @@ public class AutoFactory {
                 .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
                 .andThen(new WaitCommand(2))
 
+        );
+
+        //absolute pain in the butt to read and debug
+        autoChooser.addOption("ampGamePieceVisionChoreo", 
+            new InstantCommand(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+            .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(0.747,6.659,new Rotation2d(1.052)))))
+            //Probably a better way to do what is shown below
+            .andThen(
+                new ParallelRaceGroup(
+                    pathPlannerFollowPathManual("AmpRunThrough.1"),
+                    new WaitCommand(1.6)
+                        .andThen(
+                            new RunCommand(()->{}).until(()->rc.intakeVision.hasValidTarget())
+                        )
+                )
+            )
+            //main issue is 1. we dont find a note 2.opponent takes note and we just keep driving at 0.2 of max
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(2) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            .andThen(
+                pathPlannerFollowPathManual("TopShootTopMidShare.1").until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            .andThen(
+                pathPlannerFollowPathManual("TopShootMidShare.1")
+                .andThen(pathPlannerFollowPathManual("TopShootMidShare.2"))
+                .andThen(new WaitCommand(10))
+                //makes sure if we dont see any notes that we just stay on that edge.
+                .until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            
+        );
+
+        //absolute pain in the butt to read and debug
+        autoChooser.addOption("ampGamePieceVisionChoreo", 
+            new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+            .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))))
+            //Probably a better way to do what is shown below
+            .andThen(
+                new ParallelRaceGroup(
+                    pathPlannerFollowPathManual("FarStartSourceRunThrough.1"),
+                    new WaitCommand(1.0)
+                        .andThen(
+                            new RunCommand(()->{}).until(()->rc.intakeVision.hasValidTarget())
+                        )
+                )
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            .andThen(
+                pathPlannerFollowPathManual("BotShootBotMidShare.1").until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            .andThen(
+                pathPlannerFollowPathManual("BotShootMidShare.1")
+                .andThen(new WaitCommand(10))
+                //makes sure if we dont see any notes that we just stay on that edge.
+                .until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.2, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(2)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+            )
+            
         );
 
         return false; //will bryan cry tonight 
@@ -349,6 +410,9 @@ public class AutoFactory {
         // NamedCommands.registerCommand("midShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(4.3, 4.85, new Rotation2d())).runForever());
         // NamedCommands.registerCommand("botShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(3, 2.8, new Rotation2d())).runForever());
 
+        NamedCommands.registerCommand("topSpinUpShotNoStopOnTheRun", rc.sequenceFactory.getToShooterStateCommand(5000, 28));
+        NamedCommands.registerCommand("topNoteShotNoStopOnTheRun", rc.sequenceFactory.getToShooterStateCommand(5000, 20.7));
+
         NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28.5-0.5));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 32));
         NamedCommands.registerCommand("botSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 26)); //previously 28 but we only use sourceRush auto for source side
@@ -386,15 +450,16 @@ public class AutoFactory {
     }
 
     Command pathPlannerFollowPathManual(String pathName){
-        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        // PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(pathName);
         
         return AutoBuilder.followPath(path);
     }
     
     Command makePathFindToPoseCommand(Pose2d pose){
         PathConstraints constraints = new PathConstraints(
-        1.0, 1.0,
-        Math.PI, Math.PI);
+        3.5, 5.1,
+        8.4, 8.1);
 
         return AutoBuilder.pathfindToPose(pose, constraints);
     }
@@ -402,113 +467,6 @@ public class AutoFactory {
     public Command ExampleAuto(){
         return new InstantCommand(()->{},rc.chassis,rc.climber);
     }
-
-
-    SwerveControllerCommand generateSwerveControllerCommand(Trajectory trajectory){
-    
-        SwerveControllerCommand swerveControllerCommand = new
-        SwerveControllerCommand(
-          trajectory,
-          rc.chassis::getPose, // Functional interface to feed supplier
-          rc.swerveDriveKinematics,
-          //Probably percent per error (so 0.1 means 10% output for every meter)
-          new PIDController(AutoConstants.kPDrivingP, 0, 0),
-          new PIDController(AutoConstants.kPDrivingP, 0, 0),
-          thetaController,
-          rc.chassis::setModuleStates,
-          rc.chassis
-        );
-    
-        return swerveControllerCommand;
-    }
-
-    SwerveControllerCommand generateSwerveControllerCommand(Pose2d start, List<Translation2d> midpoints, Pose2d end){
-        return generateSwerveControllerCommand(
-            TrajectoryGenerator.generateTrajectory(start, midpoints, end, trajectoryConfig)
-        );
-    }
-
-    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end, double rpm, double angle){
-        //Setting gyro offset + odometry
-        //Preparing shooting
-        //Shooting
-        //Running path to note + intake
-
-        //todo Shooting for the second time
-        double gyroOffset = 0;
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){//Checking if blue
-            gyroOffset = -start.getRotation().getRadians();
-        }
-        else{
-            gyroOffset = MathUtil.angleModulus(Math.PI-start.getRotation().getRadians());
-        }
-        final double fgyroOffset = Math.toDegrees(gyroOffset);
-
-        return new InstantCommand()
-        .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
-        .andThen(()->rc.chassis.resetOdometry(start))
-        // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(rpm, angle))
-        .andThen(new ParallelDeadlineGroup(
-            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
-            rc.sequenceFactory.getIntakeThenAlignCommand()
-        ))
-        ;
-    }
-
-    public Command makeBasicAuto(Pose2d start, List<Translation2d> midpoints,Pose2d end){
-        return makeBasicAuto(start, midpoints, end, 5500, 47);
-
-    }
-
-    public Command makeBasicAuto(Pose2d start, Pose2d end){
-        return makeBasicAuto(start, List.of(), end);
-    }
-
-
-    public Command makeBasicAutoWithTurn(Pose2d start, List<Translation2d> midpoints,Pose2d end, double gyroAngleDegrees){
-        //Setting gyro offset + odometry
-        //Preparing shooting
-        //Shooting
-        //Running path to note + intake
-
-        //todo Shooting for the second time
-        double gyroOffset = 0;
-        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){//Checking if blue
-            gyroOffset = -start.getRotation().getRadians();
-        }
-        else{
-            gyroOffset = MathUtil.angleModulus(Math.PI-start.getRotation().getRadians());
-        }
-        final double fgyroOffset = Math.toDegrees(gyroOffset);
-
-        return new InstantCommand()
-        .andThen(()->rc.chassis.setFieldCentricOffset(fgyroOffset))
-        .andThen(()->rc.chassis.resetOdometry(start))
-        .andThen(()->rc.chassis.driveToBearing(Math.toRadians(gyroAngleDegrees)))
-        // .andThen(()->rc.chassis.resetOdometry(new Pose2d(start.getX(),start.getY(), rc.navx.getRotation2d())))
-        .andThen(rc.sequenceFactory.getSetRPMandShootCommand(5500,50))
-        .andThen(new ParallelDeadlineGroup(
-            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
-            rc.sequenceFactory.getIntakeThenAlignCommand()
-        ))
-        ;
-    }
-
-    public Command makeNoteToMidIntake(Pose2d start, List<Translation2d> midpoints, Pose2d end){
-        return new InstantCommand()
-        .andThen(new ParallelDeadlineGroup(
-            generateSwerveControllerCommand(start, midpoints, end).andThen(new WaitCommand(1)).withTimeout(6),
-            rc.sequenceFactory.getIntakeThenAlignCommand()
-        ))
-        .andThen(generateSwerveControllerCommand(end, midpoints, start).withTimeout(6))
-        ;
-    }
-
-    public Command makeNoteToMidIntake(Pose2d start, Pose2d end){
-        return makeNoteToMidIntake(start, List.of(), end);
-    }
-
 
     public SendableChooser<Command> getAutoChooser(){
         try{
