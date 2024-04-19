@@ -295,9 +295,9 @@ public class RobotContainer {
     );
 
    driverController.povDown()
-   .whileTrue(
-      new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
-    )
+  //  .whileTrue(
+  //     new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
+  //   )
     .whileTrue(
       new VisionTurnToTargetPose(
         ()-> -driverController.getLeftY(),
@@ -562,14 +562,14 @@ public class RobotContainer {
     operatorJoystick.button(15).whileTrue(
       new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
     )
-    .whileTrue(
-      new VisionTurnToTargetPose(
-        ()-> -driverController.getLeftY(),
-        ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
-        .reverseDirection()
+    // .whileTrue(
+    //   new VisionTurnToTargetPose(
+    //     ()-> -driverController.getLeftY(),
+    //     ()-> -driverController.getLeftX(),
+    //     ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
+    //     .reverseDirection()
       
-    )
+    // )
     .onTrue(PassthroughLock.setUnlocked())
     .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
     .whileTrue(new StartEndCommand(shooterVision::selectAllTagsPipeline, shooterVision::selectSpeakerPipeline));
