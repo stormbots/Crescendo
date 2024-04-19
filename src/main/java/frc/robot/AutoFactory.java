@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.BooleanSupplier;
@@ -22,32 +21,26 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.stormbots.LUT;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
@@ -55,10 +48,8 @@ import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
-import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTrackNoteAuto;
 import frc.robot.commands.VisionTurnToAprilTag;
-import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.Shooter;
 
@@ -481,7 +472,13 @@ public class AutoFactory {
         return AutoBuilder.followPath(path);
     }
     
+    //NOTE: INITIALIZES ONCE ON STARTUP, DETERMINES SIDE BEFOREHAND
     Command makePathFindToPoseCommand(Pose2d pose){
+        if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+            SmartDashboard.putBoolean("PathfindBoolean", DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red);
+            pose = new Pose2d(16.542-pose.getX(), pose.getY(), new Rotation2d(Math.PI-pose.getRotation().getRadians())); 
+        }
+        
         PathConstraints constraints = new PathConstraints(
         3.5, 5.1,
         8.4, 8.1);

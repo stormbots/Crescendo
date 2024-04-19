@@ -28,7 +28,7 @@ import frc.robot.Clamp;
 public class ShooterVision extends SubsystemBase {
   /** Creates a new Vision. */
   public enum LimelightPipeline {
-    kNoVision, kOdometry, kZoom, kSpeaker
+    kNoVision, kOdometry, kZoom, kSpeaker, kAllTags
   }
   public class LimelightReadings {
     public Measure<Distance> distance; //inches
@@ -138,10 +138,12 @@ public class ShooterVision extends SubsystemBase {
     return Optional.of(deltaPose);
   }
 
+
+  //NOTE: USE ABOVE FUNCTION, BELOW ONES ARE UNCONFIRMED
   /**
    * @return angle to the left/right as seen by robot
    */
-  public Optional<Double> getOrthogonalAngle(Pose2d target) {
+  public Optional<Double> getOrthogonalAngleFR(Pose2d target) {
     if (target==null) return Optional.empty();
 
     Pose2d deltaPose = getPoseDifference(target).get();
@@ -153,7 +155,7 @@ public class ShooterVision extends SubsystemBase {
   /**
    * @return the difference in their rotations relative to the field
    */
-  public Optional<Double> getOrthogonalAngleFR(Pose2d target) {
+  public Optional<Double> getOrthogonalAngleRR(Pose2d target) {
     if (target==null) return Optional.empty();
 
     Pose2d deltaPose = getPoseDifference(target).get();
@@ -205,6 +207,8 @@ public class ShooterVision extends SubsystemBase {
       case kSpeaker:
       camera.getEntry("pipeline").setNumber(3);
       break;
+      case kAllTags:
+      camera.getEntry("pipeline").setNumber(4);
     }
   }
 
@@ -239,14 +243,22 @@ public class ShooterVision extends SubsystemBase {
     camera.getEntry("fiducial_id_filters_set").setDoubleArray(filteredIDS);
   }
 
-  public void selectAllAprilTags() {
-    double[] idFilter = {0.0, 1.0, 2.0, 3.0, 4.0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    setIDFilter(idFilter);
+  // public void selectAllAprilTags() {
+  //   double[] idFilter = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+  //   setIDFilter(idFilter);
+  // }
+
+  // public void selectSpeakerAprilTags() {
+  //   double[] idFilter = {4, 7};
+  //   setIDFilter(idFilter);
+  // }
+
+  public void selectSpeakerPipeline() {
+    setPipeline(LimelightPipeline.kSpeaker);
   }
 
-  public void selectSpeakerAprilTags() {
-    double[] idFilter = {4, 7};
-    setIDFilter(idFilter);
+  public void selectAllTagsPipeline() {
+    setPipeline(LimelightPipeline.kAllTags);
   }
 
   public void enableAutoVision(boolean enabled){
@@ -259,6 +271,10 @@ public class ShooterVision extends SubsystemBase {
 
   public void resetSnapshot() {
     camera.getEntry("snapshot").setNumber(0);
+  }
+
+  public Field2d getField() {
+    return field;
   }
 
     // public Optional<Double> getOrthogonalAngle(Pose3d target) {

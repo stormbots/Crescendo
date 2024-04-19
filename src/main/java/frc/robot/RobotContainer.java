@@ -59,6 +59,7 @@ import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.ShooterVision.LimelightPipeline;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -301,12 +302,14 @@ public class RobotContainer {
       new VisionTurnToTargetPose(
         ()-> -driverController.getLeftY(),
         ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
+        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
         .reverseDirection() 
     )
     .onTrue(PassthroughLock.setUnlocked())
-    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
-   
+    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
+    .whileTrue(new StartEndCommand(shooterVision::selectAllTagsPipeline, shooterVision::selectSpeakerPipeline)
+    )
+    ;
 
 
     // // Limelight Intake Vision
@@ -563,12 +566,13 @@ public class RobotContainer {
       new VisionTurnToTargetPose(
         ()-> -driverController.getLeftY(),
         ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
+        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
+        .reverseDirection()
       
     )
     .onTrue(PassthroughLock.setUnlocked())
     .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
-    .whileTrue(new StartEndCommand(shooterVision::selectSpeakerAprilTags, shooterVision::selectAllAprilTags));
+    .whileTrue(new StartEndCommand(shooterVision::selectAllTagsPipeline, shooterVision::selectSpeakerPipeline));
 
     // operatorJoystick.button(15)
     // .whileTrue(

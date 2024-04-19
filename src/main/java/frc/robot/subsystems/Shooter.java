@@ -55,7 +55,7 @@ public class Shooter extends SubsystemBase {
   });
 
   public static LUT constantShortLUT = new LUT(new double[][]{
-    {54, 43.5, 5500},
+    {54, 43.5+1, 5500},
     {63.2, 40.59, 5500},
     {73, 36, 5500},
     {84.6, 32.07, 5500},

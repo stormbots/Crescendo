@@ -51,6 +51,7 @@ public class ShooterSetVisionLob extends Command {
         lobTarget = color==Alliance.Red ? field.getObject("Red Lob").getPose() : field.getObject("Blue Lob").getPose();
         shooterRateLimiter.reset(shooter.getShooterAngle());
         flywheelRateLimiter.reset(flywheel.getRPM());
+        shooterVision.selectSpeakerPipeline();
     }
 
     // Called every time the scheduler runs while the command is scheduled.

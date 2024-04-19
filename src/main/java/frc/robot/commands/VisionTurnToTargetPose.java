@@ -5,8 +5,11 @@ import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -30,7 +33,7 @@ public class VisionTurnToTargetPose extends Command{
     private DoubleSupplier rotSpeed;
     private Pose2d lobTarget = new Pose2d();
     double targetAngle = 0.0;
-    double offset = 0;
+    Rotation2d offset = new Rotation2d();
 
     public VisionTurnToTargetPose(
         DoubleSupplier xSpeed, 
@@ -39,7 +42,7 @@ public class VisionTurnToTargetPose extends Command{
         ShooterVision shooterVision,
         Chassis chassis,
         AHRS gyro,
-        SwerveDrivePoseEstimator swervePE) {
+        SwerveDrivePoseEstimator swervePE, Field2d field) {
         this.shooterVision = shooterVision;
         this.chassis = chassis;
         this.gyro = gyro;
@@ -47,6 +50,7 @@ public class VisionTurnToTargetPose extends Command{
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
         this.rotSpeed = rotSpeed;
+        this.field = field;
         
         addRequirements(shooterVision);
         addRequirements(chassis);
@@ -64,28 +68,28 @@ public class VisionTurnToTargetPose extends Command{
     @Override
     public void execute()
     {
-        Optional<Double> orthognalAngle = shooterVision.getOrthogonalAngle(lobTarget);
-
-        SmartDashboard.putBoolean("shootervision/hasorthogonal", orthognalAngle.isPresent());
-
-        if (orthognalAngle.isPresent()) {
+        Pose2d orthognalAngle = shooterVision.getPoseDifference(lobTarget).get(); //NOT the orthognal angle
            
-            //brian correctly pointed out that "rotspeed" is (-1..1) and thus is 1 degree bearing change, making it useless.
-            // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
-            targetAngle = Math.toRadians(orthognalAngle.get()+offset);
-            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetAngle);
-            
-            SmartDashboard.putNumber("shootervision/targetAngle", targetAngle);   
-            SmartDashboard.putNumber("shootervision/orthogonalangle", orthognalAngle.get());
-            // Optional<Double> orthogonalAngleFR = shooterVision.getOrthogonalAngleFR(lobTarget);
-            // SmartDashboard.putNumber("shootervision/targetanglefr", orthogonalAngleFC.get());
-            // Optional<Double> distance = shooterVision.getDistance(lobTarget);
-            // SmartDashboard.putNumber("shootervision/distancefromtargetpose", distance.get());
-        }
-        else{
-        chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
-        }
+        //brian correctly pointed out that "rotspeed" is (-1..1) and thus is 1 degree bearing change, making it useless.
+        // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
+        // targetAngle = orthognalAngle.getTranslation().getAngle().getRadians()*2;
+        // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetAngle);
+
+
+        var targetangle = gyro.getRotation2d().getDegrees();
+        targetangle = targetangle  + orthognalAngle.getTranslation().getAngle().getDegrees();
+        targetangle = Math.toRadians(targetangle+offset.getDegrees());
+        chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetangle);
         
+        SmartDashboard.putNumber("shootervision/targetAngle", targetAngle);  
+        // Optional<Double> orthogonalAngleFR = shooterVision.getOrthogonalAngleFR(lobTarget);
+        SmartDashboard.putNumber("shootervision/targetanglefr", orthognalAngle.getTranslation().getAngle().getDegrees());
+        Optional<Double> distance = shooterVision.getDistance(lobTarget);
+        SmartDashboard.putNumber("shootervision/distancefromtargetpose", distance.get());
+    
+        field.getObject("delta").setPose(orthognalAngle);
+        field.getObject("Robot").setPose(swervePE.getEstimatedPosition());
+        SmartDashboard.putData("visionturnpose",field);
     }
 
     @Override
@@ -98,7 +102,7 @@ public class VisionTurnToTargetPose extends Command{
     }
 
     public VisionTurnToTargetPose reverseDirection(){
-        offset = 180;
+        offset = new Rotation2d(Math.PI);
         return this;
     }
 }
