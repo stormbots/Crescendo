@@ -63,33 +63,19 @@ public class ShooterVision extends SubsystemBase {
     if(DriverStation.isAutonomous() && !autoVisionOdometryEnabled){return;}
     //zoomIfPossible(); pipeline makes frames drop a lot
     updateOdometry();
+  
+    SmartDashboard.putData("shootervisionfield", field);
+    SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
+    SmartDashboard.putBoolean("shooter/distanceinrange", distanceInRange());
+
+    printHeartbeat();
+
+
     // if (hasValidTarget()) {SmartDashboard.putBoolean("shootervision/validtarget", true);}
     // var target = getVisibleTargetData();
     // if (target.isPresent()) {
     //   SmartDashboard.putNumber("manualshoot/distance", target.get().distance.in(Units.Inches));
     // }
-    SmartDashboard.putData("shootervisionfield", field);
-    SmartDashboard.putNumber("shootervision/tv", camera.getEntry("tv").getDouble(0.0));
-    SmartDashboard.putBoolean("shooter/distanceinrange", distanceInRange());
-
-    var heartBeat = camera.getEntry("hb").getDouble(0.0);
-    if ( heartBeat - lasthHeartbeat <1) {
-      //all good
-      lastOKHeartBeatTimer = Timer.getFPGATimestamp();
-      heartBeatOK = true;
-    }
-    else {
-      heartBeatOK = false;
-    }
-
-    if (Timer.getFPGATimestamp() - lastOKHeartBeatTimer > 0.5 && !printedHeartBeat){
-      System.err.println("Limelight disconnect!");
-      printedHeartBeat = true;
-    }
-    
-    SmartDashboard.putBoolean("shootervision/heartbeat", heartBeatOK);
-    lasthHeartbeat = heartBeat;
-
   }
 
   public boolean hasValidTarget() {
@@ -143,97 +129,66 @@ public class ShooterVision extends SubsystemBase {
     }
   }
 
-  public void zoomIfPossible() {
-    var target = getVisibleTargetData();
-    if (hasValidTarget()==false) {return;}
-
-    double tx = target.get().angleHorizontal;
-    double ty = target.get().angleVertical;
-    if (Clamp.bounded(tx, -11, 11) && Clamp.bounded(ty, -10, 10)) {
-      setPipeline(LimelightPipeline.kZoom);
-    }
-    else {
-      setPipeline(LimelightPipeline.kOdometry);
-    }
-  }
-  public Optional<LimelightReadings> getTargetDataOdometry(Pose3d target) {
-    if (target==null) return Optional.empty();
-    LimelightReadings targetData = new LimelightReadings();
-
-    Pose2d botPose = poseEstimator.getEstimatedPosition();
-    Pose2d targetPose = target.toPose2d();
-
-    //data from field positions
-    double dx = targetPose.getX() - botPose.getX();
-    double dy = targetPose.getY() - botPose.getY();
-    double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
-    //bot rotations at current pose
-    double botPoseAngle = botPose.getRotation().getDegrees();
-    double angleOffset = botPoseAngle - orthogonalAngle;
-    angleOffset%=180;
-
-    //do it this way next year, no copy paste :P
-    // targetPose.getRotation().minus(botPose.getRotation());
-    // targetPose.getTranslation().getDistance(other)
-
-    targetData.angleHorizontal = angleOffset; //degrees
-    targetData.distance = Units.Meters.of(Math.hypot(dx, dy)); //meters
-    targetData.angleVertical = 0;
-    targetData.time = Timer.getFPGATimestamp();
-
-    // double distance = botPose.getTranslation().getDistance(targetPose.getTranslation());
-    // double deltaAngle = botPose.getRotation().minus(targetPose.getRotation()).getDegrees();
-
-    // targetData.distance = Units.Meters.of(distance);
-    // targetData.angleVertical = 0;
-    // targetData.time = Timer.getFPGATimestamp();
-    // targetData.angleHorizontal = botPoseAngle +angleOffset;
-
-    return Optional.of(targetData);
-  }
-
-  public Optional<Double> getOrthogonalAngle(Pose3d target) {
+  public Optional<Pose2d> getPoseDifference(Pose2d target) {
     if (target==null) return Optional.empty();
 
-    Pose2d botPose = poseEstimator.getEstimatedPosition();
-    Pose2d targetPose = target.toPose2d();
+    Pose2d robotPose = poseEstimator.getEstimatedPosition();
+    Pose2d deltaPose = target.relativeTo(robotPose);
 
-    //data from field positions
-    double dx = targetPose.getX() - botPose.getX();
-    double dy = targetPose.getY() - botPose.getY();
-    Double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
-    return Optional.of(orthogonalAngle);
+    return Optional.of(deltaPose);
   }
 
+  /**
+   * @return angle to the left/right as seen by robot
+   */
   public Optional<Double> getOrthogonalAngle(Pose2d target) {
     if (target==null) return Optional.empty();
-    
-    Pose2d botPose = poseEstimator.getEstimatedPosition();
 
-    //data from field positions
-    double dx = target.getX() - botPose.getX();
-    double dy = target.getY() - botPose.getY();
-    Double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+    Pose2d deltaPose = getPoseDifference(target).get();
+    double orthognalAngle = deltaPose.getTranslation().getAngle().getDegrees();
+
+    return Optional.of(orthognalAngle);
+  }
+
+  /**
+   * @return the difference in their rotations relative to the field
+   */
+  public Optional<Double> getOrthogonalAngleFR(Pose2d target) {
+    if (target==null) return Optional.empty();
+
+    Pose2d deltaPose = getPoseDifference(target).get();
+    double orthogonalAngle = deltaPose.getRotation().getDegrees();
+
     return Optional.of(orthogonalAngle);
   }
 
   public Optional<Double> getDistance(Pose2d target) {
     if (target==null) return Optional.empty();
 
-    Pose2d botPose = poseEstimator.getEstimatedPosition();
-    return Optional.of(botPose.getTranslation().getDistance(target.getTranslation()));
+    var deltaPose = getPoseDifference(target).get();
+    double distance = deltaPose.getTranslation().getNorm();
+
+    return Optional.of(distance);
   }
 
-  public void selectAllAprilTags(boolean yes) {
-    // camera.getEntry("pipeline"); //theoretically existing feature that sets different tags?
-  }
+  private void printHeartbeat()  {
+    var heartBeat = camera.getEntry("hb").getDouble(0.0);
+    if ( heartBeat - lasthHeartbeat <1) {
+      //all good
+      lastOKHeartBeatTimer = Timer.getFPGATimestamp();
+      heartBeatOK = true;
+    }
+    else {
+      heartBeatOK = false;
+    }
 
-  public void takeSnapshot() {
-    camera.getEntry("snapshot").setNumber(1);
-  }
-
-  public void resetSnapshot() {
-    camera.getEntry("snapshot").setNumber(0);
+    if (Timer.getFPGATimestamp() - lastOKHeartBeatTimer > 0.5 && !printedHeartBeat){
+      System.err.println("Limelight disconnect!");
+      printedHeartBeat = true;
+    }
+    
+    SmartDashboard.putBoolean("shootervision/heartbeat", heartBeatOK);
+    lasthHeartbeat = heartBeat;
   }
 
   public void setPipeline(LimelightPipeline pipeline) {
@@ -296,5 +251,95 @@ public class ShooterVision extends SubsystemBase {
 
   public void enableAutoVision(boolean enabled){
     autoVisionOdometryEnabled = enabled;
+  }
+
+  public void takeSnapshot() {
+    camera.getEntry("snapshot").setNumber(1);
+  }
+
+  public void resetSnapshot() {
+    camera.getEntry("snapshot").setNumber(0);
+  }
+
+    // public Optional<Double> getOrthogonalAngle(Pose3d target) {
+  //   if (target==null) return Optional.empty();
+
+  //   Pose2d botPose = poseEstimator.getEstimatedPosition();
+  //   Pose2d targetPose = target.toPose2d();
+
+  //   //data from field positions
+  //   double dx = targetPose.getX() - botPose.getX();
+  //   double dy = targetPose.getY() - botPose.getY();
+  //   Double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+  //   return Optional.of(orthogonalAngle);
+  // }
+
+  // public Optional<Double> getOrthogonalAngle(Pose2d target) {
+  //   if (target==null) return Optional.empty();
+    
+  //   Pose2d botPose = poseEstimator.getEstimatedPosition();
+
+  //   //data from field positions
+  //   double dx = target.getX() - botPose.getX();
+  //   double dy = target.getY() - botPose.getY();
+  //   Double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+  //   return Optional.of(orthogonalAngle);
+  // }
+
+  // public Optional<Double> getDistance(Pose2d target) {
+  //   if (target==null) return Optional.empty();
+
+  //   Pose2d botPose = poseEstimator.getEstimatedPosition();
+  //   return Optional.of(botPose.getTranslation().getDistance(target.getTranslation()));
+  // }
+
+  //   public Optional<LimelightReadings> getTargetDataOdometry(Pose3d target) {
+  //   if (target==null) return Optional.empty();
+  //   LimelightReadings targetData = new LimelightReadings();
+
+  //   Pose2d botPose = poseEstimator.getEstimatedPosition();
+  //   Pose2d targetPose = target.toPose2d();
+
+  //   //data from field positions
+  //   double dx = targetPose.getX() - botPose.getX();
+  //   double dy = targetPose.getY() - botPose.getY();
+  //   double orthogonalAngle = Math.toDegrees(Math.atan2(dy, dx));
+  //   //bot rotations at current pose
+  //   double botPoseAngle = botPose.getRotation().getDegrees();
+  //   double angleOffset = botPoseAngle - orthogonalAngle;
+  //   angleOffset%=180;
+
+  //   //do it this way next year, no copy paste :P
+  //   // targetPose.getRotation().minus(botPose.getRotation());
+  //   // targetPose.getTranslation().getDistance(other)
+
+  //   targetData.angleHorizontal = angleOffset; //degrees
+  //   targetData.distance = Units.Meters.of(Math.hypot(dx, dy)); //meters
+  //   targetData.angleVertical = 0;
+  //   targetData.time = Timer.getFPGATimestamp();
+
+  //   // double distance = botPose.getTranslation().getDistance(targetPose.getTranslation());
+  //   // double deltaAngle = botPose.getRotation().minus(targetPose.getRotation()).getDegrees();
+
+  //   // targetData.distance = Units.Meters.of(distance);
+  //   // targetData.angleVertical = 0;
+  //   // targetData.time = Timer.getFPGATimestamp();
+  //   // targetData.angleHorizontal = botPoseAngle +angleOffset;
+
+  //   return Optional.of(targetData);
+  // }
+
+  public void zoomIfPossible() {
+    var target = getVisibleTargetData();
+    if (hasValidTarget()==false) {return;}
+
+    double tx = target.get().angleHorizontal;
+    double ty = target.get().angleVertical;
+    if (Clamp.bounded(tx, -11, 11) && Clamp.bounded(ty, -10, 10)) {
+      setPipeline(LimelightPipeline.kZoom);
+    }
+    else {
+      setPipeline(LimelightPipeline.kOdometry);
+    }
   }
 }

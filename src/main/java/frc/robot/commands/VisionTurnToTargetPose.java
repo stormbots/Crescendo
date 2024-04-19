@@ -74,8 +74,13 @@ public class VisionTurnToTargetPose extends Command{
             // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
             targetAngle = Math.toRadians(orthognalAngle.get()+offset);
             chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetAngle);
+            
             SmartDashboard.putNumber("shootervision/targetAngle", targetAngle);   
             SmartDashboard.putNumber("shootervision/orthogonalangle", orthognalAngle.get());
+            // Optional<Double> orthogonalAngleFR = shooterVision.getOrthogonalAngleFR(lobTarget);
+            // SmartDashboard.putNumber("shootervision/targetanglefr", orthogonalAngleFC.get());
+            // Optional<Double> distance = shooterVision.getDistance(lobTarget);
+            // SmartDashboard.putNumber("shootervision/distancefromtargetpose", distance.get());
         }
         else{
         chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
