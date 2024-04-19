@@ -428,6 +428,7 @@ public class Chassis extends SubsystemBase {
 
     //In degrees
     double currentTheta = navx.getRotation2d().getRadians(); 
+    bearingRad = MathUtil.angleModulus(bearingRad);
     // double thetaError = Math.toDegrees(MathUtil.angleModulus(rot - currentTheta.getRadians()));
 
     double output = turnpid.calculate(currentTheta,bearingRad);

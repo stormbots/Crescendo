@@ -282,8 +282,14 @@ public class AutoFactory {
                 new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
             )
             .andThen(
-                // makePathFindToPoseCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)))
-                getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                // getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                new ParallelDeadlineGroup(
+                    makePathFindToPoseCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774))),
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(6000, 14)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                    new PassthroughAlignNote(rc.passthrough, rc.intake),
+                    new InstantCommand(rc.leds::preparing)
+                )
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -295,10 +301,18 @@ public class AutoFactory {
                 pathPlannerFollowPathManual("BotShootBotMidShare.1").until(()->rc.intakeVision.hasValidTarget())
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
+                .withTimeout(3)
             )
             .andThen(
-                getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                // getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                new ParallelDeadlineGroup(
+                    makePathFindToPoseCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774))),
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(6000, 14)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                    new PassthroughAlignNote(rc.passthrough, rc.intake),
+                    new InstantCommand(rc.leds::preparing)
+                )
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
@@ -313,10 +327,18 @@ public class AutoFactory {
                 .until(()->rc.intakeVision.hasValidTarget())
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
+                .withTimeout(3)
             )
             .andThen(
-                getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                // getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
+                new ParallelDeadlineGroup(
+                    makePathFindToPoseCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774))),
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(6000, 14)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                    new PassthroughAlignNote(rc.passthrough, rc.intake),
+                    new InstantCommand(rc.leds::preparing)
+                )
             )
             .andThen(
                 rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)

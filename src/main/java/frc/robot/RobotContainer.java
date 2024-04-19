@@ -302,7 +302,7 @@ public class RobotContainer {
         ()-> -driverController.getLeftY(),
         ()-> -driverController.getLeftX(),
         ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator)
-      
+        .reverseDirection() 
     )
     .onTrue(PassthroughLock.setUnlocked())
     .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget));
@@ -334,11 +334,11 @@ public class RobotContainer {
       new RunCommand(()->chassis.setX())
     );
 
-    driverController.povLeft()
-    .whileTrue(
-      new InstantCommand(()->chassis.resetOdometryAllianceManaged(new Pose2d(2, 5, new Rotation2d())))
-      .andThen(autoFactory.makePathFindToPoseCommand(new Pose2d(2.8, 5.6, new Rotation2d())))
-    );
+    // driverController.povLeft()
+    // .whileTrue(
+    //   new InstantCommand(()->chassis.resetOdometryAllianceManaged(new Pose2d(2, 5, new Rotation2d())))
+    //   .andThen(autoFactory.makePathFindToPoseCommand(new Pose2d(2.8, 5.6, new Rotation2d())))
+    // );
 
   }
 

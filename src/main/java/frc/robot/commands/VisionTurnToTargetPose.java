@@ -30,6 +30,7 @@ public class VisionTurnToTargetPose extends Command{
     private DoubleSupplier rotSpeed;
     private Pose2d lobTarget = new Pose2d();
     double targetAngle = 0.0;
+    double offset = 0;
 
     public VisionTurnToTargetPose(
         DoubleSupplier xSpeed, 
@@ -65,12 +66,16 @@ public class VisionTurnToTargetPose extends Command{
     {
         Optional<Double> orthognalAngle = shooterVision.getOrthogonalAngle(lobTarget);
 
+        SmartDashboard.putBoolean("shootervision/hasorthogonal", orthognalAngle.isPresent());
+
         if (orthognalAngle.isPresent()) {
            
             //brian correctly pointed out that "rotspeed" is (-1..1) and thus is 1 degree bearing change, making it useless.
             // chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble() + targetAngle);
-            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), Math.toRadians(orthognalAngle.get()));
-            SmartDashboard.putNumber("targetAngle", targetAngle);   
+            targetAngle = Math.toRadians(orthognalAngle.get()+offset);
+            chassis.driveToBearing(xSpeed.getAsDouble(), ySpeed.getAsDouble(), targetAngle);
+            SmartDashboard.putNumber("shootervision/targetAngle", targetAngle);   
+            SmartDashboard.putNumber("shootervision/orthogonalangle", orthognalAngle.get());
         }
         else{
         chassis.drive(xSpeed.getAsDouble(), ySpeed.getAsDouble(), rotSpeed.getAsDouble(), true,true);
@@ -85,5 +90,10 @@ public class VisionTurnToTargetPose extends Command{
     public boolean isFinished()
     {
         return false;
+    }
+
+    public VisionTurnToTargetPose reverseDirection(){
+        offset = 180;
+        return this;
     }
 }
