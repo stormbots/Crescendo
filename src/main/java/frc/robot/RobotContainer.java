@@ -277,7 +277,11 @@ public class RobotContainer {
     driverController.button(7).onTrue(new ClimberGoHome(climber)
     .andThen(new InstantCommand(()->shooter.stopShooter()))
     .andThen(new WaitCommand(0.1))
-    .alongWith(new CalibrateShooter(shooter)));
+    .alongWith(new CalibrateShooter(shooter)))
+    .onTrue(
+      new RunCommand(()->dunkArm.stop(), dunkArm).withTimeout(0.2)
+      .andThen(new InstantCommand(()->dunkArm.syncEncoders()))
+    );
 
     //Reset Gyro
     driverController.button(8).onTrue(new InstantCommand()

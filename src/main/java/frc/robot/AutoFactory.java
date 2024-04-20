@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -79,6 +80,10 @@ public class AutoFactory {
 
     Future<Boolean> initAutoChooserFuture = CompletableFuture.supplyAsync(()->true);
 
+    final double intakeVisionAutoTimeout = 1.0;
+    final double shooterVisionAutoTimeout = 0.5;
+
+
     public AutoFactory(RobotContainer rc){
         this.rc = rc;
         initPathPlannerStuff();
@@ -124,10 +129,10 @@ public class AutoFactory {
         //     .andThen(new PathPlannerAuto("FarStartChoreoAmpRushAuto"))
         // );
 
-        autoChooser.addOption("4NoteSourceRushChoreo", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-            .andThen(new PathPlannerAuto("ChoreoSourceRushAuto"))
-        );
+        // autoChooser.addOption("4NoteSourceRushChoreo", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("ChoreoSourceRushAuto"))
+        // );
         autoChooser.addOption("FarStart4NoteSourceRushChoreo", new InstantCommand()
             .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
             .andThen(new PathPlannerAuto("FarStartChoreoSourceRushAuto"))
@@ -198,39 +203,70 @@ public class AutoFactory {
             .andThen(
                 new ParallelRaceGroup(
                     pathPlannerFollowPathManual("AmpRunThrough.1"),
-                    new WaitCommand(1.6)
-                        .andThen(
-                            new RunCommand(()->{}).until(()->rc.intakeVision.hasValidTarget())
-                        )
+                    // new SequentialCommandGroup(
+                    //     rc.sequenceFactory.getToShooterStateCommand(5000, 28).withTimeout(0.75),
+                    //     new ParallelCommandGroup(
+                    //         new ParallelCommandGroup(new RunCommand(rc.intake::intake, rc.intake), new RunCommand(rc.passthrough::intake, rc.passthrough)),
+                    //         new WaitCommand(0.2)
+                    //         .andThen(rc.sequenceFactory.getToShooterStateCommand(5000, 18))
+                    //     )
+                    //     .withTimeout(2)
+                    // )
+                    // .andThen(
+                    //     new RunCommand(()->{}).until(()->rc.intakeVision.hasValidTarget())
+                    // )
+                    new RunCommand(()->{})
                 )
             )
             //main issue is 1. we dont find a note 2.opponent takes note and we just keep driving at 0.2 of max
-            .andThen(
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(2) //Find a better value than 0.2
-            )
-            .andThen(
-                getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
-            )
-            .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
-            )
-            .andThen(
-                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
-            )
-            .andThen(
-                pathPlannerFollowPathManual("TopShootTopMidShare.1").until(()->rc.intakeVision.hasValidTarget())
-            )
-            .andThen(
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
-            )
+            // .andThen(
+            //     new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
+            //     .withTimeout(intakeVisionAutoTimeout) //Find a better value than 0.2
+            // )
             .andThen(
                 getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+                // new ParallelDeadlineGroup(
+                //     makePathFindToPoseCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185))),
+                //     new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(6000, 14)).until(rc.shooterVision::hasValidTarget)
+                //         .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                //     new PassthroughAlignNote(rc.passthrough, rc.intake),
+                //     new InstantCommand(rc.leds::pink)
+                // )
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
+                rc.sequenceFactory.getVisionAlignmentShotCommand()
+                .withTimeout(shooterVisionAutoTimeout)
             )
             .andThen(
-                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+                rc.sequenceFactory.getIntakeShootCommand()
+                .withTimeout(0.4)
+            )
+            .andThen(
+                pathPlannerFollowPathManual("TopShootTopMidShare.1")
+                .until(()->rc.intakeVision.hasValidTarget())
+            )
+            .andThen(
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
+                .withTimeout(intakeVisionAutoTimeout) //Find a better value than 0.2
+            )
+            .andThen(
+                // getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+                new ParallelDeadlineGroup(
+                    makePathFindToPoseCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185))),
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(6000, 14)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                    new PassthroughAlignNote(rc.passthrough, rc.intake),
+                    new InstantCommand(rc.leds::preparing)
+                )
+                
+            )
+            .andThen(
+                rc.sequenceFactory.getVisionAlignmentShotCommand()
+                .withTimeout(shooterVisionAutoTimeout)
+            )
+            .andThen(
+                rc.sequenceFactory.getIntakeShootCommand()
+                .withTimeout(0.4)
             )
             .andThen(
                 pathPlannerFollowPathManual("TopShootMidShare.1")
@@ -240,16 +276,26 @@ public class AutoFactory {
                 .until(()->rc.intakeVision.hasValidTarget())
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
+                .withTimeout(intakeVisionAutoTimeout) //Find a better value than 0.2
             )
             .andThen(
-                getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+                // getVisionPathFindCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185)), 6000, 14)
+                new ParallelDeadlineGroup(
+                    makePathFindToPoseCommand(new Pose2d(4.15,6.33,new Rotation2d(0.185))),
+                    new RunCommand(()->rc.sequenceFactory.getToShooterStateCommand(6000, 14)).until(rc.shooterVision::hasValidTarget)
+                        .andThen(new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel).runForever()),
+                    new PassthroughAlignNote(rc.passthrough, rc.intake),
+                    new InstantCommand(rc.leds::preparing)
+                )
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
+                rc.sequenceFactory.getVisionAlignmentShotCommand()
+                .withTimeout(shooterVisionAutoTimeout)
             )
             .andThen(
-                rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
+                rc.sequenceFactory.getIntakeShootCommand()
+                .withTimeout(0.4)
             )
             
         );
@@ -270,7 +316,8 @@ public class AutoFactory {
                 )
             )
             .andThen(
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(3) //Find a better value than 0.2
+                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
+                .withTimeout(intakeVisionAutoTimeout) //Find a better value than 0.2
             )
             .andThen(
                 // getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
@@ -283,7 +330,7 @@ public class AutoFactory {
                 )
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(shooterVisionAutoTimeout)
             )
             .andThen(
                 rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
@@ -293,7 +340,7 @@ public class AutoFactory {
             )
             .andThen(
                 new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
-                .withTimeout(3)
+                .withTimeout(intakeVisionAutoTimeout)
             )
             .andThen(
                 // getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
@@ -306,7 +353,7 @@ public class AutoFactory {
                 )
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(shooterVisionAutoTimeout)
             )
             .andThen(
                 rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
@@ -319,7 +366,7 @@ public class AutoFactory {
             )
             .andThen(
                 new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
-                .withTimeout(3)
+                .withTimeout(intakeVisionAutoTimeout)
             )
             .andThen(
                 // getVisionPathFindCommand(new Pose2d(3.047,2.791,new Rotation2d(-0.774)), 6000, 14)
@@ -332,13 +379,21 @@ public class AutoFactory {
                 )
             )
             .andThen(
-                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(0.5)
+                rc.sequenceFactory.getVisionAlignmentShotCommand().withTimeout(shooterVisionAutoTimeout)
             )
             .andThen(
                 rc.sequenceFactory.getIntakeShootCommand().withTimeout(0.4)
             )
             
         );
+
+        // autoChooser.addOption("testNoteVisionChoreo", 
+        //     new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))))
+        //     .andThen(new InstantCommand(()->rc.shooterVision.enableAutoVision(true)))
+            
+        // );
+        
 
         return false; //will bryan cry tonight 
     }
@@ -427,7 +482,7 @@ public class AutoFactory {
         // NamedCommands.registerCommand("botShootPosShotNoStop", new ShooterSetOdometry(rc.shooter, rc.shooterFlywheel, new Pose2d(3, 2.8, new Rotation2d())).runForever());
 
         NamedCommands.registerCommand("topSpinUpShotNoStopOnTheRun", rc.sequenceFactory.getToShooterStateCommand(5000, 28));
-        NamedCommands.registerCommand("topNoteShotNoStopOnTheRun", rc.sequenceFactory.getToShooterStateCommand(5000, 20.7));
+        NamedCommands.registerCommand("topNoteShotNoStopOnTheRun", rc.sequenceFactory.getToShooterStateCommand(5000, 18));
 
         NamedCommands.registerCommand("topSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 28.5-0.5));
         NamedCommands.registerCommand("midSpinUpShotNoStop", rc.sequenceFactory.getToShooterStateCommand(4000, 32));
@@ -475,7 +530,6 @@ public class AutoFactory {
     //NOTE: INITIALIZES ONCE ON STARTUP, DETERMINES SIDE BEFOREHAND
     Command makePathFindToPoseCommand(Pose2d pose){
         if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
-            SmartDashboard.putBoolean("PathfindBoolean", DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red);
             pose = new Pose2d(16.542-pose.getX(), pose.getY(), new Rotation2d(Math.PI-pose.getRotation().getRadians())); 
         }
         

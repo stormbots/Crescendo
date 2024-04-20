@@ -32,7 +32,7 @@ public class DunkArm extends SubsystemBase {
   public CANSparkMax armMotor = new CANSparkMax(Robot.isCompbot?15:14, MotorType.kBrushless);
   private SparkPIDController armPID = armMotor.getPIDController();
   private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-  private double reverseSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kReverse);
+  private double reverseSoftLimit = -30;
   private double forwardSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kForward);
   public static double reverseSlewRateLimit = -90*1.7;
   public static double forwardSlewRateLimit = 90*1.7;
@@ -77,8 +77,8 @@ public class DunkArm extends SubsystemBase {
     armPID.setOutputRange(-0.2, 0.2);
     syncEncoders();
     Timer.delay(0.05);
-    reverseSoftLimit = getAngle() + 1;
-    armMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) -31);
+    // reverseSoftLimit = getAngle() + 1;
+    armMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
     // armMotor.setSoftLimit(SoftLimitDirection.kReverse, -30);
     armMotor.setSoftLimit(SoftLimitDirection.kForward,120); //112 hardstop, 7.3 inch after note transfer to safep trap pos
     armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);

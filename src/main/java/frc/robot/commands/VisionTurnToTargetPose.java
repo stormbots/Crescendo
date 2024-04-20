@@ -62,6 +62,9 @@ public class VisionTurnToTargetPose extends Command{
         // lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
         lobTarget = color==Alliance.Red ? field.getObject("Red Lob").getPose() : field.getObject("Blue Lob").getPose();
         //TODO: fiducial id filter
+        field.getObject("Robot").setPose(swervePE.getEstimatedPosition());
+        
+        SmartDashboard.putData("visionturnpose",field);
         
     }
     

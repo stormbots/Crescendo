@@ -1,5 +1,8 @@
 {
   "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
     "retained": {
       "SmartDashboard": {
         "open": true
@@ -62,7 +65,16 @@
         "shootervision": {
           "open": true
         },
+        "shootervisionfield": {
+          "open": true
+        },
         "vision": {
+          "open": true
+        },
+        "visionturnpose": {
+          "double[]##v_/SmartDashboard/visionturnpose/delta": {
+            "open": true
+          },
           "open": true
         }
       }
@@ -93,7 +105,8 @@
       "/SmartDashboard/robot/scheduler": "Scheduler",
       "/SmartDashboard/rumble": "Command",
       "/SmartDashboard/shootervisionfield": "Field2d",
-      "/SmartDashboard/visionfield": "Field2d"
+      "/SmartDashboard/visionfield": "Field2d",
+      "/SmartDashboard/visionturnpose": "Field2d"
     },
     "windows": {
       "/SmartDashboard/Field": {
@@ -147,8 +160,22 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/visionturnpose": {
+        "bottom": 1476,
+        "height": 8.210550308227539,
+        "left": 150,
+        "right": 2961,
+        "top": 79,
+        "width": 16.541748046875,
+        "window": {
+          "visible": true
+        }
       }
     }
+  },
+  "NetworkTables Info": {
+    "visible": true
   },
   "NetworkTables Log": {
     "visible": true
@@ -409,7 +436,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 725,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -727,7 +754,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 473,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -815,7 +842,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 314,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -853,7 +880,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 689,
+          "height": 0,
           "series": [
             {
               "color": [
