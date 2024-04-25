@@ -100,21 +100,21 @@ public class MAXSwerveModule implements Sendable {
 
     // Set the PID gains for the driving motor. Note these are example gains, and you
     // may need to tune them for your own robot!
-    drivingPIDController.setP(ModuleConstants.kDrivingP);
-    drivingPIDController.setI(ModuleConstants.kDrivingI);
-    drivingPIDController.setD(ModuleConstants.kDrivingD);
+    drivingPIDController.setP(ModuleConstants.kDrivingP_Real);
+    drivingPIDController.setI(ModuleConstants.kDrivingI_Real);
+    drivingPIDController.setD(ModuleConstants.kDrivingD_Real);
     // drivingPIDController.setFF(ModuleConstants.kDrivingFF);
     drivingPIDController.setOutputRange(
-        ModuleConstants.kDrivingMinOutput, ModuleConstants.kDrivingMaxOutput);
+        ModuleConstants.kDrivingMinOutput_Real, ModuleConstants.kDrivingMaxOutput_Real);
 
     // Set the PID gains for the turning motor. Note these are example gains, and you
     // may need to tune them for your own robot!
-    turningPIDController.setP(ModuleConstants.kTurningP);
-    turningPIDController.setI(ModuleConstants.kTurningI);
-    turningPIDController.setD(ModuleConstants.kTurningD);
-    turningPIDController.setFF(ModuleConstants.kTurningFF);
+    turningPIDController.setP(ModuleConstants.kTurningP_Real);
+    turningPIDController.setI(ModuleConstants.kTurningI_Real);
+    turningPIDController.setD(ModuleConstants.kTurningD_Real);
+    turningPIDController.setFF(ModuleConstants.kTurningFF_Real);
     turningPIDController.setOutputRange(
-        ModuleConstants.kTurningMinOutput, ModuleConstants.kTurningMaxOutput);
+        ModuleConstants.kTurningMinOutput_Real, ModuleConstants.kTurningMaxOutput_Real);
 
     drivingSparkFlex.setIdleMode(IdleMode.kBrake);
     turningSparkMax.setIdleMode(IdleMode.kBrake);

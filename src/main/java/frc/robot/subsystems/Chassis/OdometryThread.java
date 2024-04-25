@@ -39,7 +39,7 @@ public class OdometryThread extends SubsystemBase {
 
   public void start() {
     if (timestampQueues.size() > 0) {
-      notifier.startPeriodic(1.0 / AdvantageKitConstants.odometryFrequency);
+      notifier.startPeriodic(1.0 / AdvantageKitConstants.kodometryFrequency);
     }
   }
 
@@ -65,7 +65,7 @@ public class OdometryThread extends SubsystemBase {
     }
     return queue;
   }
-  
+
   public void periodic() {
     Chassis.odometryLock.lock();
     double timestamp = Logger.getRealTimestamp() / 1e6;

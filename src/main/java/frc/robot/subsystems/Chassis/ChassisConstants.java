@@ -67,7 +67,8 @@ public class ChassisConstants {
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15 teeth on the
     // bevel pinion 1
     public static final double kDrivingMotorReduction =
-        (45.0 * 20) / (kDrivingMotorPinionTeeth * 15);
+        (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
+    public static final double kTurningMotorReduction = 9424/203;
     // Theoretical max speed, has nothing to do with rotation
     public static final double kDriveWheelFreeSpeedRps =
         (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters) / kDrivingMotorReduction;
@@ -85,20 +86,50 @@ public class ChassisConstants {
     public static final double kTurningEncoderPositionPIDMaxInput =
         kTurningEncoderPositionFactor; // radians
 
-    public static final double kDrivingP = 0.04;
-    public static final double kDrivingI = 0;
-    public static final double kDrivingD = 0;
+    public static final double kDrivingP_Real = 0.04;
+    public static final double kDrivingI_Real = 0;
+    public static final double kDrivingD_Real = 0;
     // public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps * 1.2;
-    public static final double kDrivingFF = 0;
-    public static final double kDrivingMinOutput = -1;
-    public static final double kDrivingMaxOutput = 1;
+    public static final double kDrivingFF_Real = 0;
+    public static final double kDrivingMinOutput_Real = -1;
+    public static final double kDrivingMaxOutput_Real = 1;
 
-    public static final double kTurningP = 1;
-    public static final double kTurningI = 0;
-    public static final double kTurningD = 0;
-    public static final double kTurningFF = 0;
-    public static final double kTurningMinOutput = -1;
-    public static final double kTurningMaxOutput = 1;
+    public static final double kTurningP_Real = 1;
+    public static final double kTurningI_Real = 0;
+    public static final double kTurningD_Real = 0;
+    public static final double kTurningFF_Real = 0;
+    public static final double kTurningMinOutput_Real = -1;
+    public static final double kTurningMaxOutput_Real = 1;
+
+    public static final double kDrivingP_Replay = 0.04;
+    public static final double kDrivingI_Replay = 0;
+    public static final double kDrivingD_Replay = 0;
+    // public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps * 1.2;
+    public static final double kDrivingFF_Replay = 0;
+    public static final double kDrivingMinOutput_Replay = -1;
+    public static final double kDrivingMaxOutput_Replay = 1;
+
+    public static final double kTurningP_Replay = 1;
+    public static final double kTurningI_Replay = 0;
+    public static final double kTurningD_Replay = 0;
+    public static final double kTurningFF_Replay = 0;
+    public static final double kTurningMinOutput_Replay = -1;
+    public static final double kTurningMaxOutput_Replay = 1;
+
+    public static final double kDrivingP_Sim = 0.04;
+    public static final double kDrivingI_Sim = 0;
+    public static final double kDrivingD_Sim = 0;
+    // public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps * 1.2;
+    public static final double kDrivingFF_Sim = 0;
+    public static final double kDrivingMinOutput_Sim = -1;
+    public static final double kDrivingMaxOutput_Sim = 1;
+
+    public static final double kTurningP_Sim = 1;
+    public static final double kTurningI_Sim = 0;
+    public static final double kTurningD_Sim = 0;
+    public static final double kTurningFF_Sim = 0;
+    public static final double kTurningMinOutput_Sim = -1;
+    public static final double kTurningMaxOutput_Sim = 1;
 
     public static final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
     public static final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;
@@ -137,6 +168,6 @@ public class ChassisConstants {
   }
 
   public static final class AdvantageKitConstants {
-    static final double odometryFrequency = 250.0;
+    static final double kodometryFrequency = 250.0;
   }
 }
