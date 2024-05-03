@@ -210,6 +210,9 @@ public class Shooter extends SubsystemBase {
     return Clamp.bounded(shooterMotor.getEncoder().getPosition(), position-tolerance, position+tolerance);
   }
 
+  public boolean isReadyToIntake(){
+    return shooterMotor.getEncoder().getPosition() < 20;
+  }
 
 
   public double getShooterFFPercent(){

@@ -324,11 +324,14 @@ public class RobotContainer {
       new SetShooterProfiled(0, shooter)
     )
     .whileTrue(
-      new VisionTrackNote(
-      ()-> -driverController.getLeftY(), 
-      ()-> -driverController.getLeftX(),
-      ()-> -driverTurnJoystickValue(), 
-      chassis, intake, passthrough, intakeVision, leds)
+      new RunCommand(()->{}).until(shooter::isReadyToIntake)
+      .andThen(
+        new VisionTrackNote(
+        ()-> -driverController.getLeftY(), 
+        ()-> -driverController.getLeftX(),
+        ()-> -driverTurnJoystickValue(), 
+        chassis, intake, passthrough, intakeVision, leds)
+      )
     )
     ;
 
@@ -494,10 +497,10 @@ public class RobotContainer {
 
     //intake note
     operatorJoystick.button(8).whileTrue(
-      new IntakeNote(intake, passthrough)
+      new RunCommand(()->{}).until(shooter::isReadyToIntake)
+      .andThen(new IntakeNote(intake, passthrough))
       .andThen(new PassthroughAlignNote(passthrough,intake))
     )
-    // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel)
     .whileTrue(new SetShooterProfiled(0, shooter))
     // .onTrue(new ConditionalCommand(
     //   new ClimberSetPosition(climber, Units.Inches.of(11)),
