@@ -74,6 +74,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    addPeriodic(robotContainer.chassis::updateOdometry, 0.04); //wroky?
   }
 
   /**

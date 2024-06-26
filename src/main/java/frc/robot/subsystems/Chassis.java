@@ -139,15 +139,6 @@ public class Chassis extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   // Update the odometry in the periodic block
-    swerveDrivePoseEstimator.updateWithTime(
-        Timer.getFPGATimestamp(),
-        navx.getRotation2d(),
-        new SwerveModulePosition[] {
-            frontLeft.getPosition(),
-            frontRight.getPosition(),
-            rearLeft.getPosition(),
-            rearRight.getPosition()
-        });
     
     //i WILL cry if this doesn't work by next week
     var pose = swerveDrivePoseEstimator.getEstimatedPosition();
@@ -483,5 +474,17 @@ public class Chassis extends SubsystemBase {
     frontRight.setCurrentLimit(amps);
     rearLeft.setCurrentLimit(amps);
     rearRight.setCurrentLimit(amps);
+  }
+
+  public void updateOdometry(){
+    swerveDrivePoseEstimator.updateWithTime(
+        Timer.getFPGATimestamp(),
+        navx.getRotation2d(),
+        new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            rearLeft.getPosition(),
+            rearRight.getPosition()
+        });
   }
 }
