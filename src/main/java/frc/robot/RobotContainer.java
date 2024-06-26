@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import javax.management.InstanceNotFoundException;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -17,25 +15,19 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.commands.AutomatedTrap;
 import frc.robot.commands.CalibrateShooter;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
@@ -49,8 +41,11 @@ import frc.robot.commands.SetFlywheelSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetVision;
+import frc.robot.commands.ShooterSetVisionLob;
 import frc.robot.commands.VisionTrackNote;
+import frc.robot.commands.VisionTrackNoteAuto;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
+import frc.robot.commands.VisionTurnToTargetPose;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
@@ -60,10 +55,12 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Passthrough;
+import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.ShooterVision.LimelightPipeline;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -147,7 +144,6 @@ public class RobotContainer {
     .addSystem(shooter, 0)
     .addSystem(shooterFlywheel, 80)
     ;
-
   }
 
   private void configureDefaultCommands() {
@@ -189,7 +185,6 @@ public class RobotContainer {
     );
     //TODO: When shooter is aligned with target, and at rpm, show show green lights
 
-
     shooterFlywheel.setDefaultCommand(
       new WaitCommand(0.5)
       // .andThen(
@@ -217,7 +212,7 @@ public class RobotContainer {
       .andThen(new RunCommand(shooter::stopShooter))
     );
 
-    var teleopdunkarm = new SetDunkArmSlew(-25, dunkArm)
+    var teleopdunkarm = new SetDunkArmSlew(-30, dunkArm) //might as well
     .andThen(new WaitCommand(0.2))
     .andThen(new RunCommand(()->dunkArm.stop(), dunkArm));
     
@@ -234,7 +229,6 @@ public class RobotContainer {
       ()->dunkArmRoller.setIdleMode(IdleMode.kBrake), 
       dunkArmRoller
     ));
-
     // shooterVision.setDefaultCommand(new StartEndCommand(()->shooterVision.setPipeline(ShooterVision.LimelightPipeline.kNoZoom), ()->{}, shooterVision));
   }
 
@@ -252,7 +246,7 @@ public class RobotContainer {
     .debounce(0.1)
     .whileTrue(new VisionTurnToSpeakerOpticalOnly(
         ()-> -driverController.getLeftY()/5.0*.4,
-        ()-> -driverController.getLeftX()/5.0*0.6,
+        ()-> -driverController.getLeftX()/5.0*0.5,
         ()-> -driverTurnJoystickValue()/5.0,
         shooterVision, chassis, navx)
     )
@@ -277,15 +271,23 @@ public class RobotContainer {
       .withTimeout(2)
     )
     .onTrue(
-      new InstantCommand(()->passthrough.lockServo(false))
+      PassthroughLock.setUnlocked()
     )
     ;
 
-    driverController.button(7).onTrue(new ClimberGoHome(climber));
+    driverController.button(7).onTrue(new ClimberGoHome(climber)
+    .andThen(new InstantCommand(()->shooter.stopShooter()))
+    .andThen(new WaitCommand(0.1))
+    .alongWith(new CalibrateShooter(shooter)))
+    .onTrue(
+      new RunCommand(()->dunkArm.stop(), dunkArm).withTimeout(0.2)
+      .andThen(new InstantCommand(()->dunkArm.syncEncoders()))
+    );
 
     //Reset Gyro
     driverController.button(8).onTrue(new InstantCommand()
-    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis)));
+    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis))
+    );
 
     driverController
     .axisGreaterThan(2, 0.5)
@@ -296,25 +298,58 @@ public class RobotContainer {
         ()-> -driverController.getLeftX(), 
         ()->Units.Radians.of(Math.atan2(driverController.getRightY(), -driverController.getRightX())+Math.PI/2))
     );
-   
-   
+
+   driverController.povDown()
+  //  .whileTrue(
+  //     new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
+  //   )
+    .whileTrue(
+      new VisionTurnToTargetPose(
+        ()-> -driverController.getLeftY(),
+        ()-> -driverController.getLeftX(),
+        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
+        .reverseDirection() 
+    )
+    .onTrue(PassthroughLock.setUnlocked())
+    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
+    .whileTrue(new StartEndCommand(shooterVision::selectAllTagsPipeline, shooterVision::selectSpeakerPipeline)
+    )
+    ;
 
 
-    // Limelight Intake Vision
+    // // Limelight Intake Vision
     driverController
     .axisGreaterThan(3, 0.5) //left trigger?
+    .onTrue(PassthroughLock.setLocked())
     .whileTrue(
-      new VisionTrackNote(
-      ()-> -driverController.getLeftY(), 
-      ()-> -driverController.getLeftX(),
-      ()-> -driverTurnJoystickValue(), 
-      chassis, intake, passthrough, intakeVision, leds)
-    );
+      new SetShooterProfiled(0, shooter)
+    )
+    .whileTrue(
+      new RunCommand(()->{}).until(shooter::isReadyToIntake)
+      .andThen(
+        new VisionTrackNote(
+        ()-> -driverController.getLeftY(), 
+        ()-> -driverController.getLeftX(),
+        ()-> -driverTurnJoystickValue(), 
+        chassis, intake, passthrough, intakeVision, leds)
+      )
+    )
+    ;
+
+    driverController.povRight()
+    .whileTrue(new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, chassis, intake, passthrough, intakeVision, leds));
+
 
     driverController.povUp()
     .whileTrue(
       new RunCommand(()->chassis.setX())
     );
+
+    // driverController.povLeft()
+    // .whileTrue(
+    //   new InstantCommand(()->chassis.resetOdometryAllianceManaged(new Pose2d(2, 5, new Rotation2d())))
+    //   .andThen(autoFactory.makePathFindToPoseCommand(new Pose2d(2.8, 5.6, new Rotation2d())))
+    // );
 
   }
 
@@ -327,7 +362,8 @@ public class RobotContainer {
         new SetShooterProfiled(0, shooter),
         new SetFlywheelSlew(3550, shooterFlywheel)
       )
-    );
+    )
+    .onTrue(PassthroughLock.setUnlocked());
     
     Trigger isSensorBlocked = new Trigger(()->passthrough.isBlocked()||intake.isBlocked());
     Trigger readyToFire = new Trigger(()->
@@ -390,12 +426,13 @@ public class RobotContainer {
     );
 
     //defense position
-    operatorJoystick.button(2).onTrue(new ParallelCommandGroup(
+    operatorJoystick.button(2)
+    .onTrue(new ParallelCommandGroup(
       new SetShooterProfiled(0, shooter), //TODO: not setting to 0
-      new SetDunkArmSlew(-25, dunkArm)
+      new SetDunkArmSlew(-30, dunkArm)
       ).withTimeout(3)
-      )
-      ;
+    )
+    ;
 
     //speaker shot
     operatorJoystick.button(3)
@@ -406,7 +443,7 @@ public class RobotContainer {
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
     .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
+        PassthroughLock.setUnlocked()
     );
 
     //podium/far shot
@@ -417,28 +454,29 @@ public class RobotContainer {
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
     .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
+        PassthroughLock.setUnlocked()
     )
     ;
 
     //load rollers / intake to rollers
     operatorJoystick.button(5).whileTrue(
       new ConditionalCommand(
-        sequenceFactory.getDunkArmNoteTransferSequence()
-        .alongWith(new InstantCommand(()->passthrough.lockServo(false))),
+        sequenceFactory.getDunkArmNoteTransferSequence(),
+        // .alongWith(PassthroughLock.setLocked()),
 
         new ParallelCommandGroup(
-          new IntakeNote(intake, passthrough).andThen(new PassthroughAlignNote(passthrough, intake)),
-          new SetShooterProfiled(0, shooter),
-          new SetFlywheelSlew(500, shooterFlywheel)
+          new IntakeNote(intake, passthrough).runForever(),
+          new SetShooterProfiled(0, shooter).runForever(),
+          new SetFlywheelSlew(ShooterFlywheel.kDunkArmTransferRPM, shooterFlywheel)
         )
         .until(passthrough::isBlocked)
         .andThen(sequenceFactory.getDunkArmNoteTransferSequence())
-        .andThen(new SetDunkArmSlew(-25, dunkArm)),
+        .andThen(new SetDunkArmSlew(-30, dunkArm)),
         
         passthrough::isBlocked
       )
     )
+    .onTrue(PassthroughLock.setUnlocked())
     ;
 
     //arm to amp
@@ -472,9 +510,13 @@ public class RobotContainer {
       new ParallelCommandGroup(
         new RunCommand(intake::eject, intake),
         new RunCommand(passthrough::eject, passthrough),
-        new SetShooterProfiled(0, shooter), 
         new SetFlywheelSlew(-500, shooterFlywheel),
-        new RunCommand(dunkArmRoller::eject, dunkArmRoller)
+        new SetShooterProfiled(0, shooter), 
+        new ConditionalCommand(
+          new RunCommand(dunkArmRoller::eject, dunkArmRoller),
+          new RunCommand(()->{}, dunkArmRoller),
+          ()->dunkArm.getAngle()<-20 && shooter.getShooterAngle()<5
+        )
       )
       .until(()->passthrough.isBlocked())
       .andThen(new PassthroughAlignNote(passthrough, intake))
@@ -483,30 +525,33 @@ public class RobotContainer {
       ()->intake.isBlocked()
     ))
     .onTrue(
-        new InstantCommand(()->passthrough.lockServo(false))
+        PassthroughLock.setUnlocked()
     );
 
     //intake note
     operatorJoystick.button(8).whileTrue(
-      new IntakeNote(intake, passthrough)
+      new RunCommand(()->{}).until(shooter::isReadyToIntake)
+      .andThen(new IntakeNote(intake, passthrough))
       .andThen(new PassthroughAlignNote(passthrough,intake))
     )
-    // .whileTrue(new SetFlywheelSlew(0, shooterFlywheel)
-    .onTrue(new InstantCommand(()->passthrough.lockServo(true)))
     .whileTrue(new SetShooterProfiled(0, shooter))
-    .onTrue(new ConditionalCommand(
-      new ClimberSetPosition(climber, Units.Inches.of(11)),
-      new InstantCommand(), 
-      ()->climber.getPosition().in(Units.Inches)<2.0&&climber.isHomed
-      )
-    )
-    .onTrue(new InstantCommand(()->passthrough.lockServo(true))
+    // .onTrue(new ConditionalCommand(
+    //   new ClimberSetPosition(climber, Units.Inches.of(11)),
+    //   new InstantCommand(), 
+    //   ()->climber.getPosition().in(Units.Inches)<2.0&&climber.isHomed
+    //   )
+    // )
+    .onTrue(PassthroughLock.setLocked()
     )
     .onTrue(
         new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
         .withTimeout(2)
     )
     ;
+
+    operatorJoystick.button(9).whileTrue(
+      new RunCommand(()->dunkArmRoller.setSpeed(Clamp.clamp(operatorJoystick.getRawAxis(3), 0.1, -0.1)))
+    );
 
     //move dunkarm manually
     operatorJoystick.button(10).onTrue(
@@ -531,7 +576,8 @@ public class RobotContainer {
       new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    );
+    )
+    .whileTrue(PassthroughLock.setUnlocked());
 
     // Used for testing only.
 
@@ -552,14 +598,29 @@ public class RobotContainer {
     //   ).alongWith(new DunkArmRollerHoldNote(dunkArm, dunkArmRoller))
     // )
     // .onFalse(new RunCommand(()->{}, dunkArm))
-    // ;
-
-    operatorJoystick.button(15)
-    .whileTrue(
-      new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
+    // // ;
+    operatorJoystick.button(15).whileTrue(
+      new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
     )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
+    // .whileTrue(
+    //   new VisionTurnToTargetPose(
+    //     ()-> -driverController.getLeftY(),
+    //     ()-> -driverController.getLeftX(),
+    //     ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
+    //     .reverseDirection()
+      
+    // )
+    .onTrue(PassthroughLock.setUnlocked())
+    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
+    .whileTrue(new StartEndCommand(shooterVision::selectAllTagsPipeline, shooterVision::selectSpeakerPipeline));
+
+    // operatorJoystick.button(15)
+    // .whileTrue(
+    //   new ShooterSetManually(shooter, shooterFlywheel, ()->operatorJoystick.getRawAxis(3))
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget));
 }
+
   
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

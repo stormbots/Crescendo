@@ -37,20 +37,24 @@ public class ApplyShooterOffset extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        if (axis3.equals(-1)) wentDown = true;
-        if (axis3.equals(1)) wentUp = true;
+        if (axis3.getAsDouble() <= -0.95) wentDown = true;
+        if (axis3.getAsDouble() >= 0.95) wentUp = true;
         if (wentUp && wentDown) {
             RobotContainer.shooterOffset = Lerp.lerp(
               axis3.getAsDouble(), 
               1, -1,
-              RobotContainer.INITIALSHOOTEROFFSET, RobotContainer.INITIALSHOOTEROFFSET+5
+              RobotContainer.INITIALSHOOTEROFFSET-2, RobotContainer.INITIALSHOOTEROFFSET+2
             );
         }
+        System.out.println("Shooter OffsetL" + RobotContainer.shooterOffset);
+        System.out.println("up and down" + wentUp + wentDown);
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        System.out.println("Shooter OffsetL" + RobotContainer.shooterOffset);
+        System.out.println("up and down" + wentUp + wentDown);
         
     }
 

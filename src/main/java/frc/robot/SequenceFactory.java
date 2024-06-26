@@ -4,34 +4,27 @@
 
 package frc.robot;
 
-import java.time.Instant;
-import java.util.function.DoubleSupplier;
-
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.ClimberSetPosition;
 import frc.robot.commands.IntakeNote;
 import frc.robot.commands.NoteTransferToDunkArm;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
-import frc.robot.subsystems.DunkArm;
+import frc.robot.subsystems.PassthroughLock;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterFlywheel;
 
 /** 
  * A place to keep/generate useful, reusable code sequences and commands.
@@ -49,17 +42,18 @@ public class SequenceFactory {
     }
 
     public Command getDunkArmNoteTransferSequence(){
-        return new ParallelCommandGroup(
-            new SetDunkArmSlew(-25, rc.dunkArm),
-            new SetShooterProfiled(0, rc.shooter),
-            rc.shooterFlywheel.getShooterSetRPMCommand(500).until(()->rc.shooterFlywheel.isOnTarget())
-        )
+        return new ParallelDeadlineGroup(
+            new SetDunkArmSlew(-30, rc.dunkArm)
+            .alongWith(new SetShooterProfiled(0, rc.shooter)),
+            rc.shooterFlywheel.getShooterSetRPMCommand(ShooterFlywheel.kDunkArmTransferRPM)
+            .until(()->rc.shooterFlywheel.isOnTarget())
+        ).withTimeout(1)
         .andThen(
             new ParallelCommandGroup(
                 new RunCommand(()->rc.dunkArmRoller.setSpeed(0.1), rc.dunkArmRoller),
                 new RunCommand(()->rc.passthrough.intake(), rc.passthrough),
                 new RunCommand(()->rc.intake.intake(), rc.intake),
-                rc.shooterFlywheel.getShooterSetRPMCommand(500)
+                rc.shooterFlywheel.getShooterSetRPMCommand(ShooterFlywheel.kDunkArmTransferRPM)
             ).until(()->rc.passthrough.isBlocked()==false)
         )
         .andThen(
@@ -132,8 +126,8 @@ public class SequenceFactory {
 
     public Command getIntakeThenAlignCommand(){
         return new InstantCommand()
-            .andThen(new ParallelDeadlineGroup(new IntakeNote(rc.intake, rc.passthrough), new RunCommand(()->rc.passthrough.lockServo(true))))
-            .andThen(new ParallelDeadlineGroup(new PassthroughAlignNote(rc.passthrough, rc.intake), new WaitCommand(0.5).andThen(new RunCommand(()->rc.passthrough.lockServo(false))))
+            .andThen(new ParallelDeadlineGroup(new IntakeNote(rc.intake, rc.passthrough), PassthroughLock.setLocked()))
+            .andThen(new ParallelDeadlineGroup(new PassthroughAlignNote(rc.passthrough, rc.intake), new WaitCommand(0.5).andThen(PassthroughLock.setUnlocked()))
             );
     }
 
@@ -179,6 +173,27 @@ public class SequenceFactory {
         return Clamp.bounded(rc.shooterFlywheel.getRPM(), flywheelRpm-300, flywheelRpm+300)&& 
         Clamp.bounded(rc.shooter.getShooterAngle(), shooterAngle-3, shooterAngle+3) && 
         Clamp.bounded(rc.shooter.getState().velocity, -5, 5);
+    }
+
+    public Command getVisionAlignmentShotCommand(){
+        return new ParallelDeadlineGroup(
+            new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel),
+            //hope were at a close enough angle, may want to consider runForever kind of architecture as well or implement an until statement
+            new VisionTurnToSpeakerOpticalOnly(
+            ()->0.0,
+            ()->0.0,
+            ()->0.0,
+            rc.shooterVision, rc.chassis, rc.navx)
+        )
+        ;
+    }
+
+    public Command getIntakeShootCommand(){
+        return new ParallelCommandGroup(
+                    new RunCommand(rc.intake::intake, rc.intake), 
+                    new RunCommand(rc.passthrough::intake, rc.passthrough)
+                )
+                .until(()->!rc.passthrough.isBlocked()&&!rc.intake.isBlocked());
     }
 
 }

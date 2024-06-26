@@ -9,9 +9,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-
-import java.lang.annotation.Target;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
@@ -23,9 +20,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -58,7 +55,7 @@ public class Shooter extends SubsystemBase {
   });
 
   public static LUT constantShortLUT = new LUT(new double[][]{
-    {54, 43.5, 5500},
+    {54, 43.5+1, 5500},
     {63.2, 40.59, 5500},
     {73, 36, 5500},
     {84.6, 32.07, 5500},
@@ -72,10 +69,10 @@ public class Shooter extends SubsystemBase {
   });
 
   public static LUT lobLUT = new LUT(new double[][]{
-    {36*12, 35.6, 4000},
-    {32*12, 32.3, 4000},
-    {28*12, 44.9, 3750},
-    {26*12, 45, 3750}
+    {25*12, 32.3, 3650}, 
+    {28*12, 32.3, 3750},
+    {32*12, 32.3, 3750},
+    {36*12, 35.6, 3750},
   });
 
   public static final double kSlewForward = 150;
@@ -118,6 +115,7 @@ public class Shooter extends SubsystemBase {
     // shooterMotor.getEncoder().setPositionConversionFactor((41.827526-0.340941)/(21.474369-0.450663));
     shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
+    Timer.delay(0.02);
  
     reverseSoftLimit = getShooterAngle()+1;
     shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
@@ -206,12 +204,15 @@ public class Shooter extends SubsystemBase {
 
   }
   public boolean isOnTarget(double position){
-    var tolerance = 0.75;
+    var tolerance = 1;
     position = Clamp.clamp(position, reverseSoftLimit, forwardSoftLimit); 
     //TODO figure out better tolerances that make sense
     return Clamp.bounded(shooterMotor.getEncoder().getPosition(), position-tolerance, position+tolerance);
   }
 
+  public boolean isReadyToIntake(){
+    return shooterMotor.getEncoder().getPosition() < 20;
+  }
 
 
   public double getShooterFFPercent(){

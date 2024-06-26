@@ -50,7 +50,7 @@ public class DunkArmRollerHoldNote extends Command {
     double angle = dunkarm.getAngle();
     double position = roller.getPosition();
     //get ideal position for note at that angle
-    if(!Clamp.bounded(position, -5, 16)){ 
+    if(!Clamp.bounded(position, -6, 16)){ 
       roller.stop();
       return;
     }    

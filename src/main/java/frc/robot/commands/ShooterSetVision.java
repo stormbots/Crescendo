@@ -13,6 +13,8 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
@@ -34,6 +36,7 @@ public class ShooterSetVision extends Command {
         ShooterFlywheel.kSlewForward, ShooterFlywheel.kSlewBackward, 0); //TODO: get rate limits
 
     public ShooterSetVision(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
+        SmartDashboard.putNumber("shooter/offset", RobotContainer.shooterOffset);
         this.shooter = shooter;
         this.shooterVision = shooterVision;
         this.flywheel = flywheel;
@@ -53,6 +56,7 @@ public class ShooterSetVision extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        SmartDashboard.putNumber("shooter/offset", RobotContainer.shooterOffset);
         Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
         if (visionData.isPresent()) {
             double distance = -visionData.get().distance.in(Units.Inches);
@@ -61,7 +65,7 @@ public class ShooterSetVision extends Command {
                 distance = Clamp.clamp(distance, 0, Shooter.farthestShotDistance);
             }
 
-            targetAngle = lut.get(distance)[0]; //get lut
+            targetAngle = lut.get(distance)[0] + RobotContainer.shooterOffset; //get lut
             targetRPM = lut.get(distance)[1];
 
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew

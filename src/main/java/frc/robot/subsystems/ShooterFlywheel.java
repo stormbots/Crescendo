@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 
 public class ShooterFlywheel extends SubsystemBase {
+
+  public final static double kDunkArmTransferRPM = 600.0;
   public CANSparkFlex topMotor = new CANSparkFlex(Robot.isCompbot?12:11, MotorType.kBrushless);
   public CANSparkFlex botMotor = new CANSparkFlex(Robot.isCompbot?13:12, MotorType.kBrushless);
 
@@ -117,7 +119,7 @@ public class ShooterFlywheel extends SubsystemBase {
     
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("/shooterFlywheel/targetRPM", targetRPM);
-    // SmartDashboard.putBoolean("/shooterFlywheel/isOnTarget", isOnTarget());
+    SmartDashboard.putBoolean("/shooterFlywheel/isOnTarget", isOnTarget());
     SmartDashboard.putNumber("/shooterFlywheel/topCurrent", topMotor.getOutputCurrent());
     SmartDashboard.putNumber("/shooterFlywheel/botCurrent", botMotor.getOutputCurrent());
     SmartDashboard.putNumber("/shooterFlywheel/avgCurrentRPM", getRPM());

@@ -5,7 +5,7 @@
       "x": 1.5,
       "y": 3.589
     },
-    "rotation": 9.433121946841378e-26
+    "rotation": 3.480973545408822e-25
   },
   "command": {
     "type": "sequential",
@@ -37,19 +37,26 @@
           }
         },
         {
-          "type": "race",
+          "type": "deadline",
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "race",
                 "data": {
-                  "waitTime": 0.4
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intakeShoot"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.4
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeShoot"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -72,7 +79,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "SourceSharePath.1"
+                        "pathName": "FarStartSourceRush.3"
                       }
                     }
                   ]

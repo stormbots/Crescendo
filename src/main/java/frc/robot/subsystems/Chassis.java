@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.sql.Driver;
 import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -31,6 +32,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -93,7 +95,7 @@ public class Chassis extends SubsystemBase {
    * 1/pi is good
    * 2/pi is too much, cause backlash 
    */
-  PIDController turnpid = new PIDController(2/Math.PI,0,0.01);
+  PIDController turnpid = new PIDController(1/Math.PI,0,0.01);
 
   private final SysIdRoutine sysIdRoutine =
   new SysIdRoutine(
@@ -148,10 +150,15 @@ public class Chassis extends SubsystemBase {
     field.setRobotPose(pose);
     
     SmartDashboard.putData("chassis", field);
-    // SmartDashboard.putData("modules/fr", frontRight);
-    // SmartDashboard.putData("modules/fl", frontLeft);
-    // SmartDashboard.putData("modules/rr", rearRight);
-    // SmartDashboard.putData("modules/rl", rearLeft);
+    SmartDashboard.putData("modules/fr", frontRight);
+    SmartDashboard.putData("modules/fl", frontLeft);
+    SmartDashboard.putData("modules/rr", rearRight);
+    SmartDashboard.putData("modules/rl", rearLeft);
+
+    SmartDashboard.putNumber("modules/frTurn", frontRight.getPosition().angle.getDegrees());
+    SmartDashboard.putNumber("modules/flTurn", frontLeft.getPosition().angle.getDegrees());
+    SmartDashboard.putNumber("modules/rrTurn", rearRight.getPosition().angle.getDegrees());
+    SmartDashboard.putNumber("modules/rlTurn", rearLeft.getPosition().angle.getDegrees());
 
     SmartDashboard.putNumber("modules/frVel", frontRight.getState().speedMetersPerSecond);
     SmartDashboard.putNumber("modules/flVel", frontLeft.getState().speedMetersPerSecond);
@@ -202,6 +209,25 @@ public class Chassis extends SubsystemBase {
         },
         pose);
   }
+
+  public void resetOdometryAllianceManaged(Pose2d pose){
+    if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+      pose = new Pose2d(16.542-pose.getX(), pose.getY(), new Rotation2d(Math.PI-pose.getRotation().getRadians())); 
+    }
+
+    var rot = navx.getRotation2d(); 
+
+    swerveDrivePoseEstimator.resetPosition(
+        navx.getRotation2d(),
+        new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            rearLeft.getPosition(),
+            rearRight.getPosition()
+        },
+        pose);
+  }
+  
   /**
    * Method to drive the robot using joystick info.
    *
@@ -359,9 +385,9 @@ public class Chassis extends SubsystemBase {
    * 
    * @param isBlue Control over whether bot is blue, makes overload backwards compatible
    */
-  public void setFieldCentricOffset(double offset, BooleanSupplier isBlue){
+  public void setFieldCentricOffset(double degrees, BooleanSupplier isBlue){
     zeroHeading();
-    navx.setAngleAdjustment(isBlue.getAsBoolean() ? offset : -offset);
+    navx.setAngleAdjustment(isBlue.getAsBoolean() ? degrees : -degrees);
   }
 
   /** Apply an offset from initial navx zero to the intended "forward" direction
@@ -393,6 +419,7 @@ public class Chassis extends SubsystemBase {
 
     //In degrees
     double currentTheta = navx.getRotation2d().getRadians(); 
+    bearingRad = MathUtil.angleModulus(bearingRad);
     // double thetaError = Math.toDegrees(MathUtil.angleModulus(rot - currentTheta.getRadians()));
 
     double output = turnpid.calculate(currentTheta,bearingRad);

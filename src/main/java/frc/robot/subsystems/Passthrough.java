@@ -31,7 +31,8 @@ public class Passthrough extends SubsystemBase {
   private double kPassthroughSpeed=1.0;
   //LaserCAN Sensor Setup
   public LaserCan lasercan = new LaserCan(20);
-  public Servo servo = new Servo(3);
+  public Servo servo = new Servo(8); // not used!!!
+  public static boolean servoBlocked = true;
 
   /** where we want the game piece under ideal conditions, in mm */
   public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
@@ -44,7 +45,7 @@ public class Passthrough extends SubsystemBase {
 
   /** Creates a new Passthrough. */
   public Passthrough() {
-    lockServo(false);
+    // lockServo(false);
     motor.restoreFactoryDefaults();
     motor.clearFaults();
     motorB.restoreFactoryDefaults();
@@ -124,10 +125,16 @@ public class Passthrough extends SubsystemBase {
     return distance.in(Units.Millimeters) < kBlockedDistance;
   }
 
-  public void lockServo(boolean block) {
+  private void lockServo(boolean block) {
     // servo.setPosition(0);
-    if (block) servo.setPosition(0.25);
-    else servo.setPosition(0.5);
+    if (block) {
+      servo.setPosition(0.25-0.1);
+      servoBlocked = true;
+    }
+    else {
+      servo.setPosition(0.5);
+      servoBlocked = false;
+    }
   }
 
   @Override
@@ -136,7 +143,7 @@ public class Passthrough extends SubsystemBase {
     SmartDashboard.putNumber("currenttesting/passthroughA", motor.getOutputCurrent());
     SmartDashboard.putNumber("currenttesting/passthroughB", motorB.getOutputCurrent());
     SmartDashboard.putBoolean("passthrough/isBlocked", isBlocked());
-    SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Millimeters));
+    SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Inches));
     // SmartDashboard.putNumber("passthrough/value", getSensorDistance().in(Units.Inches));
 
     // SmartDashboard.putNumber("passthrough/outputCurrent", motor.getOutputCurrent());

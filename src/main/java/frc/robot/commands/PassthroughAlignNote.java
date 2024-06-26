@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Clamp;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Passthrough;
+import frc.robot.subsystems.PassthroughLock;
 
 public class PassthroughAlignNote extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -41,18 +42,24 @@ public class PassthroughAlignNote extends Command {
   @Override
   public void execute() {
     var dist = passthrough.getSensorDistance().in(Units.Inches);
-    var nominal = 0.9;
+    var nominal = 0.9+0.1;
     var kpassthrough = 0.1;
     var kintake = 0.1;
 
     var kpassresponse = (dist-nominal) * kpassthrough;
     var kintakeresponse = (dist-nominal) * kintake;
-    kintakeresponse = Clamp.clamp(kintake, 0, 0.4);
-    kpassthrough = Clamp.clamp(kpassthrough, -1, 0.2);
+    SmartDashboard.putNumber("distMinusNominal", dist-nominal);
+    kintakeresponse = Clamp.clamp(kintakeresponse, 0, 0.07);//0.05
+    kpassresponse = Clamp.clamp(kpassresponse, -1, 0.05);
 
     if (dist<nominal) {
       kintakeresponse=0;
-      passthrough.lockServo(false);
+      PassthroughLock.getInstance().unlock();
+    }
+
+    if (passthrough.isBlocked()) {
+      kpassresponse = Clamp.clamp(kpassresponse, -1, 0.05);
+      kintakeresponse = Clamp.clamp(kintakeresponse, 0, 0.04);
     }
 
 
@@ -80,6 +87,11 @@ public class PassthroughAlignNote extends Command {
     SmartDashboard.putNumber("timer/stuckTimer", stuckTimer);
     SmartDashboard.putNumber("timer/backwardTimer", backwardTimer);
 
+    SmartDashboard.putNumber("intakeResponse",kintakeresponse);
+    SmartDashboard.putNumber("passthroughresponse",kpassresponse);
+
+
+
     intake.setPower(kintakeresponse);
     passthrough.setPower(kpassresponse);
   }
@@ -87,7 +99,7 @@ public class PassthroughAlignNote extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    passthrough.lockServo(false);
+    PassthroughLock.getInstance().unlock();
     intake.stop();
     passthrough.stop();
   }

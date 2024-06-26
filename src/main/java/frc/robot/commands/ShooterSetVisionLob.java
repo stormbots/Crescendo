@@ -4,13 +4,14 @@
 
 package frc.robot.commands;
 
-import java.util.Optional;
-
-import com.stormbots.Clamp;
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
@@ -22,7 +23,7 @@ public class ShooterSetVisionLob extends Command {
     private Shooter shooter;
     private ShooterFlywheel flywheel;
     Boolean exitsOnCompletion = true;
-    double targetAngle = 10;
+    double targetAngle = 35.6;
     double targetRPM = 4000;
     double targetAngleSlew = 0.0;
     double targetRPMSlew = 0.0;
@@ -31,6 +32,8 @@ public class ShooterSetVisionLob extends Command {
         Shooter.kSlewForward, Shooter.kSlewBackward, 0); //TODO: get rate limits
     SlewRateLimiter flywheelRateLimiter = new SlewRateLimiter(
         ShooterFlywheel.kSlewForward, ShooterFlywheel.kSlewBackward, 0); //TODO: get rate limits
+    Pose2d lobTarget = new Pose2d();
+    Field2d field = new Field2d();
 
     public ShooterSetVisionLob(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel) {
         this.shooter = shooter;
@@ -43,35 +46,37 @@ public class ShooterSetVisionLob extends Command {
 
     @Override
     public void initialize() {
-        shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
+        Alliance color = DriverStation.getAlliance().orElse(Alliance.Blue);
+        // lobTarget = color==Alliance.Red ? FieldPosition.RedLob : FieldPosition.BlueLob;
+        lobTarget = color==Alliance.Red ? field.getObject("Red Lob").getPose() : field.getObject("Blue Lob").getPose();
         shooterRateLimiter.reset(shooter.getShooterAngle());
         flywheelRateLimiter.reset(flywheel.getRPM());
-        shooterVision.setLEDMode(3.0);
+        shooterVision.selectSpeakerPipeline();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        Optional<ShooterVision.LimelightReadings> visionData = shooterVision.getVisibleTargetData();
-        if (visionData.isPresent()) {
-            double distance = -visionData.get().distance.in(Units.Inches);
-
+        var shooterData = shooterVision.getDistance(lobTarget);
+        if (shooterData.isPresent()) {
+            var distance = shooterData.get();
             targetAngle = lut.get(distance)[0]; //get lut
             targetRPM = lut.get(distance)[1];
 
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
             shooter.setAngle(targetAngleSlew);
 
-            targetRPMSlew = flywheelRateLimiter.calculate(targetRPM); //set flywheel slew
+            targetRPMSlew = flywheelRateLimiter.calculate(targetRPM-500); //set flywheel slew
             flywheel.setRPM(targetRPMSlew);
 
         }
         else {
             targetAngleSlew = shooterRateLimiter.calculate(targetAngle); //set shooter slew
             shooter.setAngle(targetAngleSlew);
-            targetRPMSlew = flywheelRateLimiter.calculate(targetRPM);
+            targetRPMSlew = flywheelRateLimiter.calculate(targetRPM-500);
             flywheel.setRPM(targetRPMSlew);
         }
+        
 
         SmartDashboard.putNumber("targetVisionRpm", targetRPM);
     }
@@ -85,7 +90,6 @@ public class ShooterSetVisionLob extends Command {
             targetRPMSlew = flywheelRateLimiter.calculate(targetRPM);
             flywheel.setRPM(targetRPMSlew);
         }
-        shooterVision.setLEDMode(1.0);
     }
 
     // Returns true when the command should end.

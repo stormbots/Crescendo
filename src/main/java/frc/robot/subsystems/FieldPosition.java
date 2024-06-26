@@ -30,6 +30,10 @@ public class FieldPosition {
     public final static Pose3d RedAmp = new Pose3d(kAmpCols[0], kAmpRow, kAmpHeight, new Rotation3d());
     public final static Pose3d BlueAmp = new Pose3d(kAmpCols[1], kAmpRow, kAmpHeight, new Rotation3d());
 
+    public final static Pose3d BlueLob = new Pose3d(0.936740, 7.390241, 0, new Rotation3d());
+    public final static Pose3d RedLob = new Pose3d(15.591118, 7.390241, 0, new Rotation3d());
+    
+
     /**
      * From https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf page 4
      * Distances are to center of field tag
@@ -137,6 +141,10 @@ public class FieldPosition {
         field.getObject("April Tag 14").setPose(AprilTags.get(13).toPose2d());
         field.getObject("April Tag 15").setPose(AprilTags.get(14).toPose2d());
         field.getObject("April Tag 16").setPose(AprilTags.get(15).toPose2d());
+
+        field.getObject("Blue Lob").setPose(BlueLob.toPose2d());
+        field.getObject("Red Lob").setPose(RedLob.toPose2d());
+
 
         // Pose2d[] fieldObjects = {RedSpeaker.toPose2d(), BlueSpeaker.toPose2d(), RedAmp.toPose2d(), BlueAmp.toPose2d()};
         // field.getObject("Field Elements").setPoses(fieldObjects);

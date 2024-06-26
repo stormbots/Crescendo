@@ -201,6 +201,14 @@ public class Leds extends SubsystemBase {
     }, this);
   } 
 
+  public Command pink(){
+    return new InstantCommand(
+      ()->{this.setColor(Color.kHotPink);
+        this.blinkin1.setPulseTimeMicroseconds(BlinkenPattern.solidHotPink.us());
+        this.blinkin2.setPulseTimeMicroseconds(BlinkenPattern.solidHotPink.us());
+      }
+    );
+  }
   public Command readyLightsPossible(BooleanSupplier possible, BooleanSupplier ...  conditions) {
     return new RunCommand(()->{
 
