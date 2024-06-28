@@ -368,32 +368,34 @@ public class RobotContainer {
     Trigger isSensorBlocked = new Trigger(()->passthrough.isBlocked()||intake.isBlocked());
     Trigger readyToFire = new Trigger(()->
       shooterVision.hasValidTarget() && //UNLESS there is some latency disparity (slightly unsafe but we'll see), this will prevent any empty optional from breaking code as it will never run
-      Math.abs(shooterVision.getVisibleTargetData().get().angleHorizontal-navx.getRotation2d().getDegrees()) < 10 &&
+   //  Math.abs(shooterVision.getVisibleTargetData().get().angleHorizontal-navx.getRotation2d().getDegrees()) < 10 && //need to tune / not needed? seemed to work fine without it
       shooter.isOnTarget() && 
       shooterFlywheel.isOnTarget() && 
-      shooterVision.distanceInRange() && 
-      navx.getRate()<50
+      shooterVision.distanceInRange() //&& 
+    //  navx.getRate()<50 //need to tune / not needed? seemed to work fine without it
     )
-    .debounce(0.1)
+    .debounce(0.075) //tuned debounce from 0.1 to 0.075
     ;
 
-    operatorJoystick.button(1)
-    .and(driverController.button(5))
-    .and(readyToFire)
-    .whileTrue(
-      new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
-        .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
-        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming) //I believe we would want to interupt (conflicts with next few lines)
-    );
-
-    operatorJoystick.button(1)
-    .and(driverController.button(5))
+    //operatorJoystick.button(1)
+    driverController.button(5)
     .and(readyToFire.negate())
     .debounce(0.1)//If we never pass readyToFire check, pressing button 1 will do nothing. with debounce, pressing but 1 with but 5 will force a shot (prob better strat)
     .whileTrue(
       new IntakeNote(intake, passthrough) 
       .andThen(new PassthroughAlignNote(passthrough,intake)) //may not work when shooter is up, will push too far INTO spun up wheels
       .withInterruptBehavior(InterruptionBehavior.kCancelIncoming) //I believe we would want to interupt (conflicts with next few lines)
+    );
+
+// the order of the trigger above and below matters, dont change it before asking me - Michael H
+
+    //operatorJoystick.button(1)
+    driverController.button(5)
+    .and(readyToFire)
+    .whileTrue(
+      new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
+        .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
+        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming) //I believe we would want to interupt (conflicts with next few lines)
     );
 
     //Score button
