@@ -377,7 +377,6 @@ public class RobotContainer {
     .debounce(0.075) //tuned debounce from 0.1 to 0.075
     ;
 
-    //operatorJoystick.button(1)
     driverController.button(5)
     .and(readyToFire.negate())
     .debounce(0.1)//If we never pass readyToFire check, pressing button 1 will do nothing. with debounce, pressing but 1 with but 5 will force a shot (prob better strat)
@@ -389,7 +388,6 @@ public class RobotContainer {
 
 // the order of the trigger above and below matters, dont change it before asking me - Michael H
 
-    //operatorJoystick.button(1)
     driverController.button(5)
     .and(readyToFire)
     .whileTrue(
