@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.BooleanSupplier;
 
-public class Leds extends SubsystemBase {
+public class LedLights extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
   Servo blinkin1 = new Servo(2);
@@ -58,7 +58,7 @@ public class Leds extends SubsystemBase {
   }
 
   /** Creates a new LEDs. */
-  public Leds() {
+  public LedLights() {
     ledStrip = new AddressableLED(9);
     ledBuffer = new AddressableLEDBuffer(16);
     ledStrip.setLength(ledBuffer.getLength());

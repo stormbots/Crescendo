@@ -11,13 +11,13 @@ import javax.swing.text.StyleContext.SmallAttributeSet;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LedLights;
 
 public class LightingFlow extends Command {
   double brightness;
   double scaleValue;
-  Leds leds;
-  Leds.HSVColor hsvColor;
+  LedLights leds;
+  LedLights.HSVColor hsvColor;
   Color color;
   boolean finished;
   int value;
@@ -30,7 +30,7 @@ public class LightingFlow extends Command {
   double colorValue;
   double offset = 3;
   /** Creates a new LightingFlicker. */
-  public LightingFlow(Leds leds, Color color, double wavelength, double speed, double brightness) {
+  public LightingFlow(LedLights leds, Color color, double wavelength, double speed, double brightness) {
     this.leds = leds;
     this.color = color;
     hsvColor = leds.new HSVColor(color);

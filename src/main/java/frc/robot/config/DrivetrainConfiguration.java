@@ -23,7 +23,8 @@ public class DrivetrainConfiguration {
         public SparkPIDController turningController;
         public double angularOffset;
         public double DriveFreeSpeedRPM;
-    
+        public double DrivingMotorPinionTeeth;
+        public double DrivingMotorSpurGearTeeth;
         
       }
      

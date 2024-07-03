@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.IntakeVision.IntakePipeline;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LedLights;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.Chassis.Chassis;
 
@@ -23,7 +23,7 @@ public class VisionTrackNote extends Command {
   private DoubleSupplier rotSpeed;
   private Intake intake;
   private Passthrough passthrough;
-  private Leds leds;
+  private LedLights leds;
 
   /** Creates a new VisionTrackNoteOnHeading. */
   public VisionTrackNote(
@@ -34,7 +34,7 @@ public class VisionTrackNote extends Command {
       Intake intake,
       Passthrough passthrough,
       IntakeVision intakeVision,
-      Leds leds) {
+      LedLights leds) {
 
     // TODO: put all subsystems last in constructor;
 

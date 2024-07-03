@@ -5,10 +5,10 @@
 package frc.robot.commands.Lighting;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LedLights;
 
 public class LightingRainbowFlow extends Command {
-  Leds leds;
+  LedLights leds;
   double secondsPerCycle;
   double startHue = 0;
   double percentOutput;
@@ -16,7 +16,7 @@ public class LightingRainbowFlow extends Command {
   double startTime;
   boolean finished;
   /** Creates a new LightingRainbow. */
-  public LightingRainbowFlow(Leds leds, double secondsPerCycle, double percentOutput) {
+  public LightingRainbowFlow(LedLights leds, double secondsPerCycle, double percentOutput) {
     this.leds = leds;
     this.secondsPerCycle = secondsPerCycle;
     this.percentOutput = percentOutput;

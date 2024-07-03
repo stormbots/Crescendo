@@ -10,14 +10,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LedLights;
 
 public class LightingLightningRandom extends Command {
   double percentOutput;
   double scaleValue;
-  Leds leds;
+  LedLights leds;
   Color color;
-  Leds.HSVColor hsvColor;
+  LedLights.HSVColor hsvColor;
   boolean finished;
   int value;
   double[] startTime;
@@ -29,7 +29,7 @@ public class LightingLightningRandom extends Command {
   double[] loop;
   double timeScale;
   /** Creates a new LightingFlicker. */
-  public LightingLightningRandom(Leds leds, Color color, double timeScale, double brightness) {
+  public LightingLightningRandom(LedLights leds, Color color, double timeScale, double brightness) {
     this.leds = leds;
     this.color = color;
     this.percentOutput = brightness;

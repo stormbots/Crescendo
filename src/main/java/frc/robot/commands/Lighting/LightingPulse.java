@@ -11,13 +11,13 @@ import javax.swing.text.StyleContext.SmallAttributeSet;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LedLights;
 
 public class LightingPulse extends Command {
   double brightness;
   double scaleValue;
-  Leds leds;
-  Leds.HSVColor hsvColor;
+  LedLights leds;
+  LedLights.HSVColor hsvColor;
   double colorValue;
   Color color;
   boolean finished;
@@ -28,7 +28,7 @@ public class LightingPulse extends Command {
   double cycleTime;
   double frequency;
   /** Creates a new LightingFlicker. */
-  public LightingPulse(Leds leds, Color color, double cycleTime, double brightness) {
+  public LightingPulse(LedLights leds, Color color, double cycleTime, double brightness) {
     this.leds = leds;
     this. color = color;
     this.cycleTime = cycleTime;

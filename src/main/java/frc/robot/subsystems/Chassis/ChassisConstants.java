@@ -55,20 +55,21 @@ public class ChassisConstants {
     // This changes the drive speed of the module (a pinion gear with more teeth will result in a
     // robot that drives faster).
     public static final int kDrivingMotorPinionTeeth = 14;
+    public static final int kDrivingMotorSpurGearTeeth = 22;
 
     // Invert the turning encoder, since the output shaft rotates in the opposite direction of
     // the steering motor in the MAXSwerve Module.
     public static final boolean kTurningEncoderInverted = true;
-
+  
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
-    public static final double kWheelDiameterMeters = Units.inchesToMeters(3);//0.0762;
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(3);//0.0762;//
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15 teeth on the
     // bevel pinion 1
     public static final double kDrivingMotorReduction =
-        (45.0 * 22) / (kDrivingMotorPinionTeeth * 15);
-    public static final double kTurningMotorReduction = 9424/203;
+        (45.0 * kDrivingMotorSpurGearTeeth) / (kDrivingMotorPinionTeeth * 15);
+    public static final double kTurningMotorReduction = 9424.0/203.0;
     // Theoretical max speed, has nothing to do with rotation
     public static final double kDriveWheelFreeSpeedRps =
         (kDrivingMotorFreeSpeedRps * kWheelCircumferenceMeters) / kDrivingMotorReduction;
