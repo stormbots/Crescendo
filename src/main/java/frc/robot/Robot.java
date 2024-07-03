@@ -83,6 +83,7 @@ public class Robot extends LoggedRobot {
     entry.setPersistent();
 
     // set the value of chassis track width based on bot
+    //TODO: Get rid of this
     DriveConstants.kTrackWidth =
         isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
     DriveConstants.kWheelBase = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);

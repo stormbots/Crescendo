@@ -40,7 +40,6 @@ public class ModuleUpdater {
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
     switch (Constants.currentMode) {
-      case REAL:
       case REPLAY:
         driveFeedforward = new SimpleMotorFeedforward(ModuleConstants.kDrivingFF_Replay, ModuleConstants.kDrivingFF_Replay);
         drivePID = new PIDController(ModuleConstants.kDrivingP_Replay, ModuleConstants.kDrivingI_Replay, ModuleConstants.kDrivingD_Replay);
