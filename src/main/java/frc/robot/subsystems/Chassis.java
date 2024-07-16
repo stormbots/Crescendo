@@ -348,12 +348,35 @@ public class Chassis extends SubsystemBase {
    * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
+    setModuleStates(desiredStates, new double[]{0,0,0,0});
+  }
+
+  public void setModuleStates(SwerveModuleState[] desiredStates, double[] accelerationMpsSq) { //would eventually like to set acceleration limits
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    frontLeft.setDesiredState(desiredStates[0]);
-    frontRight.setDesiredState(desiredStates[1]);
-    rearLeft.setDesiredState(desiredStates[2]);
-    rearRight.setDesiredState(desiredStates[3]);
+    frontLeft.setDesiredState(desiredStates[0], accelerationMpsSq[0]);
+    frontRight.setDesiredState(desiredStates[1], accelerationMpsSq[1]);
+    rearLeft.setDesiredState(desiredStates[2], accelerationMpsSq[2]);
+    rearRight.setDesiredState(desiredStates[3], accelerationMpsSq[3]);
+  }
+
+  /**
+   * Allows for the input of ChassisSpeeds instead of SwerveModuleState array
+   * 
+   * @param fieldRelativeAccel Though of type chassis speeds, this is supposed to represent acceleration. The use of chassis speeds is for interactions with the kinematics class. i know its jank.
+   */
+  
+  public void setModuleStates(ChassisSpeeds fieldRelativeVel, ChassisSpeeds fieldRelativeAccel){ 
+    SwerveModuleState[] desiredStates = swerveDriveKinematics.toSwerveModuleStates(fieldRelativeVel);
+
+    SwerveModuleState[] temp = swerveDriveKinematics.toSwerveModuleStates(fieldRelativeAccel); //Aforementioned oddity
+    double[] desiredAccel = new double[4];
+
+    for(int i=0; i<4; i++){
+      desiredAccel[i] = temp[i].speedMetersPerSecond;
+    }
+
+    setModuleStates(desiredStates, desiredAccel);
   }
 
   public SwerveModuleState[] getModuleStates(){
@@ -363,6 +386,15 @@ public class Chassis extends SubsystemBase {
       rearLeft.getState(),
       rearRight.getState()
     };
+  }
+
+  //Unsure whether one used place wants field or robot relative, likely field based of JiB code
+  public ChassisSpeeds getChassisSpeeds(){
+    ChassisSpeeds robotRelative = swerveDriveKinematics.toChassisSpeeds(getModuleStates());
+
+    ChassisSpeeds fieldRelative = ChassisSpeeds.fromRobotRelativeSpeeds(robotRelative, getRotation2d());
+
+    return fieldRelative;
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
@@ -406,6 +438,10 @@ public class Chassis extends SubsystemBase {
    */
   public double getHeading() {
     return navx.getRotation2d().getDegrees();
+  }
+
+  public Rotation2d getRotation2d(){
+    return navx.getRotation2d();
   }
 
   public Command getZeroOutputCommand(){

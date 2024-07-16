@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -13,6 +14,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkFlexFixes;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.revrobotics.SparkPIDController;
 
@@ -176,7 +178,7 @@ public class MAXSwerveModule implements Sendable{
    *
    * @param desiredState Desired state with speed and angle.
    */
-  public void setDesiredState(SwerveModuleState desiredState) {
+  public void setDesiredState(SwerveModuleState desiredState, double accelerationMpsSq) {
     // Apply chassis angular offset to the desired state.
     SwerveModuleState correctedDesiredState = new SwerveModuleState();
     correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
@@ -187,17 +189,17 @@ public class MAXSwerveModule implements Sendable{
         new Rotation2d(turningEncoder.getPosition()));
 
     var arbFF = 0.0;
-    if(DriverStation.isAutonomous()){
-      arbFF = drivingMotorFeedforward.calculate(drivingEncoder.getVelocity(), optimizedDesiredState.speedMetersPerSecond, 0.08);
-    }
-    else{
-      arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
-    }
-    drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity, 0, arbFF, ArbFFUnits.kVoltage);
+    arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond, accelerationMpsSq);
+    drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkBase.ControlType.kVelocity, 0, arbFF, ArbFFUnits.kVoltage);
 
-    turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+    turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkBase.ControlType.kPosition);
 
     this.desiredState = desiredState;
+  }
+
+  //Required for functionality of other classes
+  public void setDesiredState(SwerveModuleState desiredState){
+    setDesiredState(desiredState, 0);
   }
   
   /** Zeroes all the SwerveModule encoders. */
