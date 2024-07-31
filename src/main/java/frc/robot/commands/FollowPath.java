@@ -27,8 +27,8 @@ public class FollowPath extends Command {
   private PathPlannerPath path;
   private PathPlannerTrajectory trajectory;
 
-  private final PIDController rotationPID = new PIDController(0, 0, 0);
-  private final PIDController translationPID = new PIDController(0, 0, 0);
+  private final PIDController rotationPID = new PIDController(2/Math.PI, 0, 0);
+  private final PIDController translationPID = new PIDController(1, 0, 0);
 
   //Unfortunately, i have no other way other than to track the states by index
   int index = 0;
@@ -51,6 +51,7 @@ public class FollowPath extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    rotationPID.enableContinuousInput(-Math.PI, Math.PI);
     trajectory = new PathPlannerTrajectory(path, chassis.getChassisSpeeds(), chassis.getRotation2d());
     states = trajectory.getStates();
     timer.restart();
@@ -90,14 +91,21 @@ public class FollowPath extends Command {
     double aTheta;
     if(desiredState.holonomicAngularVelocityRps.isPresent()){
       vTheta=desiredState.holonomicAngularVelocityRps.get();
-      // aTheta = (nextDesiredState.holonomicAngularVelocityRps.get() - desiredState.holonomicAngularVelocityRps.get())/desiredState.timeSeconds; //Doesn't have desiredState.angularAcceleration
-      aTheta = 0;
+      aTheta = (nextDesiredState.holonomicAngularVelocityRps.get() - desiredState.holonomicAngularVelocityRps.get())/desiredState.timeSeconds; //Doesn't have desiredState.angularAcceleration
     }
     else{
       vTheta=0;
       aTheta=0;
     }
-    SmartDashboard.putNumber("/autos/vtheta", vTheta);
+
+    ChassisSpeeds realSpeeds = chassis.getChassisSpeeds();
+    SmartDashboard.putNumber("/autos/atheta", aTheta);
+    SmartDashboard.putNumber("/autos/xyVelError", Math.abs(desiredState.velocityMps-Math.hypot(realSpeeds.vxMetersPerSecond, realSpeeds.vyMetersPerSecond)));
+    SmartDashboard.putNumber("/autos/xyerror", Math.abs(Math.hypot(desiredState.positionMeters.getX()-chassis.getPose().getX(), desiredState.positionMeters.getY()-chassis.getPose().getY())));
+
+    SmartDashboard.putNumber("/autos/thetaVelError", Math.abs(desiredState.holonomicAngularVelocityRps.get()-realSpeeds.omegaRadiansPerSecond));
+    SmartDashboard.putNumber("/autos/thetaerror", Math.abs(desiredState.heading.getRadians()-chassis.getPose().getRotation().getRadians()));
+
 
     double ax = desiredState.accelerationMpsSq * Math.cos(desiredHeading.getRadians());
     double ay = desiredState.accelerationMpsSq * Math.sin(desiredHeading.getRadians());
@@ -107,9 +115,9 @@ public class FollowPath extends Command {
     double thetaFeedback = rotationPID.calculate(currentPose.getRotation().getRadians(), desiredState.targetHolonomicRotation.getRadians());
 
     //TEMP:
-    xFeedback = 0;
-    yFeedback = 0;
-    thetaFeedback = 0;
+    // xFeedback = 0;
+    // yFeedback = 0;
+    // thetaFeedback = 0;
 
     ChassisSpeeds chassisVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(vx + xFeedback, vy + yFeedback, vTheta + thetaFeedback, currentPose.getRotation());
 

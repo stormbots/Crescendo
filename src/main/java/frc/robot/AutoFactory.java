@@ -112,7 +112,7 @@ public class AutoFactory {
 
         // autoChooser.addOption("vv Test Autos vv", new InstantCommand());
 
-        autoChooser.addOption("funnnnnyyyy", makeChoreoAutoCustomPathFollowing("funny", rc.chassis));
+        autoChooser.addOption("funnnnnyyyy", makeChoreoAutoCustomPathFollowing("funny", rc.chassis, new Pose2d(0.369, 3.237, new Rotation2d(-1.6107750363897497))));
 
 
         // autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
@@ -571,13 +571,13 @@ public class AutoFactory {
         return autoChooser;
     }
 
-    public Command makeChoreoAutoCustomPathFollowing(String choreoPath, Chassis chassis){
+    public Command makeChoreoAutoCustomPathFollowing(String choreoPath, Chassis chassis, Pose2d startingPose){
         PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(choreoPath);
-        Pose2d startingPose = path.getPreviewStartingHolonomicPose();
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + startingPose.getRotation().getRadians());
         
         return new InstantCommand()
             .andThen(()->chassis.setFieldCentricOffset(-startingPose.getRotation().getDegrees())) // only works on blue
-            .andThen(()->chassis.resetOdometry(startingPose))//alliance NOT managed
+            .andThen(()->chassis.resetOdometryAllianceManaged(startingPose))//alliance is BROEKN
             .andThen(new FollowPath(path, chassis))
             ;
     }
