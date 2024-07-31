@@ -133,12 +133,14 @@ public class MAXSwerveModule implements Sendable{
     desiredState.angle = new Rotation2d(turningEncoder.getPosition());
     drivingEncoder.setPosition(0);
 
+    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 5);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
     drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
     // drivingSparkFlex.setClosedLoopRampRate(0.02);
 
+    turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 5);
     turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
     
     // SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
