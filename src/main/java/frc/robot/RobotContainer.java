@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -81,7 +82,8 @@ public class RobotContainer {
     new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
     new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
   );
-  public AHRS navx = new AHRS();
+  public AHRS navx = new AHRS(Port.kMXP, (byte) 200);
+
   public SwerveDrivePoseEstimator swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(swerveDriveKinematics, navx.getRotation2d(), 
     new SwerveModulePosition[] {
         new SwerveModulePosition(),
@@ -241,16 +243,16 @@ public class RobotContainer {
     driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
    // driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/5.0, ()->-driverController.getLeftX()/5.0, ()->-driverTurnJoystickValue()/5.0));
 
-    driverController.button(5)
-    .and(shooterVision::distanceInRange)
-    .debounce(0.1)
-    .whileTrue(new VisionTurnToSpeakerOpticalOnly(
-        ()-> -driverController.getLeftY()/5.0*.4,
-        ()-> -driverController.getLeftX()/5.0*0.5,
-        ()-> -driverTurnJoystickValue()/5.0,
-        shooterVision, chassis, navx)
-    )
-    ;
+    // driverController.button(5)
+    // .and(shooterVision::distanceInRange)
+    // .debounce(0.1)
+    // .whileTrue(new VisionTurnToSpeakerOpticalOnly(
+    //     ()-> -driverController.getLeftY()/5.0*.4,
+    //     ()-> -driverController.getLeftX()/5.0*0.5,
+    //     ()-> -driverTurnJoystickValue()/5.0,
+    //     shooterVision, chassis, navx)
+    // )
+    // ;
 
     driverController.button(5)
     .or(driverController.button(6))

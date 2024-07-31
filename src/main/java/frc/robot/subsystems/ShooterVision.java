@@ -89,7 +89,7 @@ public class ShooterVision extends SubsystemBase {
     double[] bp = camera.getEntry("targetpose_robotspace").getDoubleArray(new double[]{0,0,0,0,0,0});
 
     if (bp.length<6) {return Optional.empty();}
-    SmartDashboard.putNumber("shootervision/testingdistance", bp[2]);
+    SmartDashboard.putNumber("shootervision/testingdistance", Units.Inches.convertFrom(bp[2], Units.Meters));
     //SmartDashboard.putData("shootervision", );
     var target = new LimelightReadings();
     target.distance = Units.Meters.of(bp[2]);

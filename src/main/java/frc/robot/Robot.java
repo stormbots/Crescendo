@@ -78,7 +78,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
 
-    addPeriodic(robotContainer.chassis::updateOdometry, 0.04); //wroky?
+    addPeriodic(robotContainer.chassis::updateOdometry, 0.005); //wroky?
   }
 
   /**
