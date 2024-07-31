@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Chassis;
 
@@ -85,11 +86,21 @@ public class FollowPath extends Command {
 
     double vx = desiredState.velocityMps * Math.cos(desiredHeading.getRadians());
     double vy = desiredState.velocityMps * Math.sin(desiredHeading.getRadians());
-    double vtheta = desiredState.headingAngularVelocityRps;
+    double vTheta;
+    double aTheta;
+    if(desiredState.holonomicAngularVelocityRps.isPresent()){
+      vTheta=desiredState.holonomicAngularVelocityRps.get();
+      // aTheta = (nextDesiredState.holonomicAngularVelocityRps.get() - desiredState.holonomicAngularVelocityRps.get())/desiredState.timeSeconds; //Doesn't have desiredState.angularAcceleration
+      aTheta = 0;
+    }
+    else{
+      vTheta=0;
+      aTheta=0;
+    }
+    SmartDashboard.putNumber("/autos/vtheta", vTheta);
 
     double ax = desiredState.accelerationMpsSq * Math.cos(desiredHeading.getRadians());
     double ay = desiredState.accelerationMpsSq * Math.sin(desiredHeading.getRadians());
-    double aTheta = (nextDesiredState.headingAngularVelocityRps - desiredState.headingAngularVelocityRps)/desiredState.timeSeconds; //Doesn't have desiredState.angularAcceleration
   
     double xFeedback = translationPID.calculate(currentPose.getX(), desiredState.getTargetHolonomicPose().getX());
     double yFeedback = translationPID.calculate(currentPose.getY(), desiredState.getTargetHolonomicPose().getY());
@@ -100,7 +111,7 @@ public class FollowPath extends Command {
     yFeedback = 0;
     thetaFeedback = 0;
 
-    ChassisSpeeds chassisVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(vx + xFeedback, vy + yFeedback, vtheta + thetaFeedback, currentPose.getRotation());
+    ChassisSpeeds chassisVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(vx + xFeedback, vy + yFeedback, vTheta + thetaFeedback, currentPose.getRotation());
 
     ChassisSpeeds chassisAcceleration = ChassisSpeeds.fromFieldRelativeSpeeds(ax, ay, aTheta, currentPose.getRotation());
     

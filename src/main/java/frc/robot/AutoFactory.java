@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ChassisConstants.AutoConstants;
 import frc.robot.ChassisConstants.DriveConstants;
+import frc.robot.commands.FollowPath;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
@@ -53,6 +54,7 @@ import frc.robot.commands.VisionTrackNoteAuto;
 import frc.robot.commands.VisionTurnToAprilTag;
 import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Chassis;
 
 
 
@@ -109,6 +111,8 @@ public class AutoFactory {
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
 
         // autoChooser.addOption("vv Test Autos vv", new InstantCommand());
+
+        autoChooser.addOption("funnnnnyyyy", makeChoreoAutoCustomPathFollowing("funny", rc.chassis));
 
 
         // autoChooser.addOption("Two Meter Auto Path Planner", new InstantCommand(()->rc.chassis.resetOdometry(new Pose2d(0,0, new Rotation2d()))).andThen(pathPlannerFollowPathManual("twoMeterAuto")));
@@ -565,6 +569,17 @@ public class AutoFactory {
        }
 
         return autoChooser;
+    }
+
+    public Command makeChoreoAutoCustomPathFollowing(String choreoPath, Chassis chassis){
+        PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(choreoPath);
+        Pose2d startingPose = path.getPreviewStartingHolonomicPose();
+        
+        return new InstantCommand()
+            .andThen(()->chassis.setFieldCentricOffset(-startingPose.getRotation().getDegrees())) // only works on blue
+            .andThen(()->chassis.resetOdometry(startingPose))//alliance NOT managed
+            .andThen(new FollowPath(path, chassis))
+            ;
     }
 
 }
