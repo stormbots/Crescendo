@@ -45,6 +45,20 @@ public class ShooterSetVision extends Command {
         addRequirements(flywheel);
     }
 
+    //Incorrectly overloaded to prevent issues
+    public ShooterSetVision(Shooter shooter, ShooterVision shooterVision, ShooterFlywheel flywheel, double targetAngle, double targetRPM) {
+        SmartDashboard.putNumber("shooter/offset", RobotContainer.shooterOffset);
+        this.shooter = shooter;
+        this.shooterVision = shooterVision;
+        this.flywheel = flywheel;
+
+        this.targetAngle=targetAngle;
+        this.targetRPM=targetRPM;
+
+        addRequirements(shooter);
+        addRequirements(flywheel);
+    }
+
     @Override
     public void initialize() {
         shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);

@@ -368,35 +368,6 @@ public class RobotContainer {
     .onTrue(PassthroughLock.setUnlocked());
     
     Trigger isSensorBlocked = new Trigger(()->passthrough.isBlocked()||intake.isBlocked());
-    Trigger readyToFire = new Trigger(()->
-      shooterVision.hasValidTarget() && //UNLESS there is some latency disparity (slightly unsafe but we'll see), this will prevent any empty optional from breaking code as it will never run
-   //  Math.abs(shooterVision.getVisibleTargetData().get().angleHorizontal-navx.getRotation2d().getDegrees()) < 10 && //need to tune / not needed? seemed to work fine without it
-      shooter.isOnTarget() && 
-      shooterFlywheel.isOnTarget() && 
-      shooterVision.distanceInRange() //&& 
-    //  navx.getRate()<50 //need to tune / not needed? seemed to work fine without it
-    )
-    .debounce(0.075) //tuned debounce from 0.1 to 0.075
-    ;
-
-    driverController.button(5)
-    .and(readyToFire.negate())
-    .debounce(0.1)//If we never pass readyToFire check, pressing button 1 will do nothing. with debounce, pressing but 1 with but 5 will force a shot (prob better strat)
-    .whileTrue(
-      new IntakeNote(intake, passthrough) 
-      .andThen(new PassthroughAlignNote(passthrough,intake)) //may not work when shooter is up, will push too far INTO spun up wheels
-      .withInterruptBehavior(InterruptionBehavior.kCancelIncoming) //I believe we would want to interupt (conflicts with next few lines)
-    );
-
-// the order of the trigger above and below matters, dont change it before asking me - Michael H
-
-    driverController.button(5)
-    .and(readyToFire)
-    .whileTrue(
-      new RunCommand(passthrough::intake,passthrough).finallyDo(passthrough::stop)
-        .alongWith(new RunCommand(intake::intake,intake).finallyDo(intake::stop))
-        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming) //I believe we would want to interupt (conflicts with next few lines)
-    );
 
     //Score button
     operatorJoystick.button(1)
@@ -414,7 +385,6 @@ public class RobotContainer {
     //score trap or amp
     operatorJoystick.button(1)
     .and(isSensorBlocked.negate())
-    .and(driverController.button(5).negate())
     .whileTrue(
       //score amp
       new ConditionalCommand(
@@ -574,12 +544,12 @@ public class RobotContainer {
       new ClimberSetPosition(climber, Units.Inches.of(1.0))
     );
 
-    operatorJoystick.button(16).whileTrue(
-      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-    )
-    .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
-    )
-    .whileTrue(PassthroughLock.setUnlocked());
+    // operatorJoystick.button(16).whileTrue(
+    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+    // )
+    // .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget)
+    // )
+    // .whileTrue(PassthroughLock.setUnlocked());
 
     // Used for testing only.
 
@@ -601,7 +571,7 @@ public class RobotContainer {
     // )
     // .onFalse(new RunCommand(()->{}, dunkArm))
     // // ;
-    operatorJoystick.button(15).whileTrue(
+    operatorJoystick.button(16).whileTrue(
       new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
     )
     // .whileTrue(

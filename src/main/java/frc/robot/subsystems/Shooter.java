@@ -39,7 +39,7 @@ public class Shooter extends SubsystemBase {
   private double forwardSoftLimit = 46;
 
   public boolean isHomed = false;
-  public static double farthestShotDistance = 144; 
+  public static double farthestShotDistance = 167; 
 
   public static LUT normalLUT = new LUT(new double[][]{
     {54, 44.4, 4000},
@@ -66,8 +66,8 @@ public class Shooter extends SubsystemBase {
     {128, 18.8, 5500},
     {139, 17.6, 5500},
     {147, 15.5, 5500},
-    {157, 14.2, 5500},
-    {167, 13.5, 5500} //approx limit
+    {157, 14.4, 5500},
+    {167, 13.7, 5500} //approx limit
     //WITHOUT GRIP TAPE
     // {107, 25.3, 5500},
     // {118, 22.81, 5500},

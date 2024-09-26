@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.swing.text.StyleContext.SmallAttributeSet;
 
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -44,7 +46,8 @@ public class ShooterVision extends SubsystemBase {
   private double lasthHeartbeat=-1;
   private double lastOKHeartBeatTimer = 0.0;
   private boolean heartBeatOK = false;
-  private boolean autoVisionOdometryEnabled = false;
+  // private boolean autoVisionOdometryEnabled = false;
+  private boolean autoVisionOdometryEnabled = true;
   private boolean printedHeartBeat = false;
 
 
@@ -357,5 +360,16 @@ public class ShooterVision extends SubsystemBase {
     else {
       setPipeline(LimelightPipeline.kOdometry);
     }
+  }
+
+  //Could have made static, not applicable to all "default" cases, not well thought out, do not copy in future code this was a shortcut
+  public LimelightReadings getDefaultLimelightReadings(){
+    LimelightReadings defaultLimelightReadings = new LimelightReadings();
+    defaultLimelightReadings.angleHorizontal = 9999;
+    defaultLimelightReadings.angleVertical = 9999;
+    defaultLimelightReadings.distance = Units.Inches.of(9999);
+    defaultLimelightReadings.time = 9999;
+
+    return defaultLimelightReadings;
   }
 }

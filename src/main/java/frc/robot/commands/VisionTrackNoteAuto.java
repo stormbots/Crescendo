@@ -58,7 +58,7 @@ public class VisionTrackNoteAuto extends Command {
     addRequirements(intake);
     addRequirements(passthrough);
     addRequirements(intakeVision);
-    addRequirements(leds);
+    // addRequirements(leds);
   }
 
   // Called when the command is initially scheduled.
@@ -97,7 +97,7 @@ public class VisionTrackNoteAuto extends Command {
     intake.stop();
     passthrough.stop();
 
-    //intakeVision.setPipeline(IntakePipeline.kDriverView);
+    intakeVision.setPipeline(IntakePipeline.kDriverView);
   }
 
   // Returns true when the command should end.
