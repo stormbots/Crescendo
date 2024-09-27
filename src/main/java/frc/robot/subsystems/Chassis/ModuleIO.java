@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public interface ModuleIO {
   @AutoLog
   public static class ModuleIOInputs {
+    //TODO: Include setpoints?
     public double drivePositionRad = 0.0;
     public double driveVelocityRadPerSec = 0.0;
     public double driveVelocityRPM = 0.0;

@@ -84,11 +84,11 @@ public class Robot extends LoggedRobot {
 
     // set the value of chassis track width based on bot
     //TODO: Get rid of this
-    DriveConstants.kTrackWidth =
-        isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
-    DriveConstants.kWheelBase = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
-    DriveConstants.distanceToModuleFromCenter =
-        Math.hypot(DriveConstants.kTrackWidth / 2, DriveConstants.kWheelBase / 2);
+    // DriveConstants.kTrackWidth =
+    //     isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
+    // DriveConstants.kWheelBase = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
+    // DriveConstants.distanceToModuleFromCenter =
+    //     Math.hypot(DriveConstants.kTrackWidth / 2, DriveConstants.kWheelBase / 2);
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.

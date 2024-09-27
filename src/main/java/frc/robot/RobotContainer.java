@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkBase.IdleMode;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -41,6 +42,9 @@ import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
+import frc.robot.config.DrivetrainConfiguration;
+import frc.robot.config.RobotConstants;
+import frc.robot.config.RobotIdentity;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
@@ -73,6 +77,8 @@ public class RobotContainer {
   //   new Translation2d(DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2),
   //   new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
   //   new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
+
+  //TODO: Use RobotId values
   public SwerveDriveKinematics swerveDriveKinematics =
       new SwerveDriveKinematics(
           new Translation2d(0, Units.Inch.of(6).in(Units.Meter)),
@@ -117,6 +123,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    RobotConstants robot = RobotConstants.getRobotConstants(RobotIdentity.getIdentity());
+    DrivetrainConfiguration drivetrainConfiguration = robot.getDrivetrainConfiguration();
 
     // Run delayed constructors
     sequenceFactory = new SequenceFactory(this);

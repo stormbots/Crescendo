@@ -166,6 +166,10 @@ public class ChassisConstants {
 
   public static final class NeoMotorConstants {
     public static final double kFreeSpeedRpm = 6784;
+    public static final double kVortexFreeSpeedRpm = 6784;
+    public static final double kNEOFreeSpeedRpm = 5676;
+
+
   }
 
   public static final class AdvantageKitConstants {
