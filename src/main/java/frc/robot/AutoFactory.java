@@ -112,14 +112,19 @@ public class AutoFactory {
             return false;
         };
 
+        // BooleanSupplier isOverNoteSeeingLimit = ()->{
+        //     double poseX = rc.swerveDrivePoseEstimator.getEstimatedPosition().getX();
+        //     return Math.abs(rc.swerveDrivePoseEstimator.getEstimatedPosition().getX()-(16.542/2)) < ((16.542/2)-5.474);
+        // };
+
         autoChooser.setDefaultOption("Please Select Auto", new InstantCommand());
 
         // autoChooser.addOption("vv Test Autos vv", new InstantCommand());
 
-        autoChooser.addOption("5NoteAmpChoreo", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
-            .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
-        );
+        // autoChooser.addOption("5NoteAmpChoreo", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(-60, isBlue))
+        //     .andThen(new PathPlannerAuto("ChoreoAmpAuto"))
+        // );
 
         // autoChooser.addOption("4NoteAmpRushChoreo", new InstantCommand()
         //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
@@ -130,82 +135,55 @@ public class AutoFactory {
         //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
         //     .andThen(new PathPlannerAuto("ChoreoSourceRushAuto"))
         // );
-        autoChooser.addOption("FarStart4NoteSourceRushChoreo", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-            .andThen(new PathPlannerAuto("FarStartChoreoSourceRushAuto"))
-        );
+        // autoChooser.addOption("FarStart4NoteSourceRushChoreo", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("FarStartChoreoSourceRushAuto"))
+        // );
 
-        autoChooser.addOption("5NoteCenterTopFirstChoreo", new InstantCommand()
-            .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
-            .andThen(new PathPlannerAuto("ChoreoCenterTopFirstAuto"))
-        );
-
-
-        // added a shit ton of tests
-        
-        autoChooser.addOption("PathFindingTest", 
-            new SequentialCommandGroup(
-                new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
-                new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
-                makePathFindToPoseCommand(new Pose2d(7.015, 0.776, new Rotation2d()))
-            )
-        );
-
-        autoChooser.addOption("PathFindThenFollowPathTest", 
-            new SequentialCommandGroup(
-                new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
-                new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
-                makePathFindThenFollowPathCommand(PathPlannerPath.fromChoreoTrajectory("SourceTestPath"))
-            )
-        );
-
-        autoChooser.addOption("PathFindAndNoteTest", 
-            new SequentialCommandGroup(
-                new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
-                new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
-                makePathFindToPoseCommand(new Pose2d(7.015, 0.776, new Rotation2d())).until(()->rc.intakeVision.hasValidTarget()),
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
-            )
-        );
-
-        autoChooser.addOption("PathFindTwiceAndNoteTest", 
-            new SequentialCommandGroup(
-                new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
-                new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
-                makePathFindToPoseCommand(new Pose2d(7.015, 0.776, new Rotation2d())).until(()->rc.intakeVision.hasValidTarget()),
-                new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(1.5),
-                makePathFindToPoseCommand(new Pose2d(1.5,3.589,new Rotation2d()))
-            )
-        );
-
-        autoChooser.addOption("AutoVisionThenPathFind", 
-        new SequentialCommandGroup(
-            new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
-            new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
-            // new RunCommand(()->rc.chassis.drive(0.1, 0, 0, false, false), rc.chassis).withTimeout(0.5),
-            new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds).withTimeout(1.5),
-            new InstantCommand(()->System.out.println("bruhbruhbruhbruhbruhbruhbruhubrhrbuhbruhburhuhr")),
-            makePathFindToPoseCommand(new Pose2d(7.015, 0.776, new Rotation2d()))
-        )
-    );
+        // autoChooser.addOption("5NoteCenterTopFirstChoreo", new InstantCommand()
+        //     .andThen(()->rc.chassis.setFieldCentricOffset(0, isBlue))
+        //     .andThen(new PathPlannerAuto("ChoreoCenterTopFirstAuto"))
+        // );
 
         autoChooser.addOption("SourceVisionAuto", 
             new SequentialCommandGroup(
                 new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
                 new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
-                makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("FarStartSourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath"), 1.5, 14, 5500),
+                makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("FarStartSourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath"), 1.3, 14, 5500),
                 makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("SourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath")),
                 makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("SourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath"))
             )
         );
 
-        autoChooser.addOption("bruhbruhfunny", 
-            new ParallelDeadlineGroup(
-                new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel),
-                new VisionTurnToSpeakerOpticalOnly(()->0.0,()->0.0,()->0.0,rc.shooterVision, rc.chassis, rc.navx)
-                //     .until(() -> Math.abs(rc.shooterVision.getVisibleTargetData().orElse(defaultLimelightReadings).angleHorizontal)<5)
-            ).withTimeout(shooterVisionAutoTimeout)
-        );
+        // autoChooser.addOption("SourceVisionAutoReverse", 
+        //     new SequentialCommandGroup(
+        //         new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
+        //         new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("FarStartSourceRunThroughReverse"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath"), 1.1, 14, 5500),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("SourceRunThroughReverse"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath")),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("SourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath"))
+        //     )
+        // );
+
+        // autoChooser.addOption("FarSourceVisionAuto", 
+        //     new SequentialCommandGroup(
+        //         new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
+        //         new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.5,3.589,new Rotation2d()))),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("SuperFarStartSourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath")),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("SourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath")),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("SourceRunThrough"), PathPlannerPath.fromChoreoTrajectory("SourceReturnPath"))
+        //     )
+        // );
+
+        // autoChooser.addOption("AmpVisionAuto", 
+        //     new SequentialCommandGroup(
+        //         new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
+        //         new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.488,6.52,new Rotation2d()))),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("FarStartAmpRunThrough"), PathPlannerPath.fromChoreoTrajectory("AmpReturnPath"), 1.5, 14, 5500),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("AmpRunThrough"), PathPlannerPath.fromChoreoTrajectory("AmpReturnPath")),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("AmpRunThrough"), PathPlannerPath.fromChoreoTrajectory("AmpReturnPath"))
+        //     )
+        // );
 
         autoChooser.addOption("MidSafeVisionAuto", 
             new SequentialCommandGroup(
@@ -225,51 +203,51 @@ public class AutoFactory {
             )
         );
 
-        autoChooser.addOption("vv SysID vv", new InstantCommand());
+        // autoChooser.addOption("vv SysID vv", new InstantCommand());
         
-        autoChooser.addOption("quasi forward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption("quasi backward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption("dynamic forward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption("dynamic backward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        // autoChooser.addOption("quasi forward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        // autoChooser.addOption("quasi backward", rc.chassis.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        // autoChooser.addOption("dynamic forward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        // autoChooser.addOption("dynamic backward", rc.chassis.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        autoChooser.addOption("sysid Flywheel routine", 
-            new InstantCommand()
-                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(5))
-                .andThen(new WaitCommand(5))
-                .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(5))
-                .andThen(new WaitCommand(5))
-                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(5))
-                .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(5))
+        // autoChooser.addOption("sysid Flywheel routine", 
+        //     new InstantCommand()
+        //         .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(5))
+        //         .andThen(new WaitCommand(5))
+        //         .andThen(rc.shooterFlywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(5))
+        //         .andThen(new WaitCommand(5))
+        //         .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
+        //         .andThen(new WaitCommand(5))
+        //         .andThen(rc.shooterFlywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+        //         .andThen(new WaitCommand(5))
 
-        );
+        // );
 
-        autoChooser.addOption("sysid shooter routine", 
-            new InstantCommand()
-                .andThen(rc.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.shooter.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(1))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(1))
-                .andThen(new WaitCommand(2))
+        // autoChooser.addOption("sysid shooter routine", 
+        //     new InstantCommand()
+        //         .andThen(rc.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
+        //         .andThen(new WaitCommand(2))
+        //         .andThen(rc.shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+        //         .andThen(new WaitCommand(2))
+        //         .andThen(rc.shooter.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(1))
+        //         .andThen(new WaitCommand(2))
+        //         .andThen(rc.shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(1))
+        //         .andThen(new WaitCommand(2))
 
-        );
+        // );
 
-        autoChooser.addOption("sysid dunkArm routine", 
-            new InstantCommand()
-                .andThen(rc.dunkArm.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.dunkArm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
-                .andThen(new WaitCommand(2))
-                .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
-                .andThen(new WaitCommand(2))
+        // autoChooser.addOption("sysid dunkArm routine", 
+        //     new InstantCommand()
+        //         .andThen(rc.dunkArm.sysIdQuasistatic(SysIdRoutine.Direction.kForward).withTimeout(2))
+        //         .andThen(new WaitCommand(2))
+        //         .andThen(rc.dunkArm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+        //         .andThen(new WaitCommand(2))
+        //         .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kForward).withTimeout(2))
+        //         .andThen(new WaitCommand(2))
+        //         .andThen(rc.dunkArm.sysIdDynamic(SysIdRoutine.Direction.kReverse).withTimeout(2))
+        //         .andThen(new WaitCommand(2))
 
-        );
+        // );
 
         // autoChooser.addOption("testNoteVisionChoreo", 
         //     new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue))
@@ -387,17 +365,17 @@ public class AutoFactory {
 
         NamedCommands.registerCommand("setDownShooter", rc.sequenceFactory.getStopShooterCommand());
 
-        SmartDashboard.putData("Field", pathPlannerField);
+        // SmartDashboard.putData("Field", pathPlannerField);
 
-        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
-            pathPlannerField.setRobotPose(pose);
-        });
+        // PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+        //     pathPlannerField.setRobotPose(pose);
+        // });
 
-        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-            pathPlannerField.getObject("target pose").setPose(pose);
-        });
+        // PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+        //     pathPlannerField.getObject("target pose").setPose(pose);
+        // });
 
-        PathPlannerLogging.setLogActivePathCallback((list)->pathPlannerField.getObject("path").setPoses(list));
+        // PathPlannerLogging.setLogActivePathCallback((list)->pathPlannerField.getObject("path").setPoses(list));
 
     }
 
@@ -450,7 +428,7 @@ public class AutoFactory {
             new InstantCommand(()->rc.intakeVision.setPipeline(IntakePipeline.kNote)),
             //----------------------------FOLLOW PATH STOP WHEN SEE NOTE----------------------------
             new ParallelDeadlineGroup(
-                AutoBuilder.followPath(path).until(()->rc.intakeVision.hasValidTarget()),
+                AutoBuilder.followPath(path).until(()->Math.abs(rc.swerveDrivePoseEstimator.getEstimatedPosition().getX()-(16.542/2)) < ((16.542/2)-5.474)&&rc.intakeVision.hasValidTarget()),
                 new ParallelCommandGroup(
                     new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel, targetAngle, targetRPM),
                     new SequentialCommandGroup(
@@ -506,7 +484,7 @@ public class AutoFactory {
             new InstantCommand(()->rc.shooterVision.enableAutoVision(false)),
             new InstantCommand(()->rc.intakeVision.setPipeline(IntakePipeline.kNote)),
             //----------------------------FOLLOW PATH STOP WHEN SEE NOTE----------------------------
-            AutoBuilder.followPath(path).until(()->rc.intakeVision.hasValidTarget()),
+            AutoBuilder.followPath(path).until(()->Math.abs(rc.swerveDrivePoseEstimator.getEstimatedPosition().getX()-(16.542/2)) < ((16.542/2)-5.474)&&rc.intakeVision.hasValidTarget()),
             //What if intake vision fails? will the next part simply move forward with no note to track?
 
             //------------------------------TRACK NOTE UNTIL HAVE NOTE------------------------------
