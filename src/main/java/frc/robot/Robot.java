@@ -4,26 +4,10 @@
 
 package frc.robot;
 
-// import org.littletonrobotics.junction.LogFileUtil;
-// import org.littletonrobotics.junction.LoggedRobot;
-// import org.littletonrobotics.junction.Logger;
-// import org.littletonrobotics.junction.networktables.NT4Publisher;
-// import org.littletonrobotics.junction.wpilog.WPILOGReader;
-// import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.stormbots.Lerp;
-
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.commands.ClimberSetPosition;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -36,7 +20,6 @@ public class Robot extends TimedRobot {
 
   private RobotContainer robotContainer;
 
-  public static boolean isCompbot=true;
   
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -45,35 +28,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    // Logger.recordMetadata("GitSHA", GitBuildConstants.GIT_SHA);
-
-    // if (isReal()) {
-    //   Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-    //   Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-    //   // new PowerDistribution(30, ModuleType.kRev); // Enables power distribution logging
-    // } else {
-    //   setUseTiming(false); // Run as fast as possible
-    //   String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-    //   Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-    //   Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-    // }
-
-    // Logger.disableDeterministicTimestamps(); // See "Deterministic Timestamps" in the "Understanding Data Flow" page
-    // Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
     
-    var entry = SmartDashboard.getEntry("isCompbot");
-    isCompbot=entry.getBoolean(true);
-    entry.setBoolean(isCompbot);
-    entry.setPersistent();
-
-    //set the value of chassis track width based on bot
-    DriveConstants.kTrackWidth = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
-    DriveConstants.kWheelBase = isCompbot ? Units.inchesToMeters(23.5) : Units.inchesToMeters(24.5);
-    DriveConstants.distanceToModuleFromCenter = Math.hypot(DriveConstants.kTrackWidth/2, DriveConstants.kWheelBase/2);
-
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+  
   }
 
   /**
@@ -96,7 +54,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    robotContainer.chassis.setIdleMode(IdleMode.kBrake);
+
   }
 
   @Override
@@ -107,18 +65,13 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = robotContainer.getAutonomousCommand();
+    
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
 
-    robotContainer.climber.setPower(0); //Prevent surprise climber motion
-    // new RunCommand(()->robotContainer.dunkArm.setPower(0), robotContainer.dunkArm).schedule();
-    // robotContainer.chassis.zeroHeading();
-    // robotContainer.chassis.resetOdometry(new Pose2d());
-    // robotContainer.chassis.resetEncoders();
   }
 
   /** This function is called periodically during autonomous. */
@@ -135,14 +88,6 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-
-    robotContainer.climber.setPower(0); //Prevent surprise climber motion
-    // robotContainer.climber.setPosition();
-    //robotContainer.shooterVision.setPipeline(ShooterVision.LimelightPipeline.kSpeaker);
-    // robotContainer.climber.setIdleMode(IdleMode.kBrake);
-
-    // robotContainer.chassis.resetOdometry(new Pose2d());
-    // robotContainer.chassis.resetEncoders();
   }
 
   /** This function is called periodically during operator control. */
@@ -155,8 +100,7 @@ public class Robot extends TimedRobot {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
-    robotContainer.climber.setPower(0); //Prevent surprise climber motion
-    //robotContainer.chassis.setIdleMode(IdleMode.kCoast);
+    
   }
 
   /** This function is called periodically during test mode. */
