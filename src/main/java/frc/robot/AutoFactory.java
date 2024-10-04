@@ -98,9 +98,13 @@ public class AutoFactory {
 
         
         // initAutoChooser(); //aktes too long, run in background
-        initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
+        rebuild();
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
+
+    public void rebuild(){
+        initAutoChooserFuture = CompletableFuture.supplyAsync(this::initAutoChooser);
     }
 
     boolean initAutoChooser(){
