@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkFlex;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
@@ -25,9 +24,9 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.subsystems.Chassis.ChassisConstants.ModuleConstants;
 
-public class MAXSwerveModule implements ModuleIO {
+public class MAXSwerveModuleSparkMax implements ModuleIO {
   // public final CANSparkFlex drivingSparkFlex;
-  public final CANSparkFlex drivingSparkFlex;
+  public final CANSparkMax drivingSparkMax;
   private final CANSparkMax turningSparkMax;
 
   public final RelativeEncoder drivingEncoder;
@@ -46,28 +45,28 @@ public class MAXSwerveModule implements ModuleIO {
    * controller. This configuration is specific to the REV MAXSwerve Module built with NEOs, SPARKS
    * MAX, and a Through Bore Encoder.
    */
-  public MAXSwerveModule(
+  public MAXSwerveModuleSparkMax(
       int drivingCANId,
       int turningCANId,
       double chassisAngularOffset) {
     // drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
-    drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
+    drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
 
     turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
     this.drivingMotorFeedforward = drivingMotorFeedforward;
 
-    drivingSparkFlex.clearFaults();
+    drivingSparkMax.clearFaults();
     turningSparkMax.clearFaults();
 
     // Factory reset, so we get the SPARKS MAX to a known state before configuring
     // them. This is useful in case a SPARK MAX is swapped out.
-    drivingSparkFlex.restoreFactoryDefaults();
+    drivingSparkMax.restoreFactoryDefaults();
     turningSparkMax.restoreFactoryDefaults();
 
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
-    drivingEncoder = drivingSparkFlex.getEncoder();
+    drivingEncoder = drivingSparkMax.getEncoder();
     turningEncoder = turningSparkMax.getAbsoluteEncoder(Type.kDutyCycle);
-    drivingPIDController = drivingSparkFlex.getPIDController();
+    drivingPIDController = drivingSparkMax.getPIDController();
     turningPIDController = turningSparkMax.getPIDController();
     drivingPIDController.setFeedbackDevice(drivingEncoder);
     turningPIDController.setFeedbackDevice(turningEncoder);
@@ -116,9 +115,9 @@ public class MAXSwerveModule implements ModuleIO {
     turningPIDController.setOutputRange(
         ModuleConstants.kTurningMinOutput_Real, ModuleConstants.kTurningMaxOutput_Real);
 
-    drivingSparkFlex.setIdleMode(IdleMode.kBrake);
+    drivingSparkMax.setIdleMode(IdleMode.kBrake);
     turningSparkMax.setIdleMode(IdleMode.kBrake);
-    drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
+    drivingSparkMax.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
     turningSparkMax.setSmartCurrentLimit(ModuleConstants.kTurningMotorCurrentLimit);
 
     drivingEncoder.setAverageDepth(2);
@@ -133,18 +132,18 @@ public class MAXSwerveModule implements ModuleIO {
     desiredState.angle = new Rotation2d(turningEncoder.getPosition());
     drivingEncoder.setPosition(0);
 
-    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
-    drivingSparkFlex.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
-    drivingSparkFlex.setClosedLoopRampRate(0.02);
+    drivingSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    drivingSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    drivingSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    drivingSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
+    drivingSparkMax.setClosedLoopRampRate(0.02);
 
     turningSparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
 
     // SparkFlexFixes.setFlexEncoderAverageDepth(drivingSparkFlex, 2);
     // SparkFlexFixes.setFlexEncoderSampleDelta(drivingSparkFlex, 8);
 
-    drivingSparkFlex.burnFlash();
+    drivingSparkMax.burnFlash();
     turningSparkMax.burnFlash();
   }
 
@@ -220,17 +219,17 @@ public class MAXSwerveModule implements ModuleIO {
   }
 
   public void setCurrentLimit(double amps) {
-    drivingSparkFlex.setSmartCurrentLimit((int) amps);
+    drivingSparkMax.setSmartCurrentLimit((int) amps);
   }
 
   public void setVoltageDrive(Measure<Voltage> voltage) {
-    drivingSparkFlex.setVoltage(voltage.in(Units.Volts));
+    drivingSparkMax.setVoltage(voltage.in(Units.Volts));
 
     turningPIDController.setReference(0, CANSparkMax.ControlType.kPosition);
   }
 
   public double getPowerOutput() {
-    return drivingSparkFlex.getAppliedOutput() * drivingSparkFlex.getBusVoltage();
+    return drivingSparkMax.getAppliedOutput() * drivingSparkMax.getBusVoltage();
   }
 
   public double getDrivingEncoderPosition() {

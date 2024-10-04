@@ -28,7 +28,7 @@ public enum RobotIdentity {
                 } else if (mac.equals(MacAddressUtil.PastCompMac)) {
                     return Armstrong;
                 } else if (mac.equals(MacAddressUtil.TabiMac)) {
-                    return Armstrong;
+                    return Tabi;
                 }
             }
             // return CONNIE;

@@ -10,6 +10,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Chassis.MAXSwerveModule;
+import frc.robot.subsystems.Chassis.MAXSwerveModuleSparkMax;
+import frc.robot.subsystems.Chassis.ModuleIO;
 
 
 /** Add your docs here. */
@@ -19,14 +22,43 @@ public class DrivetrainConfiguration extends SubsystemBase{
     public double wheelDiameterMeters;
     public int numModules;
     public SwerveModuleConfiguration[] modules;
+    public double[] swerveModuleOffsets;
+    public boolean isUsingSparkMax;
   
-  public Boolean listModules (SwerveModuleConfiguration... swerveModules){
+  public SwerveModuleConfiguration[] listModules (SwerveModuleConfiguration... swerveModules){
     for (var i = 0; i < numModules; i++){
       modules[i] = swerveModules[i];
 
     }
-    return true;
+    return modules;
   }
+
+  public double[] listModuleOffsets (SwerveModuleConfiguration... swerveModules){
+    for (var i = 0; i < numModules; i++){
+      swerveModuleOffsets[i] = swerveModules[i].getModuleOffset(swerveModules[i]);
+
+    }
+    return swerveModuleOffsets;
+  }
+
+  public ModuleIO[] getModules(DrivetrainConfiguration drivetrain){
+    ModuleIO[] modules = new ModuleIO[drivetrain.numModules];
+    if(drivetrain.isUsingSparkMax){
+      for(var i =0; i < drivetrain.numModules; i++){
+          modules[i] = new MAXSwerveModuleSparkMax(drivetrain.modules[i].drivingCanId, 
+          drivetrain.modules[i].turningCanId, 
+          drivetrain.modules[i].angularOffsetDegrees);
+      }
+  }
+  else{
+      for(var i =0; i < drivetrain.numModules; i++){
+          modules[i] = new MAXSwerveModule(drivetrain.modules[i].drivingCanId, 
+          drivetrain.modules[i].turningCanId, 
+          drivetrain.modules[i].angularOffsetDegrees);
+    }
+  }
+  return modules;
+ }
 
   public DrivetrainConfiguration (double trackWidthIn, double wheelBaseIn, double wheelDiameterMeters, int numModules){
     this.trackWidthIn = trackWidthIn;
@@ -93,6 +125,10 @@ public class DrivetrainConfiguration extends SubsystemBase{
         }
 
         public Translation2d modulePosition = getModulePosition();
+
+        public double getModuleOffset(SwerveModuleConfiguration module){
+          return module.angularOffsetDegrees;
+        }
 
         public SwerveModuleConfiguration(int drivingCanId, int turningCanId, 
         PIDController drivingPIDController, PIDController turningPIDController, double drivingFF, double turningFF, 

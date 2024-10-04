@@ -18,7 +18,7 @@ public class Tabi implements RobotConstants{
     double wheelBaseIn = 12.0;
     double wheelDiameterMeters = Units.inchesToMeters(3);
     int numModules = 2;
-
+    boolean isUsingSparkMax = true;
     int frontDriveCanId = 2;
     int backDriveCanId = 1;
     int frontTurnCanId = 6;
@@ -41,7 +41,9 @@ public class Tabi implements RobotConstants{
     backDriveCanId, backTurnCanId, drivingPIDController, turningPIDController, drivingFF, turningFF, 
     backAngularOffset, driveFreeSpeedRPM, drivingMotorPinionTeeth, drivingMotorSpurGearTeeth);
 
-    Boolean list = tabi.listModules(frontRight,backLeft);
+    SwerveModuleConfiguration[] modules = tabi.listModules(frontRight,backLeft);
+    double[] offsetList = tabi.listModuleOffsets(frontRight, backLeft);
+
     //TODO: add list of modules
 
     @Override

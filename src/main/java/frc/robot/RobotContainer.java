@@ -45,6 +45,7 @@ import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.config.DrivetrainConfiguration;
 import frc.robot.config.RobotConstants;
 import frc.robot.config.RobotIdentity;
+import frc.robot.config.DrivetrainConfiguration.SwerveModuleConfiguration;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
@@ -58,6 +59,8 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
 import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.MAXSwerveModule;
+import frc.robot.subsystems.Chassis.MAXSwerveModuleSparkMax;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -78,7 +81,7 @@ public class RobotContainer {
   //   new Translation2d(-DriveConstants.kWheelBase / 2, DriveConstants.kTrackWidth / 2),
   //   new Translation2d(-DriveConstants.kWheelBase / 2, -DriveConstants.kTrackWidth / 2)
 
-  //TODO: Use RobotId values
+  
   public SwerveDriveKinematics swerveDriveKinematics =
       new SwerveDriveKinematics(
           new Translation2d(0, Units.Inch.of(6).in(Units.Meter)),
@@ -125,6 +128,12 @@ public class RobotContainer {
   public RobotContainer() {
     RobotConstants robot = RobotConstants.getRobotConstants(RobotIdentity.getIdentity());
     DrivetrainConfiguration drivetrainConfiguration = robot.getDrivetrainConfiguration();
+
+    if (Robot.isReal()){
+        double[] SwerveModuleOffsets = drivetrainConfiguration.swerveModuleOffsets;
+        SwerveModuleConfiguration[] modules = drivetrainConfiguration.modules;
+
+}
 
     // Run delayed constructors
     sequenceFactory = new SequenceFactory(this);

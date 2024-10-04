@@ -73,6 +73,7 @@ public class Drive extends SubsystemBase {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
     this.gyroIO = gyroIO;
+    
     modules[0] = new ModuleUpdater(flModuleIO, 0);
     modules[1] = new ModuleUpdater(frModuleIO, 1);
     modules[2] = new ModuleUpdater(blModuleIO, 2);

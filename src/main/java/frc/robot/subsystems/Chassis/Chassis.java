@@ -58,15 +58,15 @@ public class Chassis extends SubsystemBase {
       new MAXSwerveModule(
           DriveConstants.kFrontRightDrivingCanId,
           DriveConstants.kFrontRightTurningCanId,
-          0,
-          new SimpleMotorFeedforward(0.15645, 1.9194, 0.26905));
+          0);
+          // new SimpleMotorFeedforward(0.15645, 1.9194, 0.26905));
 
   private final MAXSwerveModule rearLeft =
       new MAXSwerveModule(
           DriveConstants.kRearLeftDrivingCanId,
           DriveConstants.kRearLeftTurningCanId,
-          0,
-          new SimpleMotorFeedforward(0.095901, 1.9072, 0.33214));
+          0);
+          // new SimpleMotorFeedforward(0.095901, 1.9072, 0.33214));
 
   // private final MAXSwerveModule rearRight = new MAXSwerveModule(
   //     DriveConstants.kRearRightDrivingCanId,
