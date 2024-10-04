@@ -179,7 +179,7 @@ public class AutoFactory {
         //     new SequentialCommandGroup(
         //         new InstantCommand(()->rc.chassis.setFieldCentricOffset(0, isBlue)),
         //         new InstantCommand(()->rc.chassis.resetOdometryAllianceManaged(new Pose2d(1.488,6.52,new Rotation2d()))),
-        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("FarStartAmpRunThrough"), PathPlannerPath.fromChoreoTrajectory("AmpReturnPath"), 1.5, 14, 5500),
+        //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("FarStartAmpRunThrough"), PathPlannerPath.fromChoreoTrajectory("AmpReturnPath"), 1.2, 14, 5500),
         //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("AmpRunThrough"), PathPlannerPath.fromChoreoTrajectory("AmpReturnPath")),
         //         makeVisionAuto(PathPlannerPath.fromChoreoTrajectory("AmpRunThrough"), PathPlannerPath.fromChoreoTrajectory("AmpReturnPath"))
         //     )
@@ -534,7 +534,7 @@ public class AutoFactory {
             //What if intake vision fails? will the next part simply move forward with no note to track?
 
             //------------------------------TRACK NOTE UNTIL HAVE NOTE------------------------------
-            new VisionTrackNoteAuto(()->0.4, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
+            new VisionTrackNoteAuto(()->0.25, ()->0.0, ()->0.0, rc.chassis, rc.intake, rc.passthrough, rc.intakeVision, rc.leds)
                 .withTimeout(intakeVisionAutoTimeout),
             //What if we follow opponent cause also red? Do we need google coral then?
             //We simply have to keep on moving forward, even if we might cross lin, else if we lose track for a moment we just stop
