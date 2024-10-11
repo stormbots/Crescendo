@@ -17,52 +17,47 @@ import edu.wpi.first.math.util.Units;
  * "CANSparkFlex".
  */
 public class DriveIOSparkMax implements DriveIO {
-  private static final double gearRatio = 10.0;
-  private static final double kP = 1.0; // TODO: MUST BE TUNED, consider using REV Hardware Client
+  private static final double gearRatio = 1.0;
+  private static final double kP = 0.05; // TODO: MUST BE TUNED, consider using REV Hardware Client
   private static final double kD = 0.0; // TODO: MUST BE TUNED, consider using REV Hardware Client
 
-  private final CANSparkMax leftLeader = new CANSparkMax(1, MotorType.kBrushless);
-  private final CANSparkMax rightLeader = new CANSparkMax(2, MotorType.kBrushless);
-  private final CANSparkMax leftFollower = new CANSparkMax(3, MotorType.kBrushless);
-  private final CANSparkMax rightFollower = new CANSparkMax(4, MotorType.kBrushless);
-  private final RelativeEncoder leftEncoder = leftLeader.getEncoder();
-  private final RelativeEncoder rightEncoder = rightLeader.getEncoder();
-  private final SparkPIDController leftPID = leftLeader.getPIDController();
-  private final SparkPIDController rightPID = rightLeader.getPIDController();
+  private final CANSparkMax leftMotor = new CANSparkMax(1, MotorType.kBrushless);
+  private final CANSparkMax rightMotor = new CANSparkMax(2, MotorType.kBrushless);
+  
+  private final RelativeEncoder leftEncoder = leftMotor.getEncoder();
+  private final RelativeEncoder rightEncoder = rightMotor.getEncoder();
+  private final SparkPIDController leftPID = leftMotor.getPIDController();
+  private final SparkPIDController rightPID = rightMotor.getPIDController();
 
   // private final Pigeon2 pigeon = new Pigeon2(20);
   // private final StatusSignal<Double> yaw = pigeon.getYaw();
 
   public DriveIOSparkMax() {
-    leftLeader.restoreFactoryDefaults();
-    rightLeader.restoreFactoryDefaults();
-    leftFollower.restoreFactoryDefaults();
-    rightFollower.restoreFactoryDefaults();
+    leftMotor.restoreFactoryDefaults();
+    rightMotor.restoreFactoryDefaults();
+    
 
-    leftLeader.setCANTimeout(250);
-    rightLeader.setCANTimeout(250);
-    leftFollower.setCANTimeout(250);
-    rightFollower.setCANTimeout(250);
+    leftMotor.setCANTimeout(250);
+    rightMotor.setCANTimeout(250);
+    
 
-    leftLeader.setInverted(false);
-    rightLeader.setInverted(true);
-    leftFollower.follow(leftLeader, false);
-    rightFollower.follow(rightLeader, false);
+    leftMotor.setInverted(false);
+    rightMotor.setInverted(true);
+    
 
-    leftLeader.enableVoltageCompensation(12.0);
-    rightLeader.enableVoltageCompensation(12.0);
-    leftLeader.setSmartCurrentLimit(60);
-    rightLeader.setSmartCurrentLimit(60);
+    leftMotor.enableVoltageCompensation(12.0);
+    rightMotor.enableVoltageCompensation(12.0);
+    leftMotor.setSmartCurrentLimit(60);
+    rightMotor.setSmartCurrentLimit(60);
 
     leftPID.setP(kP);
     leftPID.setD(kD);
     rightPID.setP(kP);
     rightPID.setD(kD);
 
-    leftLeader.burnFlash();
-    rightLeader.burnFlash();
-    leftFollower.burnFlash();
-    rightFollower.burnFlash();
+    leftMotor.burnFlash();
+    rightMotor.burnFlash();
+    
 
     // pigeon.getConfigurator().apply(new Pigeon2Configuration());
     // pigeon.getConfigurator().setYaw(0.0);
@@ -75,24 +70,24 @@ public class DriveIOSparkMax implements DriveIO {
     inputs.leftPositionRad = Units.rotationsToRadians(leftEncoder.getPosition() / gearRatio);
     inputs.leftVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(leftEncoder.getVelocity() / gearRatio);
-    inputs.leftAppliedVolts = leftLeader.getAppliedOutput() * leftLeader.getBusVoltage();
+    inputs.leftAppliedVolts = leftMotor.getAppliedOutput() * leftMotor.getBusVoltage();
     inputs.leftCurrentAmps =
-        new double[] {leftLeader.getOutputCurrent(), leftFollower.getOutputCurrent()};
+        new double[] {leftMotor.getOutputCurrent()};
 
     inputs.rightPositionRad = Units.rotationsToRadians(rightEncoder.getPosition() / gearRatio);
     inputs.rightVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(rightEncoder.getVelocity() / gearRatio);
-    inputs.rightAppliedVolts = rightLeader.getAppliedOutput() * rightLeader.getBusVoltage();
+    inputs.rightAppliedVolts = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
     inputs.rightCurrentAmps =
-        new double[] {rightLeader.getOutputCurrent(), rightFollower.getOutputCurrent()};
+        new double[] {rightMotor.getOutputCurrent()};
 
     // inputs.gyroYaw = Rotation2d.fromDegrees(yaw.refresh().getValueAsDouble());
   }
 
   @Override
   public void setVoltage(double leftVolts, double rightVolts) {
-    leftLeader.setVoltage(leftVolts);
-    rightLeader.setVoltage(rightVolts);
+    leftMotor.setVoltage(leftVolts);
+    rightMotor.setVoltage(rightVolts);
   }
 
   @Override

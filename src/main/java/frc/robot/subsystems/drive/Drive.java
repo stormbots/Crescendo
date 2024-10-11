@@ -31,8 +31,8 @@ public class Drive extends SubsystemBase {
   public static final double trackWidth = Units.inchesToMeters(trackWidthIn);
   // TODO: NON-SIM FEEDFORWARD GAINS MUST BE TUNED
   // Consider using SysId routines defined in RobotContainer
-  private static final double KS = Constants.currentMode == Mode.sim ? 0.0 : 0.0;
-  private static final double KV = Constants.currentMode == Mode.sim ? 0.227 : 0.0;
+  private static final double kS = Constants.currentMode == Mode.sim ? 0.0 : 0.0;
+  private static final double kV = Constants.currentMode == Mode.sim ? 0.227 : 0.0;
 
   private final DriveIO io;
   private final DriveIOInputsAutoLogged inputs = new DriveIOInputsAutoLogged();
@@ -40,7 +40,7 @@ public class Drive extends SubsystemBase {
       new DifferentialDriveOdometry(new Rotation2d(), 0.0, 0.0);
   private final DifferentialDriveKinematics kinematics =
       new DifferentialDriveKinematics(trackWidth);
-  private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(KS, KV);
+  private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kS, kV);
 
 
   /** Creates a new Drive. */
