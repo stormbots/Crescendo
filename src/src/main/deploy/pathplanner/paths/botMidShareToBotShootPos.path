@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.336931029192007,
+        "y": 2.391947281356493
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.95401758713798,
+        "y": 1.4795524354888416
+      },
+      "isLocked": false,
+      "linkedName": "botMidShare"
+    },
+    {
+      "anchor": {
+        "x": 3.0,
+        "y": 2.8
+      },
+      "prevControl": {
+        "x": 4.759974409265469,
+        "y": 1.6092435649741366
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "botShoot"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.3,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "botShootPosShotNoStop"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 3.3,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 360.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -42.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "PathPlannerPath",
+  "previewStartingState": {
+    "rotation": 18.0,
+    "velocity": 0.0
+  },
+  "useDefaultConstraints": true
+}

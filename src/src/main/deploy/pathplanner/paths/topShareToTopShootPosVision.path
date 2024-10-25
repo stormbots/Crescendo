@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.286925162682813,
+        "y": 7.434205487700315
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.873560054431904,
+        "y": 7.219110878011577
+      },
+      "isLocked": false,
+      "linkedName": "topShare"
+    },
+    {
+      "anchor": {
+        "x": 4.568938647020701,
+        "y": 5.939387509188879
+      },
+      "prevControl": {
+        "x": 4.951010171510236,
+        "y": 6.130423271433647
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "topShareVision"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.1,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "visionShot"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 3.3,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 360.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 10.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "PathPlannerPath",
+  "previewStartingState": {
+    "rotation": 0.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
