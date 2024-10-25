@@ -14,7 +14,7 @@ import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.IntakeVision.IntakePipeline;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LightEmittingDiodes;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.PassthroughLock;
 
@@ -27,7 +27,7 @@ public class VisionTrackNoteAuto extends Command {
   private DoubleSupplier rotSpeed;
   private Intake intake;
   private Passthrough passthrough;
-  private Leds leds;
+  private LightEmittingDiodes leds;
   private boolean isFieldcentric = true; 
 
   /** Creates a new VisionTrackNoteOnHeading. */
@@ -39,7 +39,7 @@ public class VisionTrackNoteAuto extends Command {
     Intake intake,
     Passthrough passthrough, 
     IntakeVision intakeVision, 
-    Leds leds) {
+    LightEmittingDiodes leds) {
 
     //TODO: put all subsystems last in constructor;
 

@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
-public class Leds extends SubsystemBase {
+public class LightEmittingDiodes extends SubsystemBase {
   public AddressableLED ledStrip;
   public AddressableLEDBuffer ledBuffer;
   Servo blinkin1 = new Servo(1);
@@ -69,7 +69,7 @@ public class Leds extends SubsystemBase {
 
 
   /** Creates a new LEDs. */
-  public Leds() {
+  public LightEmittingDiodes() {
     ledStrip = new AddressableLED(9);
     ledBuffer = new AddressableLEDBuffer(16);
     ledStrip.setLength(ledBuffer.getLength());

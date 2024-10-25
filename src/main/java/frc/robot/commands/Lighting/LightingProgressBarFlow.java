@@ -6,14 +6,14 @@ package frc.robot.commands.Lighting;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LightEmittingDiodes;
 
   
 public class LightingProgressBarFlow extends Command {
   /** Creates a new LightingColor. */
-  Leds leds;
+  LightEmittingDiodes leds;
   Color backGroundColor;
-  Leds.HSVColor progressColor;
+  LightEmittingDiodes.HSVColor progressColor;
   double timeLimt;
   double startTime;
   boolean finished;
@@ -21,7 +21,7 @@ public class LightingProgressBarFlow extends Command {
   int[] value;
   double percent;
 
-  public LightingProgressBarFlow(Leds leds, Color backGroundColor, Color progressColor, double timeLimt, double brightness) {
+  public LightingProgressBarFlow(LightEmittingDiodes leds, Color backGroundColor, Color progressColor, double timeLimt, double brightness) {
     this.leds = leds;
     this.backGroundColor = backGroundColor;
     this.progressColor = leds.new HSVColor(progressColor);

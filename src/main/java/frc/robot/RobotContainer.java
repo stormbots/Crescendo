@@ -54,7 +54,7 @@ import frc.robot.subsystems.DunkArmRoller;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
-import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.LightEmittingDiodes;
 import frc.robot.subsystems.Passthrough;
 import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.PowerManager;
@@ -101,7 +101,7 @@ public class RobotContainer {
   public final Passthrough passthrough = new Passthrough();
   public final Shooter shooter = new Shooter();
   public final ShooterFlywheel shooterFlywheel = new ShooterFlywheel();
-  public final Leds leds = new Leds();
+  public final LightEmittingDiodes leds = new LightEmittingDiodes();
   public final DunkArm dunkArm = new DunkArm();
   public final DunkArmRoller dunkArmRoller = new DunkArmRoller();
   //TODO: Vision Needs access to pose estimator: Either by objects in 
