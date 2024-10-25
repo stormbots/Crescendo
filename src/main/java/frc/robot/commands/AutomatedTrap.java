@@ -15,9 +15,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
+import frc.robot.subsystems.Chassis.Chassis;
 
 public class AutomatedTrap extends Command {
   /** Creates a new AutomatedTrap. */

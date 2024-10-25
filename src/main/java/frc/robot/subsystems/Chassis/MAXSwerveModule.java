@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.subsystems.Chassis;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -28,7 +28,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.ChassisConstants.ModuleConstants;
+import frc.robot.subsystems.Chassis.ChassisConstants.ModuleConstants;
 
 public class MAXSwerveModule implements Sendable{
   public final CANSparkFlex drivingSparkFlex;

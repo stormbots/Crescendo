@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.Chassis;
 
 import java.sql.Driver;
 import java.util.Arrays;
@@ -39,10 +39,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.ChassisConstants.DriveConstants;
-import frc.robot.ChassisConstants.OIConstants;
-import frc.robot.MAXSwerveModule;
 import frc.robot.SwerveUtils;
+import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
+import frc.robot.subsystems.Chassis.ChassisConstants.OIConstants;
 
 public class Chassis extends SubsystemBase {
   /** Creates a new Chassis. 

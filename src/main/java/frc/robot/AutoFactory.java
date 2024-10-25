@@ -47,8 +47,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.ChassisConstants.AutoConstants;
-import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.ShooterSetVision;
@@ -58,6 +56,8 @@ import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.PassthroughLock;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.Chassis.ChassisConstants.AutoConstants;
+import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
 import frc.robot.subsystems.IntakeVision.IntakePipeline;
 
 

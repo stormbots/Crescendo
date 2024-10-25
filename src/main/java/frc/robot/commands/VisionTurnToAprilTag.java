@@ -5,9 +5,9 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeVision;
-import frc.robot.ChassisConstants;
-import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.ChassisConstants;
 
 import java.util.Optional;
 import java.util.function.DoubleSupplier;

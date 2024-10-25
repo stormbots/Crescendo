@@ -10,12 +10,12 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.IntakeVision.IntakePipeline;
 import frc.robot.subsystems.LightEmittingDiodes;
 import frc.robot.subsystems.Passthrough;
+import frc.robot.subsystems.Chassis.Chassis;
 
 public class VisionTrackNote extends Command {
   private IntakeVision intakeVision;

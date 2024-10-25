@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.ChassisConstants.DriveConstants;
 import frc.robot.commands.CalibrateShooter;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
@@ -47,7 +46,6 @@ import frc.robot.commands.VisionTrackNote;
 import frc.robot.commands.VisionTrackNoteAuto;
 import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.commands.VisionTurnToTargetPose;
-import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
@@ -61,6 +59,8 @@ import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
+import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
 import frc.robot.subsystems.ShooterVision.LimelightPipeline;
 
 /**
