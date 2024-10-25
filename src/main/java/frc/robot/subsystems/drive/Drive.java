@@ -131,6 +131,16 @@ public class Drive extends SubsystemBase {
     return inputs.rightVelocityRadPerSec * wheelRadius;
   }
 
+  @AutoLogOutput
+  public double getRightVelocityDegPerSec() {
+    return inputs.rightVelocityRadPerSec * (180/Math.PI);
+  }
+
+  @AutoLogOutput
+  public double getLeftVelocityDegPerSec() {
+    return inputs.leftVelocityRadPerSec * (180/Math.PI);
+  }
+
   /** Returns the average velocity in radians/second. */
   public double getCharacterizationVelocity() {
     return (inputs.leftVelocityRadPerSec + inputs.rightVelocityRadPerSec) / 2.0;

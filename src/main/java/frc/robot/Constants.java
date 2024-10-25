@@ -6,7 +6,7 @@ package frc.robot;
 
 /** Add your docs here. */
 public class Constants {
-    public static final Mode currentMode = Mode.real;
+    public static final Mode currentMode = Mode.replay;
 
     public static enum Mode {
       /** Running on a real robot. */
