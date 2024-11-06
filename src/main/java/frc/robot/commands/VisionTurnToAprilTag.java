@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.ChassisOld;
 import frc.robot.subsystems.Chassis.ChassisConstants;
 
 import java.util.Optional;
@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class VisionTurnToAprilTag extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private ShooterVision shooterVision;
-  private Chassis chassis;
+  private ChassisOld chassis;
   private AHRS gyro;
   private DoubleSupplier xSpeed;
   private DoubleSupplier ySpeed;
@@ -41,7 +41,7 @@ public class VisionTurnToAprilTag extends Command {
     DoubleSupplier ySpeed,
     DoubleSupplier rotSpeed,
     ShooterVision shooterVision,
-    Chassis chassis,
+    ChassisOld chassis,
     AHRS gyro) {
     this.xSpeed = xSpeed;
     this.ySpeed = ySpeed;

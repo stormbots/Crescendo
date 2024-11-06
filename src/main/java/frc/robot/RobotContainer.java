@@ -59,7 +59,7 @@ import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.ChassisOld;
 import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
 import frc.robot.subsystems.ShooterVision.LimelightPipeline;
 
@@ -95,7 +95,7 @@ public class RobotContainer {
   );
 
   public Field2d field = new Field2d();
-  public final Chassis chassis = new Chassis(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
+  public final ChassisOld chassis = new ChassisOld(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
   public final Climber climber = new Climber(navx);
   public final Intake intake = new Intake();
   public final Passthrough passthrough = new Passthrough();

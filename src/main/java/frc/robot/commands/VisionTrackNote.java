@@ -15,12 +15,12 @@ import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.IntakeVision.IntakePipeline;
 import frc.robot.subsystems.LightEmittingDiodes;
 import frc.robot.subsystems.Passthrough;
-import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.ChassisOld;
 
 public class VisionTrackNote extends Command {
   private IntakeVision intakeVision;
   private IntakePipeline pipeline;
-  private Chassis chassis;
+  private ChassisOld chassis;
   private DoubleSupplier xSpeed;
   private DoubleSupplier ySpeed;
   private DoubleSupplier rotSpeed;
@@ -33,7 +33,7 @@ public class VisionTrackNote extends Command {
     DoubleSupplier xSpeed, 
     DoubleSupplier ySpeed,
     DoubleSupplier rotSpeed,
-    Chassis chassis,
+    ChassisOld chassis,
     Intake intake,
     Passthrough passthrough, 
     IntakeVision intakeVision, 

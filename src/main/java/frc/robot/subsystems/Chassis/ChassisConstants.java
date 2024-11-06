@@ -81,19 +81,47 @@ public class ChassisConstants {
     public static final double kTurningEncoderPositionPIDMinInput = 0; // radians
     public static final double kTurningEncoderPositionPIDMaxInput = kTurningEncoderPositionFactor; // radians
 
-    public static final double kDrivingP = 0.04;
-    public static final double kDrivingI = 0;
-    public static final double kDrivingD = 0;
-    public static final double kDrivingFF = 1 / kDriveWheelFreeSpeedRps * 1.2;
-    public static final double kDrivingMinOutput = -1;
-    public static final double kDrivingMaxOutput = 1;
+    public static final double kRealDrivingP = 0.04;
+    public static final double kRealDrivingI = 0;
+    public static final double kRealDrivingD = 0;
+    public static final double kRealDrivingFF = 1 / kDriveWheelFreeSpeedRps * 1.2;
+    public static final double kRealDrivingMinOutput = -1;
+    public static final double kRealDrivingMaxOutput = 1;
 
-    public static final double kTurningP = 1;
-    public static final double kTurningI = 0;
-    public static final double kTurningD = 0;
-    public static final double kTurningFF = 0;
-    public static final double kTurningMinOutput = -1;
-    public static final double kTurningMaxOutput = 1;
+    public static final double kRealTurningP = 1;
+    public static final double kRealTurningI = 0;
+    public static final double kRealTurningD = 0;
+    public static final double kRealTurningFF = 0;
+    public static final double kRealTurningMinOutput = -1;
+    public static final double kRealTurningMaxOutput = 1;
+  
+    public static final double kReplayDrivingP = 0.04;
+    public static final double kReplayDrivingI = 0;
+    public static final double kReplayDrivingD = 0;
+    public static final double kReplayDrivingFF = 1 / kDriveWheelFreeSpeedRps * 1.2;
+    public static final double kReplayDrivingMinOutput = -1;
+    public static final double kReplayDrivingMaxOutput = 1;
+
+    public static final double kReplayTurningP = 1;
+    public static final double kReplayTurningI = 0;
+    public static final double kReplayTurningD = 0;
+    public static final double kReplayTurningFF = 0;
+    public static final double kReplayTurningMinOutput = -1;
+    public static final double kReplayTurningMaxOutput = 1;
+
+    public static final double kSimDrivingP = 0.04;
+    public static final double kSimDrivingI = 0;
+    public static final double kSimDrivingD = 0;
+    public static final double kSimDrivingFF = 1 / kDriveWheelFreeSpeedRps * 1.2;
+    public static final double kSimDrivingMinOutput = -1;
+    public static final double kSimDrivingMaxOutput = 1;
+
+    public static final double kSimTurningP = 1;
+    public static final double kSimTurningI = 0;
+    public static final double kSimTurningD = 0;
+    public static final double kSimTurningFF = 0;
+    public static final double kSimTurningMinOutput = -1;
+    public static final double kSimTurningMaxOutput = 1;
 
     public static final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
     public static final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;

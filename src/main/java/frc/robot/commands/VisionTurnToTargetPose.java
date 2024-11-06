@@ -18,12 +18,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FieldPosition.TargetType;
 import frc.robot.subsystems.IntakeVision;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.ChassisOld;
 
 public class VisionTurnToTargetPose extends Command{
     private IntakeVision intakeVision;
     private ShooterVision shooterVision;
-    private Chassis chassis;
+    private ChassisOld chassis;
     private AHRS gyro;
     private TargetType targetType;
     private Field2d field = new Field2d();
@@ -40,7 +40,7 @@ public class VisionTurnToTargetPose extends Command{
         DoubleSupplier ySpeed, 
         DoubleSupplier rotSpeed,  
         ShooterVision shooterVision,
-        Chassis chassis,
+        ChassisOld chassis,
         AHRS gyro,
         SwerveDrivePoseEstimator swervePE, Field2d field) {
         this.shooterVision = shooterVision;

@@ -17,13 +17,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
-import frc.robot.subsystems.Chassis.Chassis;
+import frc.robot.subsystems.Chassis.ChassisOld;
 
 public class AutomatedTrap extends Command {
   /** Creates a new AutomatedTrap. */
 
   final double totalTime = 4;
-  Chassis chassis;
+  ChassisOld chassis;
   DunkArm dunkArm;
   Climber climber;
 

@@ -20,8 +20,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -29,8 +29,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Chassis.ChassisConstants.ModuleConstants;
+import frc.robot.subsystems.Chassis.ModuleIO.ModuleIOInputs;
 
-public class MAXSwerveModule implements Sendable{
+public class ModuleIOMAXSwerve implements ModuleIO{
   public final CANSparkFlex drivingSparkFlex;
   private final CANSparkMax turningSparkMax;
 
@@ -51,7 +52,7 @@ public class MAXSwerveModule implements Sendable{
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a Through Bore
    * Encoder.
    */
-  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, SimpleMotorFeedforward drivingMotorFeedforward){
+  public ModuleIOMAXSwerve(int drivingCANId, int turningCANId, double chassisAngularOffset, SimpleMotorFeedforward drivingMotorFeedforward){
     drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
     turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
     this.drivingMotorFeedforward = drivingMotorFeedforward;
@@ -98,22 +99,7 @@ public class MAXSwerveModule implements Sendable{
 
     // Set the PID gains for the driving motor. Note these are example gains, and you
     // may need to tune them for your own robot!
-    drivingPIDController.setP(ModuleConstants.kDrivingP);
-    drivingPIDController.setI(ModuleConstants.kDrivingI);
-    drivingPIDController.setD(ModuleConstants.kDrivingD);
-    // drivingPIDController.setFF(ModuleConstants.kDrivingFF);  
-    drivingPIDController.setOutputRange(ModuleConstants.kDrivingMinOutput,
-        ModuleConstants.kDrivingMaxOutput);
-
-    // Set the PID gains for the turning motor. Note these are example gains, and you
-    // may need to tune them for your own robot!
-    turningPIDController.setP(ModuleConstants.kTurningP);
-    turningPIDController.setI(ModuleConstants.kTurningI);
-    turningPIDController.setD(ModuleConstants.kTurningD);
-    turningPIDController.setFF(ModuleConstants.kTurningFF);
-    turningPIDController.setOutputRange(ModuleConstants.kTurningMinOutput,
-        ModuleConstants.kTurningMaxOutput);
-
+    
     drivingSparkFlex.setIdleMode(IdleMode.kBrake);
     turningSparkMax.setIdleMode(IdleMode.kBrake);
     drivingSparkFlex.setSmartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit);
@@ -146,7 +132,13 @@ public class MAXSwerveModule implements Sendable{
 
     drivingSparkFlex.burnFlash();
     turningSparkMax.burnFlash();
+
+    
   }
+
+  
+
+  
 
   /**
    * Returns the current state of the module.
@@ -211,11 +203,11 @@ public class MAXSwerveModule implements Sendable{
     drivingSparkFlex.setSmartCurrentLimit((int)amps);
   }
 
-  public void setVoltageDrive(Measure<Voltage> voltage){
-    drivingSparkFlex.setVoltage(voltage.in(Units.Volts));
+  // public void setVoltageDrive(Measure<Voltage> voltage){
+  //   drivingSparkFlex.setVoltage(voltage.in(Units.Volts));
 
-    turningPIDController.setReference(0, CANSparkMax.ControlType.kPosition);
-  }
+  //   turningPIDController.setReference(0, CANSparkMax.ControlType.kPosition);
+  // }
 
   public double getPowerOutput(){
     return drivingSparkFlex.getAppliedOutput() * drivingSparkFlex.getBusVoltage();
@@ -229,14 +221,33 @@ public class MAXSwerveModule implements Sendable{
     return drivingEncoder.getPosition();
   }
 
-  @Override
-  public void initSendable(SendableBuilder builder) {
-    builder.setSmartDashboardType("MaxSwerveModule");
-    builder.addDoubleProperty("Azimuth Angle", turningEncoder::getPosition, null);
-    builder.addDoubleProperty("Encoder Dist", drivingEncoder::getPosition, drivingEncoder::setPosition);
-  }
+  // @Override
+  // public void initSendable(SendableBuilder builder) {
+  //   builder.setSmartDashboardType("MaxSwerveModule");
+  //   builder.addDoubleProperty("Azimuth Angle", turningEncoder::getPosition, null);
+  //   builder.addDoubleProperty("Encoder Dist", drivingEncoder::getPosition, drivingEncoder::setPosition);
+  // }
 
   public SwerveModuleState getDesiredSate(){
     return desiredState;
   }
+  @Override
+  public void updateInputs(ModuleIOInputs inputs) {
+    inputs.drivePositionRad =
+        Units.rotationsToRadians(drivingEncoder.getPosition()) / ModuleConstants.kDrivingMotorReduction;
+    inputs.driveVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(drivingEncoder.getVelocity()) / ModuleConstants.kDrivingMotorReduction;
+    inputs.driveAppliedVolts = drivingSparkFlex.getAppliedOutput() * drivingSparkFlex.getBusVoltage();
+    inputs.driveCurrentAmps = new double[] {drivingSparkFlex.getOutputCurrent()};
+
+    inputs.modulePosition =
+    new Rotation2d(turningEncoder.getPosition() - chassisAngularOffset);
+    inputs.turnPosition =
+        (new Rotation2d(turningEncoder.getPosition()));
+    inputs.turnVelocityRadPerSec =
+        Units.rotationsToRadians(turningEncoder.getVelocity());
+    inputs.turnAppliedVolts = turningSparkMax.getAppliedOutput() * turningSparkMax.getBusVoltage();
+    inputs.turnCurrentAmps = new double[] {turningSparkMax.getOutputCurrent()};
+  }
+  
 }

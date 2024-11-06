@@ -13,6 +13,18 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final Mode currentMode = Mode.real;
+
+  public static enum Mode {
+    /** Running on a real robot. */
+    real,
+
+    /** Running a physics simulator. */
+    sim,
+
+    /** Replaying from a log file. */
+    replay
+  }
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }

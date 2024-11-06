@@ -43,32 +43,32 @@ import frc.robot.SwerveUtils;
 import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
 import frc.robot.subsystems.Chassis.ChassisConstants.OIConstants;
 
-public class Chassis extends SubsystemBase {
+public class ChassisOld extends SubsystemBase {
   /** Creates a new Chassis. 
 //  * @param navx */
 //   public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics) {}
 
   /** Creates a new Chassis. */
   // Create MAXSwerveModules
-  private final MAXSwerveModule frontLeft = new MAXSwerveModule(
+  private final ModuleIOMAXSwerve frontLeft = new ModuleIOMAXSwerve(
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
       0,
       new SimpleMotorFeedforward(0.080663, 1.9711, 0.36785));
 
-  private final MAXSwerveModule frontRight = new MAXSwerveModule(
+  private final ModuleIOMAXSwerve frontRight = new ModuleIOMAXSwerve(
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
       0,
       new SimpleMotorFeedforward(0.12682, 1.971, 0.30547));
 
-  private final MAXSwerveModule rearLeft = new MAXSwerveModule(
+  private final ModuleIOMAXSwerve rearLeft = new ModuleIOMAXSwerve(
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
       0,
       new SimpleMotorFeedforward(0.11553, 1.956, 0.33358));
 
-  private final MAXSwerveModule rearRight = new MAXSwerveModule(
+  private final ModuleIOMAXSwerve rearRight = new ModuleIOMAXSwerve(
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
       0,
@@ -88,6 +88,7 @@ public class Chassis extends SubsystemBase {
   private SlewRateLimiter magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
   private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double prevTime = WPIUtilJNI.now() * 1e-6;
+  
 
   /**
    * Tuning notes: 
@@ -96,39 +97,39 @@ public class Chassis extends SubsystemBase {
    */
   PIDController turnpid = new PIDController(1/Math.PI,0,0.01);
 
-  private final SysIdRoutine sysIdRoutine =
-  new SysIdRoutine(
+  // private final SysIdRoutine sysIdRoutine =
+  // new SysIdRoutine(
       // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-      new SysIdRoutine.Config(),
-      new SysIdRoutine.Mechanism(
-          // Tell SysId how to plumb the driving voltage to the motors.
-          (Measure<Voltage> volts) -> {
-            frontLeft.setVoltageDrive(volts);
-            frontRight.setVoltageDrive(volts);
-            rearLeft.setVoltageDrive(volts);
-            rearRight.setVoltageDrive(volts);
-          },
-          log -> {
-            log.motor("frontRight")
-                .voltage(Units.Volts.of(frontRight.getPowerOutput()))
-                .linearPosition(Units.Meters.of(frontRight.getDrivingEncoderPosition()))
-                .linearVelocity( Units.MetersPerSecond.of(frontRight.getState().speedMetersPerSecond));
-            log.motor("frontLeft")
-              .voltage(Units.Volts.of(frontLeft.getPowerOutput()))
-              .linearPosition(Units.Meters.of(frontLeft.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(frontLeft.getState().speedMetersPerSecond));
-            log.motor("rearRight")
-              .voltage(Units.Volts.of(rearRight.getPowerOutput()))
-              .linearPosition(Units.Meters.of(rearRight.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(rearRight.getState().speedMetersPerSecond));
-            log.motor("rearLeft")
-              .voltage(Units.Volts.of(rearLeft.getPowerOutput()))
-              .linearPosition(Units.Meters.of(rearLeft.getDrivingEncoderPosition()))
-              .linearVelocity( Units.MetersPerSecond.of(rearLeft.getState().speedMetersPerSecond));
-          },
-          this));
+      // new SysIdRoutine.Config(),
+      // new SysIdRoutine.Mechanism(
+      //     // Tell SysId how to plumb the driving voltage to the motors.
+      //     (Measure<Voltage> volts) -> {
+      //       frontLeft.setVoltageDrive(volts);
+      //       frontRight.setVoltageDrive(volts);
+      //       rearLeft.setVoltageDrive(volts);
+      //       rearRight.setVoltageDrive(volts);
+      //     },
+      //     log -> {
+      //       log.motor("frontRight")
+      //           .voltage(Units.Volts.of(frontRight.getPowerOutput()))
+      //           .linearPosition(Units.Meters.of(frontRight.getDrivingEncoderPosition()))
+      //           .linearVelocity( Units.MetersPerSecond.of(frontRight.getState().speedMetersPerSecond));
+      //       log.motor("frontLeft")
+      //         .voltage(Units.Volts.of(frontLeft.getPowerOutput()))
+      //         .linearPosition(Units.Meters.of(frontLeft.getDrivingEncoderPosition()))
+      //         .linearVelocity( Units.MetersPerSecond.of(frontLeft.getState().speedMetersPerSecond));
+      //       log.motor("rearRight")
+      //         .voltage(Units.Volts.of(rearRight.getPowerOutput()))
+      //         .linearPosition(Units.Meters.of(rearRight.getDrivingEncoderPosition()))
+      //         .linearVelocity( Units.MetersPerSecond.of(rearRight.getState().speedMetersPerSecond));
+      //       log.motor("rearLeft")
+      //         .voltage(Units.Volts.of(rearLeft.getPowerOutput()))
+      //         .linearPosition(Units.Meters.of(rearLeft.getDrivingEncoderPosition()))
+      //         .linearVelocity( Units.MetersPerSecond.of(rearLeft.getState().speedMetersPerSecond));
+      //     },
+      //     this));
 
-  public Chassis(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
+  public ChassisOld(AHRS navx, SwerveDriveKinematics swerveDriveKinematics, SwerveDrivePoseEstimator swerveDrivePoseEstimator, Field2d field) {
     this.navx = navx;
     this.swerveDriveKinematics = swerveDriveKinematics; 
     this.swerveDrivePoseEstimator = swerveDrivePoseEstimator;
@@ -149,10 +150,6 @@ public class Chassis extends SubsystemBase {
     field.setRobotPose(pose);
     
     SmartDashboard.putData("chassis", field);
-    SmartDashboard.putData("modules/fr", frontRight);
-    SmartDashboard.putData("modules/fl", frontLeft);
-    SmartDashboard.putData("modules/rr", rearRight);
-    SmartDashboard.putData("modules/rl", rearLeft);
 
     SmartDashboard.putNumber("modules/frTurn", frontRight.getPosition().angle.getDegrees());
     SmartDashboard.putNumber("modules/flTurn", frontLeft.getPosition().angle.getDegrees());
@@ -322,13 +319,13 @@ public class Chassis extends SubsystemBase {
     rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.quasistatic(direction);
-  }
+  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+  //   return sysIdRoutine.quasistatic(direction);
+  // }
   
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.dynamic(direction);
-  }
+  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+  //   return sysIdRoutine.dynamic(direction);
+  // }
           
 
   /**
@@ -475,7 +472,7 @@ public class Chassis extends SubsystemBase {
   }
 
   public void setIdleMode(IdleMode idleMode){
-    for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
+    for(ModuleIOMAXSwerve module : new ModuleIOMAXSwerve[]{frontLeft, frontRight, rearLeft, rearRight}){
       module.drivingSparkFlex.setIdleMode(idleMode);
     }
   }
