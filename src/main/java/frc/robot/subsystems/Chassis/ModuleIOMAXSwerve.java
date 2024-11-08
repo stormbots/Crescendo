@@ -15,7 +15,7 @@ import com.revrobotics.SparkFlexFixes;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import com.revrobotics.SparkPIDController;
-
+import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -52,10 +52,27 @@ public class ModuleIOMAXSwerve implements ModuleIO{
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a Through Bore
    * Encoder.
    */
-  public ModuleIOMAXSwerve(int drivingCANId, int turningCANId, double chassisAngularOffset, SimpleMotorFeedforward drivingMotorFeedforward){
-    drivingSparkFlex = new CANSparkFlex(drivingCANId, MotorType.kBrushless);
-    turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
-    this.drivingMotorFeedforward = drivingMotorFeedforward;
+  public ModuleIOMAXSwerve(int index){
+    switch (index) {
+      case 0:
+        drivingSparkFlex = new CANSparkFlex(DriveConstants.kFrontRightDrivingCanId, MotorType.kBrushless);
+        turningSparkMax = new CANSparkMax(DriveConstants.kFrontRightTurningCanId, MotorType.kBrushless);
+        break;
+      case 1:
+        drivingSparkFlex = new CANSparkFlex(DriveConstants.kRearRightDrivingCanId, MotorType.kBrushless);
+        turningSparkMax = new CANSparkMax(DriveConstants.kRearRightTurningCanId, MotorType.kBrushless);
+        break;
+      case 2:
+        drivingSparkFlex = new CANSparkFlex(DriveConstants.kFrontLeftDrivingCanId, MotorType.kBrushless);
+        turningSparkMax = new CANSparkMax(DriveConstants.kFrontLeftTurningCanId, MotorType.kBrushless);
+        break;
+      case 3:
+        drivingSparkFlex = new CANSparkFlex(DriveConstants.kRearLeftDrivingCanId, MotorType.kBrushless);
+        turningSparkMax = new CANSparkMax(DriveConstants.kRearLeftTurningCanId, MotorType.kBrushless);
+        break;
+      default:
+        throw new RuntimeException("Invalid module index");
+    }
 
     drivingSparkFlex.clearFaults();
     turningSparkMax.clearFaults();
@@ -136,107 +153,12 @@ public class ModuleIOMAXSwerve implements ModuleIO{
     
   }
 
-  
-
-  
-
-  /**
-   * Returns the current state of the module.
-   *
-   * @return The current state of the module.
-   */
-  public SwerveModuleState getState() {
-    // Apply chassis angular offset to the encoder position to get the position
-    // relative to the chassis.
-    return new SwerveModuleState(drivingEncoder.getVelocity(),
-        new Rotation2d(turningEncoder.getPosition() - chassisAngularOffset));
-  }
-
-  /**
-   * Returns the current position of the module.
-   *
-   * @return The current position of the module.
-   */
-  public SwerveModulePosition getPosition() {
-    // Apply chassis angular offset to the encoder position to get the position
-    // relative to the chassis.
-    return new SwerveModulePosition(
-        drivingEncoder.getPosition(),
-        new Rotation2d(turningEncoder.getPosition() - chassisAngularOffset));
-  }
-
-  /**
-   * Sets the desired state for the module.
-   *
-   * @param desiredState Desired state with speed and angle.
-   */
-  public void setDesiredState(SwerveModuleState desiredState) {
-    // Apply chassis angular offset to the desired state.
-    SwerveModuleState correctedDesiredState = new SwerveModuleState();
-    correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
-    correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(chassisAngularOffset));
-
-    // Optimize the reference state to avoid spinning further than 90 degrees.
-    SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
-        new Rotation2d(turningEncoder.getPosition()));
-
-    var arbFF = 0.0;
-    if(DriverStation.isAutonomous()){
-      arbFF = drivingMotorFeedforward.calculate(drivingEncoder.getVelocity(), optimizedDesiredState.speedMetersPerSecond, 0.08);
-    }
-    else{
-      arbFF = drivingMotorFeedforward.calculate(optimizedDesiredState.speedMetersPerSecond);
-    }
-    drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity, 0, arbFF, ArbFFUnits.kVoltage);
-
-    turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
-
-    this.desiredState = desiredState;
-  }
-  
-  /** Zeroes all the SwerveModule encoders. */
-  public void resetEncoders() {
-    drivingEncoder.setPosition(0);
-  }
-  
-  public void setCurrentLimit(double amps){
-    drivingSparkFlex.setSmartCurrentLimit((int)amps);
-  }
-
-  // public void setVoltageDrive(Measure<Voltage> voltage){
-  //   drivingSparkFlex.setVoltage(voltage.in(Units.Volts));
-
-  //   turningPIDController.setReference(0, CANSparkMax.ControlType.kPosition);
-  // }
-
-  public double getPowerOutput(){
-    return drivingSparkFlex.getAppliedOutput() * drivingSparkFlex.getBusVoltage();
-  }
-
-  public double getDriveCurrent(){
-    return drivingSparkFlex.getOutputCurrent();
-  }
-
-  public double getDrivingEncoderPosition(){
-    return drivingEncoder.getPosition();
-  }
-
-  // @Override
-  // public void initSendable(SendableBuilder builder) {
-  //   builder.setSmartDashboardType("MaxSwerveModule");
-  //   builder.addDoubleProperty("Azimuth Angle", turningEncoder::getPosition, null);
-  //   builder.addDoubleProperty("Encoder Dist", drivingEncoder::getPosition, drivingEncoder::setPosition);
-  // }
-
-  public SwerveModuleState getDesiredSate(){
-    return desiredState;
-  }
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
     inputs.drivePositionRad =
-        Units.rotationsToRadians(drivingEncoder.getPosition()) / ModuleConstants.kDrivingMotorReduction;
+        (drivingEncoder.getPosition()*2*(Math.PI)) / ModuleConstants.kDrivingMotorReduction;
     inputs.driveVelocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(drivingEncoder.getVelocity()) / ModuleConstants.kDrivingMotorReduction;
+        (drivingEncoder.getVelocity()*(Math.PI/30)) / ModuleConstants.kDrivingMotorReduction;
     inputs.driveAppliedVolts = drivingSparkFlex.getAppliedOutput() * drivingSparkFlex.getBusVoltage();
     inputs.driveCurrentAmps = new double[] {drivingSparkFlex.getOutputCurrent()};
 
@@ -245,9 +167,29 @@ public class ModuleIOMAXSwerve implements ModuleIO{
     inputs.turnPosition =
         (new Rotation2d(turningEncoder.getPosition()));
     inputs.turnVelocityRadPerSec =
-        Units.rotationsToRadians(turningEncoder.getVelocity());
+        (turningEncoder.getVelocity()*2*(Math.PI));
     inputs.turnAppliedVolts = turningSparkMax.getAppliedOutput() * turningSparkMax.getBusVoltage();
     inputs.turnCurrentAmps = new double[] {turningSparkMax.getOutputCurrent()};
+  }
+
+  @Override
+  public void setDriveVoltage(double volts) {
+    drivingSparkFlex.setVoltage(volts);
+  }
+
+  @Override
+  public void setTurnVoltage(double volts) {
+    turningSparkMax.setVoltage(volts);
+  }
+
+  @Override
+  public void setDriveBrakeMode(boolean enable) {
+    drivingSparkFlex.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+  }
+
+  @Override
+  public void setTurnBrakeMode(boolean enable) {
+    turningSparkMax.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
   }
   
 }

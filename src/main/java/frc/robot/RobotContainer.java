@@ -25,12 +25,14 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CalibrateShooter;
 import frc.robot.commands.ClimberGoHome;
 import frc.robot.commands.ClimberSetPosition;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriverFeedback;
 import frc.robot.commands.DunkArmRollerHoldNote;
 import frc.robot.commands.IntakeNote;
@@ -42,10 +44,10 @@ import frc.robot.commands.SetShooterProfiled;
 import frc.robot.commands.ShooterSetManually;
 import frc.robot.commands.ShooterSetVision;
 import frc.robot.commands.ShooterSetVisionLob;
-import frc.robot.commands.VisionTrackNote;
-import frc.robot.commands.VisionTrackNoteAuto;
-import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
-import frc.robot.commands.VisionTurnToTargetPose;
+// import frc.robot.commands.VisionTrackNote;
+// import frc.robot.commands.VisionTrackNoteAuto;
+// import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
+// import frc.robot.commands.VisionTurnToTargetPose;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.DunkArm;
 import frc.robot.subsystems.DunkArmRoller;
@@ -59,8 +61,14 @@ import frc.robot.subsystems.PowerManager;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
 import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.Chassis.ChassisOld;
+// import frc.robot.subsystems.Chassis.ChassisOld;
 import frc.robot.subsystems.Chassis.ChassisConstants.DriveConstants;
+import frc.robot.subsystems.Chassis.Drive;
+import frc.robot.subsystems.Chassis.GyroIO;
+import frc.robot.subsystems.Chassis.GyroIONavx;
+import frc.robot.subsystems.Chassis.ModuleIO;
+import frc.robot.subsystems.Chassis.ModuleIOMAXSwerve;
+import frc.robot.subsystems.Chassis.ModuleIOSim;
 import frc.robot.subsystems.ShooterVision.LimelightPipeline;
 
 /**
@@ -70,6 +78,8 @@ import frc.robot.subsystems.ShooterVision.LimelightPipeline;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+  
   // The robot's subsystems and commands are defined here...
   public final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   // public PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
@@ -95,7 +105,7 @@ public class RobotContainer {
   );
 
   public Field2d field = new Field2d();
-  public final ChassisOld chassis = new ChassisOld(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
+  // public final ChassisOld chassis = new ChassisOld(navx, swerveDriveKinematics, swerveDrivePoseEstimator, field);
   public final Climber climber = new Climber(navx);
   public final Intake intake = new Intake();
   public final Passthrough passthrough = new Passthrough();
@@ -114,19 +124,52 @@ public class RobotContainer {
 
   //Keep Sequences and Autos in a single place 
   public final SequenceFactory sequenceFactory;
-  public final AutoFactory autoFactory;
+  // public final AutoFactory autoFactory;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public final CommandXboxController driverController = new CommandXboxController(0);
   public final CommandJoystick operatorJoystick = new CommandJoystick(1);
-
+  private final Drive drive;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    switch (Constants.currentMode) {
+      case real:
+        // Real robot, instantiate hardware IO implementations
+        drive =
+            new Drive(
+                new GyroIONavx(),
+                new ModuleIOMAXSwerve(0),
+                new ModuleIOMAXSwerve(1),
+                new ModuleIOMAXSwerve(2),
+                new ModuleIOMAXSwerve(3));
+        break;
 
+      case sim:
+        // Sim robot, instantiate physics sim IO implementations
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim());
+        break;
+
+      default:
+        // Replayed robot, disable IO implementations
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        break;
+    }
     // Run delayed constructors
     sequenceFactory = new SequenceFactory(this);
-    autoFactory = new AutoFactory(this);
+    // autoFactory = new AutoFactory(this);
 
     // Sensor Driven triggers/commands
     // new Trigger(m_exampleSubsystem::exampleCondition)
@@ -149,14 +192,30 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            () -> -driverController.getLeftY(),
+            () -> -driverController.getLeftX(),
+            () -> -driverController.getRightX()));
+    driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    driverController
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                    drive)
+                .ignoringDisable(true));
     // The left stick controls translation of the robot.
     // Turning is controlled by the X axis of the right stick.
   //TODO: This should work now
-    chassis.setDefaultCommand(chassis.getFCDriveCommand( 
-      ()-> -driverController.getLeftY(), 
-      ()-> -driverController.getLeftX(), 
-      ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
-    ));
+    // chassis.setDefaultCommand(chassis.getFCDriveCommand( 
+    //   ()-> -driverController.getLeftY(), 
+    //   ()-> -driverController.getLeftX(), 
+    //   ()-> -driverTurnJoystickValue()// divide by 4 is still not enough
+    // ));
 
     //default, but only runs once
     //TODO: Only enable when robot is tested 
@@ -237,10 +296,10 @@ public class RobotContainer {
   private void configureDriverBindings() {
 
     //face toward driver
-    driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(180))); //Face toward driver
-    driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
-    driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
-    driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
+    // driverController.button(1).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(180))); //Face toward driver
+    // driverController.button(2).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(270))); //Face right
+    // driverController.button(3).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(90))); //Face left
+    // driverController.button(4).whileTrue(chassis.getDriveToBearingCommand(()-> -driverController.getLeftY(), ()-> -driverController.getLeftX(), ()->Units.Degrees.of(0))); //Face away from driver
    // driverController.button(5).whileTrue(chassis.getFCDriveCommand(()->-driverController.getLeftY()/5.0, ()->-driverController.getLeftX()/5.0, ()->-driverTurnJoystickValue()/5.0));
 
     // driverController.button(5)
@@ -254,28 +313,28 @@ public class RobotContainer {
     // )
     // ;
 
-    driverController.button(5)
-    .or(driverController.button(6))
-    .whileTrue(
-      new VisionTurnToSpeakerOpticalOnly(
-        ()-> -driverController.getLeftY(),
-        ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(),
-        shooterVision, chassis, navx)
-    )
-    .whileTrue(
-      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
-    )
-    .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget)
-    )
-    .onTrue(
-      new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
-      .withTimeout(2)
-    )
-    .onTrue(
-      PassthroughLock.setUnlocked()
-    )
-    ;
+    // driverController.button(5)
+    // .or(driverController.button(6))
+    // .whileTrue(
+    //   new VisionTurnToSpeakerOpticalOnly(
+    //     ()-> -driverController.getLeftY(),
+    //     ()-> -driverController.getLeftX(),
+    //     ()-> -driverTurnJoystickValue(),
+    //     shooterVision, chassis, navx)
+    // )
+    // .whileTrue(
+    //   new ShooterSetVision(shooter, shooterVision, shooterFlywheel).runForever()
+    // )
+    // .whileTrue(leds.readyLightsPossible(shooterVision::distanceInRange, shooterFlywheel::isOnTarget,shooter::isOnTarget)
+    // )
+    // .onTrue(
+    //   new DriverFeedback(driverController, shooterFlywheel::isOnTarget, shooter::isOnTarget)
+    //   .withTimeout(2)
+    // )
+    // .onTrue(
+    //   PassthroughLock.setUnlocked()
+    // )
+    // ;
 
     driverController.button(7).onTrue(new ClimberGoHome(climber)
     .andThen(new InstantCommand(()->shooter.stopShooter()))
@@ -287,65 +346,65 @@ public class RobotContainer {
     );
 
     //Reset Gyro
-    driverController.button(8).onTrue(new InstantCommand()
-    .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis))
-    );
+    // driverController.button(8).onTrue(new InstantCommand()
+    // .andThen(new InstantCommand(()-> chassis.setFieldCentricOffset(0.0), chassis))
+    // );
 
-    driverController
-    .axisGreaterThan(2, 0.5)
-    // .and(()->isRightStickInDeadzone()==false)
-    .whileTrue(
-      chassis.getDriveToBearingCommand(
-        ()-> -driverController.getLeftY(), 
-        ()-> -driverController.getLeftX(), 
-        ()->Units.Radians.of(Math.atan2(driverController.getRightY(), -driverController.getRightX())+Math.PI/2))
-    );
+    // driverController
+    // .axisGreaterThan(2, 0.5)
+    // // .and(()->isRightStickInDeadzone()==false)
+    // .whileTrue(
+    //   chassis.getDriveToBearingCommand(
+    //     ()-> -driverController.getLeftY(), 
+    //     ()-> -driverController.getLeftX(), 
+    //     ()->Units.Radians.of(Math.atan2(driverController.getRightY(), -driverController.getRightX())+Math.PI/2))
+    // );
 
-   driverController.povDown()
-  //  .whileTrue(
-  //     new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
+  //  driverController.povDown()
+  // //  .whileTrue(
+  // //     new ShooterSetVisionLob(shooter, shooterVision, shooterFlywheel).runForever()
+  // //   )
+  //   .whileTrue(
+  //     new VisionTurnToTargetPose(
+  //       ()-> -driverController.getLeftY(),
+  //       ()-> -driverController.getLeftX(),
+  //       ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
+  //       .reverseDirection() 
   //   )
-    .whileTrue(
-      new VisionTurnToTargetPose(
-        ()-> -driverController.getLeftY(),
-        ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(), shooterVision, chassis, navx, swerveDrivePoseEstimator, shooterVision.getField())
-        .reverseDirection() 
-    )
-    .onTrue(PassthroughLock.setUnlocked())
-    .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
-    .whileTrue(new StartEndCommand(shooterVision::selectAllTagsPipeline, shooterVision::selectSpeakerPipeline)
-    )
-    ;
+  //   .onTrue(PassthroughLock.setUnlocked())
+  //   .whileTrue(leds.readyLights(shooter::isOnTarget, shooterFlywheel::isOnTarget))
+  //   .whileTrue(new StartEndCommand(shooterVision::selectAllTagsPipeline, shooterVision::selectSpeakerPipeline)
+  //   )
+  //   ;
 
 
     // // Limelight Intake Vision
-    driverController
-    .axisGreaterThan(3, 0.5) //left trigger?
-    .onTrue(PassthroughLock.setLocked())
-    .whileTrue(
-      new SetShooterProfiled(0, shooter)
-    )
-    .whileTrue(
-      new RunCommand(()->{}).until(shooter::isReadyToIntake)
-      .andThen(
-        new VisionTrackNote(
-        ()-> -driverController.getLeftY(), 
-        ()-> -driverController.getLeftX(),
-        ()-> -driverTurnJoystickValue(), 
-        chassis, intake, passthrough, intakeVision, leds)
-      )
-    )
-    ;
+    // driverController
+    // .axisGreaterThan(3, 0.5) //left trigger?
+    // .onTrue(PassthroughLock.setLocked())
+    // .whileTrue(
+    //   new SetShooterProfiled(0, shooter)
+    // )
+    // .whileTrue(
+    //   new RunCommand(()->{}).until(shooter::isReadyToIntake)
+    //   .andThen(
+    //     new VisionTrackNote(
+    //     ()-> -driverController.getLeftY(), 
+    //     ()-> -driverController.getLeftX(),
+    //     ()-> -driverTurnJoystickValue(), 
+    //     chassis, intake, passthrough, intakeVision, leds)
+    //   )
+    // )
+    // ;
 
-    driverController.povRight()
-    .whileTrue(new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, chassis, intake, passthrough, intakeVision, leds));
+    // driverController.povRight()
+    // .whileTrue(new VisionTrackNoteAuto(()->0.5, ()->0.0, ()->0.0, chassis, intake, passthrough, intakeVision, leds));
 
 
-    driverController.povUp()
-    .whileTrue(
-      new RunCommand(()->chassis.setX())
-    );
+    // driverController.povUp()
+    // .whileTrue(
+    //   new RunCommand(()->chassis.setX())
+    // );
 
     // driverController.povLeft()
     // .whileTrue(
@@ -599,15 +658,15 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    // return Autos.exampleAuto(m_exampleSubsystem);
+  // public Command getAutonomousCommand() {
+  //   // An example command will be run in autonomous
+  //   // return Autos.exampleAuto(m_exampleSubsystem);
     
 
-    return new CalibrateShooter(shooter).andThen(autoFactory.getAutoChooser().getSelected());
-    // return autoFactory.getBlueBottomAuto();
+  //   // return new CalibrateShooter(shooter).andThen(autoFactory.getAutoChooser().getSelected());
+  //   // return autoFactory.getBlueBottomAuto();
 
-  }
+  // }
 
   private double driverTurnJoystickValue(){
     var stick = driverController.getRightX();

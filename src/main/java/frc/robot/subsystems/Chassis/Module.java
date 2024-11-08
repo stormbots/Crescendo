@@ -46,17 +46,17 @@ public class Module {
       case real:
       case replay:
       //TODO: Feedforward
-        driveFeedforward = new SimpleMotorFeedforward(0.1, 0.13);
+        driveFeedforward = new SimpleMotorFeedforward(0.11553, 1.956, 0.33358);
         drivePID = new PIDController(ModuleConstants.kReplayDrivingP, ModuleConstants.kReplayDrivingI, ModuleConstants.kReplayDrivingD);
         turnPID = new PIDController(ModuleConstants.kReplayTurningP, ModuleConstants.kReplayTurningI, ModuleConstants.kReplayTurningP);
         break;
       case sim:
-        driveFeedforward = new SimpleMotorFeedforward(0.0, 0.13);
+        driveFeedforward = new SimpleMotorFeedforward(0.11553, 1.956, 0.33358);
         drivePID = new PIDController(ModuleConstants.kSimDrivingP, ModuleConstants.kSimDrivingI, ModuleConstants.kSimDrivingD);
         turnPID = new PIDController(ModuleConstants.kSimTurningP, ModuleConstants.kSimTurningI, ModuleConstants.kSimTurningP);
         break;
       default:
-        driveFeedforward = new SimpleMotorFeedforward(0.0, 0.0);
+        driveFeedforward = new SimpleMotorFeedforward(0.11553, 1.956, 0.33358);
         drivePID = new PIDController(ModuleConstants.kRealDrivingP, ModuleConstants.kRealDrivingI, ModuleConstants.kRealDrivingD);
         turnPID = new PIDController(ModuleConstants.kRealTurningP, ModuleConstants.kRealTurningI, ModuleConstants.kRealTurningP);
         break;

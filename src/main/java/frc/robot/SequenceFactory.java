@@ -23,7 +23,7 @@ import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.PassthroughLock;
 import frc.robot.commands.ShooterSetVision;
-import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
+// import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.ShooterFlywheel;
 
 /** 
@@ -37,9 +37,9 @@ public class SequenceFactory {
         this.rc = rc;
     }
 
-    public Command ExampleSequence(){
-        return new InstantCommand(()->{},rc.chassis,rc.climber);
-    }
+    // public Command ExampleSequence(){
+    //     // return new InstantCommand(()->{},rc.chassis,rc.climber);
+    // }
 
     public Command getDunkArmNoteTransferSequence(){
         return new ParallelDeadlineGroup(
@@ -88,32 +88,32 @@ public class SequenceFactory {
 
     //This one is sequenced slightly differently as we would like to turn while we are spinning up. Furthermore we dont want to require the chassis when we dont want to
     //Note that there might be issues with the the angles at edge cases, likely will never use it for that though
-    public Command getTurnSetRPMandShootCommand(double targetBearing, double rpm, double shooterAngle){
-        return new InstantCommand()
-        .andThen(
-            new ParallelCommandGroup(
-                new RunCommand(rc.passthrough::stop, rc.passthrough),
-                new RunCommand(()->rc.chassis.driveToBearing(Math.toRadians(targetBearing)), rc.chassis),
-                rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
-                new SetShooterProfiled(shooterAngle, rc.shooter).runForever()
-            )
-            .until(
-                ()-> getShooterOnTarget(shooterAngle, rpm) &&
-                    Clamp.bounded(rc.navx.getRotation2d().getDegrees(), targetBearing-10, targetBearing+10) &&
-                    Clamp.bounded(rc.navx.getRate(), -5, 5)
-            )
-            .withTimeout(2)
-        )
-        .andThen(
-            new ParallelCommandGroup(
-                new RunCommand(rc.passthrough::intake,rc.passthrough),
-                new RunCommand(rc.intake::intake,rc.intake)
-            )
-            .until(()->!rc.passthrough.isBlocked())
-            .withTimeout(0.5)
-        )
-        ;
-    }
+    // public Command getTurnSetRPMandShootCommand(double targetBearing, double rpm, double shooterAngle){
+    //     return new InstantCommand()
+    //     .andThen(
+    //         new ParallelCommandGroup(
+    //             new RunCommand(rc.passthrough::stop, rc.passthrough),
+    //             new RunCommand(()->rc.chassis.driveToBearing(Math.toRadians(targetBearing)), rc.chassis),
+    //             rc.shooterFlywheel.getShooterSetRPMCommand(rpm),
+    //             new SetShooterProfiled(shooterAngle, rc.shooter).runForever()
+    //         )
+    //         .until(
+    //             ()-> getShooterOnTarget(shooterAngle, rpm) &&
+    //                 Clamp.bounded(rc.navx.getRotation2d().getDegrees(), targetBearing-10, targetBearing+10) &&
+    //                 Clamp.bounded(rc.navx.getRate(), -5, 5)
+    //         )
+    //         .withTimeout(2)
+    //     )
+    //     .andThen(
+    //         new ParallelCommandGroup(
+    //             new RunCommand(rc.passthrough::intake,rc.passthrough),
+    //             new RunCommand(rc.intake::intake,rc.intake)
+    //         )
+    //         .until(()->!rc.passthrough.isBlocked())
+    //         .withTimeout(0.5)
+    //     )
+    //     ;
+    // }
 
     public Command getStopShooterCommand(){
         return new ParallelCommandGroup(
@@ -131,31 +131,31 @@ public class SequenceFactory {
             );
     }
 
-    public Command getTrapSequenceCommand(Command pathFollowingCommand, Measure<Angle> gyroAngle){
-        return new InstantCommand()
-            .andThen(new RunCommand(()->rc.chassis.driveToBearing(gyroAngle.in(Units.Radians)), rc.chassis).withTimeout(3))
-            // .until(
-            //     ()->Clamp.bounded(rc.navx.getRotation2d().getDegrees(), gyroAngle.in(Units.Degrees)-10, gyroAngle.in(Units.Degrees)+10) &&
-            //     Clamp.bounded(rc.navx.getRate(), -5, 5)
-            // )
-            .andThen(
-                new ParallelDeadlineGroup(
-                    // new ClimberSetPosition(rc.climber, rc.climber.kMaxHeight),
-                    pathFollowingCommand,
-                    new RunCommand(()->rc.dunkArm.setArmAngle(
-                        Clamp.clamp(Math.toDegrees(Math.atan2(0.2,  (0.8-rc.chassis.getDistanceFromStageCenter().in(Units.Meters))  )), //0.8
-                        0, 110)), 
-                        rc.dunkArm)                        
-                )
-                // .withTimeout(3.5)
-            )
-            .andThen(
-                new ParallelCommandGroup(
-                    // new ClimberSetPosition(rc.climber, Units.Inches.of(0)),
-                    new SetDunkArmSlew(120, rc.dunkArm).runForever()
-                )
-            );
-    }
+    // public Command getTrapSequenceCommand(Command pathFollowingCommand, Measure<Angle> gyroAngle){
+    //     return new InstantCommand()
+    //         .andThen(new RunCommand(()->rc.chassis.driveToBearing(gyroAngle.in(Units.Radians)), rc.chassis).withTimeout(3))
+    //         // .until(
+    //         //     ()->Clamp.bounded(rc.navx.getRotation2d().getDegrees(), gyroAngle.in(Units.Degrees)-10, gyroAngle.in(Units.Degrees)+10) &&
+    //         //     Clamp.bounded(rc.navx.getRate(), -5, 5)
+    //         // )
+    //         .andThen(
+    //             new ParallelDeadlineGroup(
+    //                 // new ClimberSetPosition(rc.climber, rc.climber.kMaxHeight),
+    //                 pathFollowingCommand,
+    //                 new RunCommand(()->rc.dunkArm.setArmAngle(
+    //                     Clamp.clamp(Math.toDegrees(Math.atan2(0.2,  (0.8-rc.chassis.getDistanceFromStageCenter().in(Units.Meters))  )), //0.8
+    //                     0, 110)), 
+    //                     rc.dunkArm)                        
+    //             )
+    //             // .withTimeout(3.5)
+    //         )
+    //         .andThen(
+    //             new ParallelCommandGroup(
+    //                 // new ClimberSetPosition(rc.climber, Units.Inches.of(0)),
+    //                 new SetDunkArmSlew(120, rc.dunkArm).runForever()
+    //             )
+    //         );
+    // }
 
     public Command getToShooterStateCommand(double rpm, double shooterAngle){
         return new ParallelCommandGroup(
