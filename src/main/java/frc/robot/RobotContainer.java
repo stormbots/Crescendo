@@ -451,8 +451,8 @@ public class RobotContainer {
     //podium/far shot
     operatorJoystick.button(4) //far shooting
     .whileTrue(new ParallelCommandGroup(
-      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).fullRange(),
-      new SetDunkArmSlew(0, dunkArm))
+      new ShooterSetVision(shooter, shooterVision, shooterFlywheel).fullRange())
+      // new SetDunkArmSlew(0, dunkArm))
     )
     .whileTrue(leds.readyLights(shooterFlywheel::isOnTarget, shooter::isOnTarget))
     .onTrue(
