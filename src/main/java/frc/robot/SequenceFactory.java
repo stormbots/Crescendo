@@ -175,19 +175,6 @@ public class SequenceFactory {
         Clamp.bounded(rc.shooter.getState().velocity, -5, 5);
     }
 
-    public Command getVisionAlignmentShotCommand(){
-        return new ParallelDeadlineGroup(
-            new ShooterSetVision(rc.shooter, rc.shooterVision, rc.shooterFlywheel),
-            //hope were at a close enough angle, may want to consider runForever kind of architecture as well or implement an until statement
-            new VisionTurnToSpeakerOpticalOnly(
-            ()->0.0,
-            ()->0.0,
-            ()->0.0,
-            rc.shooterVision, rc.chassis, rc.navx)
-        )
-        ;
-    }
-
     public Command getIntakeShootCommand(){
         return new ParallelCommandGroup(
                     new RunCommand(rc.intake::intake, rc.intake), 
