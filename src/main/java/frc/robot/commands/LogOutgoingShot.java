@@ -4,12 +4,11 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class LogOutgoingShot extends Command {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})

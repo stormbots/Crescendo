@@ -6,20 +6,14 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import javax.swing.text.StyleContext.SmallAttributeSet;
-
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -33,7 +27,7 @@ public class ShooterVision extends SubsystemBase {
     kNoVision, kOdometry, kZoom, kSpeaker, kAllTags
   }
   public class LimelightReadings {
-    public Measure<Distance> distance; //inches
+    public Distance distance; //inches
     public double angleHorizontal; //degrees
     public double angleVertical; //degrees
     public double time;

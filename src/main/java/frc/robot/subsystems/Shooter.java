@@ -4,35 +4,38 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.stormbots.Clamp;
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
-  public CANSparkMax shooterMotor = new CANSparkMax(Robot.isCompbot?14:13, MotorType.kBrushless);
-  private SparkPIDController pidController = shooterMotor.getPIDController();
-  private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+  public SparkMax shooterMotor = new SparkMax(Robot.isCompbot?14:13, MotorType.kBrushless);
+  private SparkClosedLoopController pidController = shooterMotor.getClosedLoopController();
+  private SparkAbsoluteEncoder  shooterAbsEncoder = shooterMotor.getAbsoluteEncoder();
   private double shooterSetPoint = 0.0;
 
   private double reverseSoftLimit = 2;
@@ -93,7 +96,7 @@ public class Shooter extends SubsystemBase {
       new SysIdRoutine.Config(null, Units.Volts.of(4), null),//sorry for using nulls
       new SysIdRoutine.Mechanism(
           // Tell SysId how to plumb the driving voltage to the motors.
-          (Measure<Voltage> volts) -> {
+          (Voltage volts) -> {
             shooterMotor.setVoltage(volts.in(Units.Volts));
           },
           log -> {
@@ -106,48 +109,48 @@ public class Shooter extends SubsystemBase {
           
   public Shooter() {
     shooterMotor.clearFaults();
-    shooterMotor.restoreFactoryDefaults();
 
-    shooterMotor.setClosedLoopRampRate(0.05);
+    var config = new SparkMaxConfig()
+    .apply(Constants.kAbsEncoder)
+    .closedLoopRampRate(0.05)
+    .smartCurrentLimit(20)
+    .idleMode(IdleMode.kCoast)
+    ;
+    config.closedLoop
+    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+    .p(6.0/1.2/360.0*1.7*1.1*1.5)
+    .i(0.000000003*20)
+    .d(0.00007*50)
+    ;
 
-    // pidController.setFeedbackDevice(shooterAbsEncoder);  //WARNING: This is potentially unsafe due to controlling through the discontinuity at 0; do not use. 
-    pidController.setFeedbackDevice(shooterMotor.getEncoder()); //Make sure we revert to native encoder for PID
+    config.absoluteEncoder
+    .positionConversionFactor(360)
+    .velocityConversionFactor(360/60.0)
+    .inverted(false)
+    ;
+    var pcf=(38.338787-3.184040)/(19.733170-2.209433);
+    config.encoder
+    .positionConversionFactor(pcf)
+    .velocityConversionFactor(pcf/60.0)
+    ;
 
-    //Configure Absolute encoder to accurate values
-    shooterAbsEncoder.setPositionConversionFactor(360.0);
-    shooterAbsEncoder.setInverted(false);
-    shooterAbsEncoder.setVelocityConversionFactor(shooterAbsEncoder.getPositionConversionFactor()); //native unit is RPS
+    //We need to write configs out before the sync step, because we need to make 
+    // certain we have our encoders properly configured before trying to read them
+    shooterMotor.configure(config,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters);
 
     //Configure relative encoder
-    // shooterMotor.getEncoder().setPositionConversionFactor(45.0/11.51*0.955/2);//56.8/15.1 old 
-    shooterMotor.getEncoder().setPositionConversionFactor((38.338787-3.184040)/(19.733170-2.209433));
-    // shooterMotor.getEncoder().setPositionConversionFactor((41.827526-0.340941)/(21.474369-0.450663));
-    shooterMotor.getEncoder().setVelocityConversionFactor(shooterMotor.getEncoder().getPositionConversionFactor()/60.0); //Native unit is RPM, so convert to RPS
     syncEncoders();
     Timer.delay(0.02);
- 
     reverseSoftLimit = getShooterAngle()+1;
-    shooterMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
-    shooterMotor.setSoftLimit(SoftLimitDirection.kForward, (float) forwardSoftLimit);
-    shooterMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-    shooterMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
 
-    shooterMotor.setSmartCurrentLimit(20);
-
-    //closed-loop control
-    pidController.setP(6.0/1.2/360.0*1.7*1.1*1.5);
-    pidController.setI(0.000000003*20);
-    pidController.setD(0.00007*50);
-    
-
-    shooterMotor.setIdleMode(IdleMode.kCoast);
-
-    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
-    shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
-
-    shooterMotor.burnFlash();
+    var limitconfig=new SparkMaxConfig();
+    limitconfig.softLimit
+    .forwardSoftLimitEnabled(true)
+    .reverseSoftLimitEnabled(true)
+    .forwardSoftLimit(forwardSoftLimit)
+    .reverseSoftLimit(reverseSoftLimit)
+    ;
+    shooterMotor.configure(limitconfig,ResetMode.kNoResetSafeParameters,PersistMode.kNoPersistParameters);
   }
 
   @Override
@@ -234,7 +237,7 @@ public class Shooter extends SubsystemBase {
   public void setAngle(double degrees) {
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit); 
     this.shooterSetPoint = degrees;
-    pidController.setReference(degrees, ControlType.kPosition, 0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
+    pidController.setReference(degrees, ControlType.kPosition, ClosedLoopSlot.kSlot0, getShooterFFPercent(),ArbFFUnits.kPercentOut);
   }
 
   public Command getDebugSetAngle(double degrees) {

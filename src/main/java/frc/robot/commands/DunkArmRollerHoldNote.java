@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.stormbots.LUT;
 
 import edu.wpi.first.wpilibj2.command.Command;

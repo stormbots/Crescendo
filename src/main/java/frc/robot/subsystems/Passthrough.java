@@ -6,27 +6,32 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLowLevel.PeriodicFrame;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.SignalsConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.RangingMode;
 import au.grapplerobotics.LaserCan.TimingBudget;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class Passthrough extends SubsystemBase {
   //Define SparkMax
-  public CANSparkMax motor = new CANSparkMax(Robot.isCompbot?10:10 , MotorType.kBrushless); //
-  public CANSparkMax motorB = new CANSparkMax(Robot.isCompbot?11:22, MotorType.kBrushless); //
+  public SparkMax motor = new SparkMax(Robot.isCompbot?10:10 , MotorType.kBrushless); //
+  public SparkMax motorB = new SparkMax(Robot.isCompbot?11:22, MotorType.kBrushless); //
   //Define motor speed, adjust
   private double kPassthroughSpeed=1.0;
   //LaserCAN Sensor Setup
@@ -35,7 +40,7 @@ public class Passthrough extends SubsystemBase {
   public static boolean servoBlocked = true;
 
   /** where we want the game piece under ideal conditions, in mm */
-  public final Measure<Distance> kIdealDistance = Units.Millimeters.of(23);
+  public final Distance kIdealDistance = Units.Millimeters.of(23);
   // public final double kIdealDistance = 23.0;
   /** distance where we're confident game piece is loaded, and loading can stop. In mm */
   public final double kBlockedDistance = 185.0-25.4;
@@ -46,39 +51,48 @@ public class Passthrough extends SubsystemBase {
   /** Creates a new Passthrough. */
   public Passthrough() {
     // lockServo(false);
-    motor.restoreFactoryDefaults();
-    motor.clearFaults();
-    motorB.restoreFactoryDefaults();
-    motorB.clearFaults();
+    // motor.restoreFactoryDefaults();
+    // motor.clearFaults();
+    // motorB.restoreFactoryDefaults();
+    // motorB.clearFaults();
 
-    motorB.follow(motor,true);//TODO: Check invert
-    motor.setInverted(false);
+    var config = new SparkMaxConfig()
+    .idleMode(IdleMode.kBrake)
+    .inverted(false)
+    .smartCurrentLimit(15)
+    .closedLoopRampRate(0.05)
+    ;
+    config.apply(
+      config.closedLoop.p(0.1)
+    )
+    .apply(Constants.kTypical)
+    ;
 
-    motor.setIdleMode(IdleMode.kBrake);
-    motorB.setIdleMode(IdleMode.kBrake);
+    var configB = new SparkMaxConfig()
+    .idleMode(IdleMode.kBrake)
+    .follow(motor,true)
+    .apply(Constants.kTypical)
+    ;
+    motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    motorB.configure(configB, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
-    //Safety inplace
-    motor.setSmartCurrentLimit(15);
 
-    motor.getPIDController().setP(0.1);
-    motor.setClosedLoopRampRate(0.05);
-
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
+    // motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+    // motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
+    // motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    // motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    // motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    // motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
     
-    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
-    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
-    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
-    motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
+    // motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
+    // motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
+    // motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
+    // motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
+    // motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+    // motorB.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
 
-    motor.burnFlash();
-    motorB.burnFlash();
+    // motor.burnFlash();
+    // motorB.burnFlash();
 
     try {
       lasercan.setRangingMode(RangingMode.SHORT);
@@ -89,7 +103,7 @@ public class Passthrough extends SubsystemBase {
     }
   }
 
-  public Optional<Measure<Distance>> getSensorReading(){
+  public Optional<Distance> getSensorReading(){
     var reading = lasercan.getMeasurement();    
     if(reading == null){return Optional.empty();}
     return Optional.of(Units.Millimeters.of(reading.distance_mm));
@@ -113,7 +127,7 @@ public class Passthrough extends SubsystemBase {
     motor.set(-kPassthroughSpeed);
   }
   
-  public Measure<Distance> getSensorDistance() {   
+  public Distance getSensorDistance() {   
     var measurement = getSensorReading(); 
     var distance = measurement.orElseGet(()->Units.Millimeters.of(kFarWallDistance));
     return distance;

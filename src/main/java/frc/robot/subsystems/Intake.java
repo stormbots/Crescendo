@@ -4,27 +4,29 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.IdleMode;
 import java.util.Optional;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLowLevel.PeriodicFrame;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.RangingMode;
 import au.grapplerobotics.LaserCan.TimingBudget;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
   //Define SparkMax
-  private CANSparkMax motor = new CANSparkMax(9, MotorType.kBrushless);
+  private SparkMax motor = new SparkMax(9, MotorType.kBrushless);
   //Define motor speed, adjust
   private double kIntakeSpeed = 1.0;
   private LaserCan lasercan = new LaserCan(21);
@@ -36,21 +38,15 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   public Intake() {
-    motor.restoreFactoryDefaults();
+    var config = new SparkMaxConfig()
+    .apply(Constants.kTypical)
+    .smartCurrentLimit(60)
+    .idleMode(IdleMode.kBrake)
+
+   ;
     motor.clearFaults();
-    //Safety
-    motor.setSmartCurrentLimit(60);
-    motor.setIdleMode(IdleMode.kBrake);
 
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 200);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
-    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
-
-    motor.burnFlash();
+    motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
     try {
       lasercan.setRangingMode(RangingMode.SHORT);
@@ -61,13 +57,13 @@ public class Intake extends SubsystemBase {
     }
   }
 
-  public Optional<Measure<Distance>> getSensorReading(){
+  public Optional<Distance> getSensorReading(){
     var reading = lasercan.getMeasurement();    
     if(reading == null){return Optional.empty();}
     return Optional.of(Units.Millimeters.of(reading.distance_mm));
   }
 
-  public Measure<Distance> getSensorDistance() {   
+  public Distance getSensorDistance() {   
     var measurement = getSensorReading();
     var distance = measurement.orElseGet(()->Units.Millimeters.of(kFarWallDistance));
     return distance;

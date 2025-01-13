@@ -4,36 +4,38 @@
 
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.stormbots.Clamp;
+import com.studica.frc.AHRS;
 
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
 
-  private CANSparkMax leftMotor = new CANSparkMax(Robot.isCompbot?17:16, MotorType.kBrushless);
-  private CANSparkMax rightMotor = new CANSparkMax(Robot.isCompbot?18:17, MotorType.kBrushless);
+  private SparkMax leftMotor = new SparkMax(Robot.isCompbot?17:16, MotorType.kBrushless);
+  private SparkMax rightMotor = new SparkMax(Robot.isCompbot?18:17, MotorType.kBrushless);
   
   public boolean isHomed=false;
   public final double kHomeCurrentThreshold=5;
   public final double kClimbingCurrentThreshold=10;
   public final double kHomePower=-0.1;
-  public final  Measure<Distance> kMaxHeight=Units.Inches.of(23);;
-  public final  Measure<Distance> kClimbReadyPosition=Units.Inches.of(23.25-6);
+  public final  Distance kMaxHeight=Units.Inches.of(23);;
+  public final  Distance kClimbReadyPosition=Units.Inches.of(23.25-6);
   private double positionSetpoint=0;
 
   public float forwardSoftLimit = (float)(kMaxHeight.in(Units.Inches)-0.2);
@@ -43,38 +45,32 @@ public class Climber extends SubsystemBase {
   public Climber(AHRS navx) {
     //TODO Auto-generated constructor stub
 
-    for(CANSparkBase motor : new CANSparkBase[]{leftMotor,rightMotor} ){
-      motor.clearFaults();
-      motor.restoreFactoryDefaults();
-
-      motor.setSoftLimit(SoftLimitDirection.kReverse, climbingReverseSoftLimit);
-      motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
-
-      motor.setSoftLimit(SoftLimitDirection.kForward, forwardSoftLimit);
-      motor.enableSoftLimit(SoftLimitDirection.kForward, true);
-
-      motor.setSmartCurrentLimit(8);
-      motor.getPIDController().setP(0.3);
-
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
-    }
+    var leftconfig = new SparkMaxConfig()
+    .smartCurrentLimit(8)
+    .apply(Constants.kTypical)
+    .idleMode(IdleMode.kCoast)
+    ;
+    leftconfig.softLimit
+    .reverseSoftLimitEnabled(false)
+    .reverseSoftLimit(climbingReverseSoftLimit)
+    .forwardSoftLimit(forwardSoftLimit)
+    .forwardSoftLimitEnabled(true)
+    ;
+    leftconfig.closedLoop.p(0.3)
+    ;
+    //duplicate the config in a safe manner
+    var rightconfig = new SparkMaxConfig().apply(leftconfig);
 
     //NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-    leftMotor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
-    rightMotor.getEncoder().setPositionConversionFactor(kMaxHeight.in(Units.Inches)/80.146*23.1/25.3);//kMaxHeight.in(Units.Inches)/71.69
-
+    leftconfig.encoder.positionConversionFactor(kMaxHeight.in(Units.Inches)/80.146);//kMaxHeight.in(Units.Inches)/71.69
+    rightconfig.encoder.positionConversionFactor(kMaxHeight.in(Units.Inches)/80.146*23.1/25.3);//kMaxHeight.in(Units.Inches)/71.69
 
     //set soft limits
-    leftMotor.setInverted(false);
-    rightMotor.setInverted(true);
-    setIdleMode(IdleMode.kCoast);  
+    leftconfig.inverted(true);
+    rightconfig.inverted(true);
 
-    leftMotor.burnFlash();
-    rightMotor.burnFlash();
+    leftMotor.configure(leftconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rightMotor.configure(rightconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // SmartDashboard.putData("climber/home", new ClimberGoHome(this));
 
@@ -90,9 +86,18 @@ public class Climber extends SubsystemBase {
     rightMotor.set(power);
   }
 
+  SparkBaseConfig confIdleModeBrake = new SparkMaxConfig().idleMode(IdleMode.kBrake);
+  SparkBaseConfig confIdleModeCoast = new SparkMaxConfig().idleMode(IdleMode.kCoast);
   public void setIdleMode(IdleMode mode){
-    leftMotor.setIdleMode(mode);
-    rightMotor.setIdleMode(mode);
+    switch(mode){
+      case kBrake:
+      leftMotor.configureAsync(confIdleModeBrake, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+      leftMotor.configureAsync(confIdleModeBrake, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+      break;
+      case kCoast:
+      leftMotor.configureAsync(confIdleModeCoast, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+      leftMotor.configureAsync(confIdleModeCoast, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
   }
 
   public Boolean isAtHomePosition(){
@@ -102,18 +107,22 @@ public class Climber extends SubsystemBase {
   public void setHomed(){
     isHomed = true;
 
-    for(CANSparkBase motor : new CANSparkBase[]{leftMotor,rightMotor} ){
-      motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    var config=new SparkMaxConfig()
+    .smartCurrentLimit(30)
+    .idleMode(IdleMode.kBrake);
+    config.softLimit
+    .reverseSoftLimitEnabled(true)
+    .reverseSoftLimit(defaultReverseSoftLimit);
+    
+
+    for(SparkMax motor : new SparkMax[]{leftMotor,rightMotor} ){
       motor.getEncoder().setPosition(0);
-      motor.setSmartCurrentLimit(30);
-      setIdleMode(IdleMode.kBrake);
-      //TODO: Change this value, is dependent on whether the dunkArm is up or not, temp change for drive team
-      motor.setSoftLimit(SoftLimitDirection.kReverse, defaultReverseSoftLimit); //Should be 11.5 b/c climber double hook, previously 9.5
+      motor.configureAsync(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
   }
 
-  public void setPosition(Measure<Distance> target){
+  public void setPosition(Distance target){
     setPosition(target.in(Units.Inches));
   }
 
@@ -128,11 +137,11 @@ public class Climber extends SubsystemBase {
       ff = -0.1;
     }
 
-    leftMotor.getPIDController().setReference(
-      target, ControlType.kPosition, 0,
+    leftMotor.getClosedLoopController().setReference(
+      target, ControlType.kPosition, ClosedLoopSlot.kSlot0,
       ff,ArbFFUnits.kPercentOut);
-    rightMotor.getPIDController().setReference(
-      target, ControlType.kPosition, 0,
+    rightMotor.getClosedLoopController().setReference(
+      target, ControlType.kPosition, ClosedLoopSlot.kSlot0,
       ff,ArbFFUnits.kPercentOut);
   }
 
@@ -144,14 +153,20 @@ public class Climber extends SubsystemBase {
     return true;
   }
 
-  public Measure<Distance> getPosition(){
+  public Distance getPosition(){
     var average = (leftMotor.getEncoder().getPosition() + rightMotor.getEncoder().getPosition())/2;
     return Units.Inches.of(average);
   }
 
   public void setReverseSoftLimit(double limit){
-    leftMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
-    rightMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) limit);
+    var config = new SparkMaxConfig();
+    config.softLimit
+      .reverseSoftLimit(limit)
+      .reverseSoftLimitEnabled(true)
+    ;
+
+    leftMotor.configureAsync(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    rightMotor.configureAsync(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   @Override

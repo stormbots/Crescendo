@@ -1,8 +1,7 @@
 {
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Field": "Field2d"
+      "/FMSInfo": "FMSInfo"
     }
   },
   "NetworkTables Info": {

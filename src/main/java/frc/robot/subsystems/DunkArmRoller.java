@@ -1,47 +1,49 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class DunkArmRoller extends SubsystemBase{
-    private CANSparkMax rollerMotor = new CANSparkMax(Robot.isCompbot?16:15, MotorType.kBrushless);
+    private SparkMax rollerMotor = new SparkMax(Robot.isCompbot?16:15, MotorType.kBrushless);
 
     SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.03, 0);
 
     public DunkArmRoller() {
+        var config = new SparkMaxConfig()
+        .smartCurrentLimit(10)
+        ;
+        var pcf = 1.375*Math.PI/3.0;
+        config.encoder
+        .positionConversionFactor(pcf)
+        .velocityConversionFactor(pcf/60.0)
+        ;
+        config.closedLoop
+        .p(0.05)
+        ;
+        config.softLimit
+        .forwardSoftLimit(3.2).forwardSoftLimitEnabled(false)
+        .reverseSoftLimit(-4.5).forwardSoftLimitEnabled(false)
+        ;
+
         rollerMotor.clearFaults();
-        rollerMotor.restoreFactoryDefaults();
-
-        rollerMotor.setSmartCurrentLimit(40);
-        // rollerMotor.setIdleMode(IdleMode.kBrake);
-        rollerMotor.getEncoder().setPositionConversionFactor(1.375*Math.PI/3.0);
-        rollerMotor.getEncoder().setVelocityConversionFactor(rollerMotor.getEncoder().getPositionConversionFactor()/60.0);
-        rollerMotor.getPIDController().setP(0.05);
-
-        rollerMotor.setSoftLimit(SoftLimitDirection.kForward, (float) 3.2);
-        rollerMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) -4.5);
-
-        setIdleMode(IdleMode.kBrake);
-
-        rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 200);
-        rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-        rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-        rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
-        rollerMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
 
         rollerMotor.setCANTimeout(0);
 
-        rollerMotor.burnFlash();
+        config.apply(Constants.kTypical);
+        rollerMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override
@@ -81,7 +83,7 @@ public class DunkArmRoller extends SubsystemBase{
     public void setPosition(double position){
         var delta = position - rollerMotor.getEncoder().getPosition();
         var feedforward = ff.calculate(delta);
-        rollerMotor.getPIDController().setReference(position, ControlType.kPosition, 0, feedforward, ArbFFUnits.kPercentOut );
+        rollerMotor.getClosedLoopController().setReference(position, ControlType.kPosition, ClosedLoopSlot.kSlot0, feedforward, ArbFFUnits.kPercentOut );
     }
 
     public double getPosition(){
@@ -94,12 +96,17 @@ public class DunkArmRoller extends SubsystemBase{
     }
 
     public void setIdleMode(IdleMode mode){
-        rollerMotor.setIdleMode(mode);
+        var config = new SparkMaxConfig().idleMode(mode);
+        rollerMotor.configureAsync(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
-
     public void enableSoftLimit(boolean enable){
-        rollerMotor.enableSoftLimit(SoftLimitDirection.kReverse, enable);
-        rollerMotor.enableSoftLimit(SoftLimitDirection.kForward, enable);
+        var config = new SparkMaxConfig();
+        config.softLimit
+        .reverseSoftLimitEnabled(enable)
+        .forwardSoftLimitEnabled(enable)
+        ;
+        rollerMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+
     }
 
 }

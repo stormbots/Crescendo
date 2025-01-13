@@ -4,8 +4,11 @@
 
 package frc.robot.commands;
 
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.PeriodicFrame;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,9 +28,10 @@ public class CalibrateShooter extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
     startTime = Timer.getFPGATimestamp();
-    shooter.shooterMotor.getPIDController().setP(0.1,1);
+    var config = new SparkMaxConfig(); 
+    config.closedLoop.p(0.1,ClosedLoopSlot.kSlot1);
+    shooter.shooterMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters.kNoPersistParameters);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -43,7 +47,7 @@ public class CalibrateShooter extends Command {
       shooter.syncEncoders();
       shooter.isHomed = true;
       shooter.stopShooter();
-      shooter.shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
+      // shooter.shooterMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
   }
 
   // Returns true when the command should end.

@@ -6,15 +6,10 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.stormbots.Lerp;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Shooter;
 
 public class ApplyShooterOffset extends Command {
 

@@ -5,20 +5,17 @@
 package frc.robot.commands;
 
 import java.util.Optional;
+
 import com.stormbots.LUT;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FieldPosition;
+import frc.robot.subsystems.FieldPosition.TargetType;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterFlywheel;
-import frc.robot.subsystems.ShooterVision;
-import frc.robot.subsystems.FieldPosition.TargetType;
 
 public class ShooterSetOdometry extends Command {
     private Shooter shooter;

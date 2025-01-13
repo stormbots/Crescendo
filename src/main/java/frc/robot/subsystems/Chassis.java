@@ -4,14 +4,15 @@
 
 package frc.robot.subsystems;
 
-import java.sql.Driver;
-import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.studica.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -24,15 +25,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -103,7 +103,7 @@ public class Chassis extends SubsystemBase {
       new SysIdRoutine.Config(),
       new SysIdRoutine.Mechanism(
           // Tell SysId how to plumb the driving voltage to the motors.
-          (Measure<Voltage> volts) -> {
+          (Voltage volts) -> {
             frontLeft.setVoltageDrive(volts);
             frontRight.setVoltageDrive(volts);
             rearLeft.setVoltageDrive(volts);
@@ -463,7 +463,7 @@ public class Chassis extends SubsystemBase {
       this);
   }
 
-  public Command getDriveToBearingCommand(DoubleSupplier xPower, DoubleSupplier yPower, Supplier<Measure<Angle>> bearing){
+  public Command getDriveToBearingCommand(DoubleSupplier xPower, DoubleSupplier yPower, Supplier<Angle> bearing){
     return new RunCommand(
       () -> {
         driveToBearing(
@@ -476,12 +476,13 @@ public class Chassis extends SubsystemBase {
   }
 
   public void setIdleMode(IdleMode idleMode){
+    var config = new SparkFlexConfig().idleMode(idleMode);
     for(MAXSwerveModule module : new MAXSwerveModule[]{frontLeft, frontRight, rearLeft, rearRight}){
-      module.drivingSparkFlex.setIdleMode(idleMode);
+      module.drivingSparkFlex.configureAsync(config,ResetMode.kNoResetSafeParameters,PersistMode.kNoPersistParameters);
     }
   }
 
-  public Measure<Distance> getDistanceFromStageCenter(){
+  public Distance getDistanceFromStageCenter(){
     Pose2d currentPose = swerveDrivePoseEstimator.getEstimatedPosition();
 
     boolean isBlue = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue;

@@ -6,9 +6,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
@@ -16,7 +15,7 @@ import frc.robot.subsystems.Climber;
 public class ClimberSetPosition extends Command {
   /** Creates a new ClimberSetPosition. */
   Climber climber;
-  Measure<Distance> target;
+  Distance target;
   SlewRateLimiter slewRate= new SlewRateLimiter(15*1.1*1.25, -12*1.1*1.25, 0.0);
   TrapezoidProfile motionProfile = new TrapezoidProfile(
     new TrapezoidProfile.Constraints (0.5, 5.0)
@@ -27,7 +26,7 @@ public class ClimberSetPosition extends Command {
   double startTimer = 0;
   
 
-  public ClimberSetPosition(Climber climber, Measure<Distance> target) {
+  public ClimberSetPosition(Climber climber, Distance target) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.climber = climber;
     this.target = target;

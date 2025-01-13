@@ -1,39 +1,40 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLowLevel.PeriodicFrame;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.stormbots.Clamp;
-import com.stormbots.LUT;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class DunkArm extends SubsystemBase {
   /** Creates a new Shooter. */
-  public CANSparkMax armMotor = new CANSparkMax(Robot.isCompbot?15:14, MotorType.kBrushless);
-  private SparkPIDController armPID = armMotor.getPIDController();
-  private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+  public SparkMax armMotor = new SparkMax(Robot.isCompbot?15:14, MotorType.kBrushless);
+  private SparkClosedLoopController armPID = armMotor.getClosedLoopController();
+  private SparkAbsoluteEncoder armAbsEncoder = armMotor.getAbsoluteEncoder();
   private double reverseSoftLimit = -30;
-  private double forwardSoftLimit = armMotor.getSoftLimit(SoftLimitDirection.kForward);
+  private double forwardSoftLimit = armMotor.configAccessor.softLimit.getForwardSoftLimit();
   public static double reverseSlewRateLimit = -90*1.7;
   public static double forwardSlewRateLimit = 90*1.7;
   private double armSetpoint = 0.0;
@@ -46,7 +47,7 @@ public class DunkArm extends SubsystemBase {
       new SysIdRoutine.Config(null, Units.Volts.of(4), null),//sorry for using nulls
       new SysIdRoutine.Mechanism(
           // Tell SysId how to plumb the driving voltage to the motors.
-          (Measure<Voltage> volts) -> {
+          (Voltage volts) -> {
             armMotor.setVoltage(volts.in(Units.Volts));
           },
           log -> {
@@ -59,37 +60,42 @@ public class DunkArm extends SubsystemBase {
           
   public DunkArm() {
     armMotor.clearFaults();
-    armMotor.restoreFactoryDefaults();
-    armMotor.setIdleMode(IdleMode.kBrake);
+    var armconfig = new SparkMaxConfig()
+    .idleMode(IdleMode.kBrake)
+    .closedLoopRampRate(0.05)
+    .smartCurrentLimit(40)
+    ;
+    armconfig.absoluteEncoder
+    .positionConversionFactor(360)
+    .inverted(true)
+    .velocityConversionFactor(360)
+    ;
+    armconfig.softLimit
+    .forwardSoftLimit(120)
+    .reverseSoftLimit(reverseSoftLimit)
+    .forwardSoftLimitEnabled(true)
+    .reverseSoftLimitEnabled(true)    
+    ;
+    armconfig.closedLoop
+    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+    .p(1/25.0)
+    .outputRange(-0.2,0.2)
+    ;
+    var pcf=22.5/1.929;
+    armconfig.encoder
+    .positionConversionFactor(pcf)
+    .velocityConversionFactor(pcf/60.0)
+    ;
 
-    //Configure abs encoder
-    armAbsEncoder.setPositionConversionFactor(360.0);
-    armAbsEncoder.setInverted(true);
-    armAbsEncoder.setVelocityConversionFactor(armAbsEncoder.getPositionConversionFactor()); //native unit is RPS, degrees/second
-    
-    //configure relative encoder
-    armMotor.getPIDController().setFeedbackDevice(armMotor.getEncoder()); //Make sure we revert to native encoder for PID
-    armMotor.getEncoder().setPositionConversionFactor(22.5/1.929);//21.8/3.0
-    armMotor.getEncoder().setVelocityConversionFactor(armMotor.getEncoder().getPositionConversionFactor()/60.0); //native unit is RPS
-    
-    armPID.setP((1/25.0));
-    armMotor.setClosedLoopRampRate(0.05);
-    armPID.setOutputRange(-0.2, 0.2);
+    armconfig.apply(Constants.kAbsEncoder);
+
+    //Make sure to write before we try to sync things
+    armMotor.configure(armconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     syncEncoders();
     Timer.delay(0.05);
     // reverseSoftLimit = getAngle() + 1;
-    armMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) reverseSoftLimit);
-    // armMotor.setSoftLimit(SoftLimitDirection.kReverse, -30);
-    armMotor.setSoftLimit(SoftLimitDirection.kForward,120); //112 hardstop, 7.3 inch after note transfer to safep trap pos
-    armMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-    armMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-    armMotor.setSmartCurrentLimit(40);
 
-    armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-    armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-    armMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
-    
-    armMotor.burnFlash();
 
     armSetpoint = reverseSoftLimit;
     setArmAngle(getAngle());
@@ -99,7 +105,7 @@ public class DunkArm extends SubsystemBase {
   public void periodic() {
 
     // shooterMotor.set(0.1);
-    // shooterMotor.getPIDController().setReference(0, com.revrobotics.CANSparkBase.ControlType.kPosition);
+    // shooterMotor.getPIDController().setReference(0, com.revrobotics.Spark.ControlType.kPosition);
 
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("dunkArm/Absolute Encoder", armAbsEncoder.getPosition());
@@ -173,7 +179,7 @@ public class DunkArm extends SubsystemBase {
     this.armSetpoint = degrees;
     degrees = Clamp.clamp(degrees, reverseSoftLimit, forwardSoftLimit);
     //SmartDashboard.putNumber("dunkArm/targetAngle", degrees);
-    armPID.setReference(degrees, ControlType.kPosition, 0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
+    armPID.setReference(degrees, ControlType.kPosition, ClosedLoopSlot.kSlot0, getArmFFPercent(),ArbFFUnits.kPercentOut); //TODO: voltage control
   }
 
   public TrapezoidProfile.State getState(){

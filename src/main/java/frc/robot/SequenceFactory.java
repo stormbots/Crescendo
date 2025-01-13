@@ -4,13 +4,9 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -22,8 +18,6 @@ import frc.robot.commands.PassthroughAlignNote;
 import frc.robot.commands.SetDunkArmSlew;
 import frc.robot.commands.SetShooterProfiled;
 import frc.robot.subsystems.PassthroughLock;
-import frc.robot.commands.ShooterSetVision;
-import frc.robot.commands.VisionTurnToSpeakerOpticalOnly;
 import frc.robot.subsystems.ShooterFlywheel;
 
 /** 
@@ -131,7 +125,7 @@ public class SequenceFactory {
             );
     }
 
-    public Command getTrapSequenceCommand(Command pathFollowingCommand, Measure<Angle> gyroAngle){
+    public Command getTrapSequenceCommand(Command pathFollowingCommand, Angle gyroAngle){
         return new InstantCommand()
             .andThen(new RunCommand(()->rc.chassis.driveToBearing(gyroAngle.in(Units.Radians)), rc.chassis).withTimeout(3))
             // .until(

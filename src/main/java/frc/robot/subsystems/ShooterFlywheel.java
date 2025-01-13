@@ -4,32 +4,34 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkFlexFixes;
-import com.revrobotics.SparkPIDController.AccelStrategy;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.stormbots.Clamp;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class ShooterFlywheel extends SubsystemBase {
 
   public final static double kDunkArmTransferRPM = 600.0;
-  public CANSparkFlex topMotor = new CANSparkFlex(Robot.isCompbot?12:11, MotorType.kBrushless);
-  public CANSparkFlex botMotor = new CANSparkFlex(Robot.isCompbot?13:12, MotorType.kBrushless);
+  public SparkFlex topMotor = new SparkFlex(Robot.isCompbot?12:11, MotorType.kBrushless);
+  public SparkFlex botMotor = new SparkFlex(Robot.isCompbot?13:12, MotorType.kBrushless);
 
   private final double kGearing = 30/18.0;
   private final double kMaxRPM = 6784 * kGearing;
@@ -51,7 +53,7 @@ public class ShooterFlywheel extends SubsystemBase {
       new SysIdRoutine.Config(),
       new SysIdRoutine.Mechanism(
           // Tell SysId how to plumb the driving voltage to the motors.
-          (Measure<Voltage> volts) -> {
+          (Voltage volts) -> {
             topMotor.setVoltage(volts.in(Units.Volts));
             botMotor.setVoltage(volts.in(Units.Volts));
           },
@@ -69,48 +71,48 @@ public class ShooterFlywheel extends SubsystemBase {
           
   /** Creates a new Flywheel. */
   public ShooterFlywheel() {
-    topMotor.restoreFactoryDefaults();
-    botMotor.restoreFactoryDefaults();
-    topMotor.setInverted(false);
-    botMotor.setInverted(true);
+    var topconfig = new SparkFlexConfig()
+    .apply(Constants.kTypical)
+    .inverted(false)
+    .smartCurrentLimit(60)
+    .idleMode(IdleMode.kCoast)
+    ;
+    topconfig.signals
+    .primaryEncoderVelocityAlwaysOn(true)
+    .primaryEncoderVelocityPeriodMs(5);
+    topconfig.encoder
+    .velocityConversionFactor(kGearing)
+    .uvwMeasurementPeriod(8)
+    .quadratureAverageDepth(2)
+    .quadratureMeasurementPeriod(8)
+    ;
+    topconfig.closedLoop
+    .velocityFF(1/kMaxRPM*10_000/9_111.0*(10_000/10_300.0))
+    .p(0.000028853)
+    .i(0.00007*45)
+    .d(0.0000000003*3*5)
+    .outputRange(-1,1)
+    ;
+    topconfig.closedLoop.maxMotion
+    .maxVelocity(kMaxRPM)
+    .maxAcceleration(kMaxRPM*4*4)
+    ;
+  
+    var botconfig = new SparkFlexConfig()
+    .apply(topconfig)
+    .inverted(true)
+    ;
 
-
-    for(CANSparkFlex motor : new CANSparkFlex[]{topMotor,botMotor} ){
+    for(SparkFlex motor : new SparkFlex[]{topMotor,botMotor} ){
       motor.clearFaults();
-      motor.getEncoder().setVelocityConversionFactor(kGearing);
-
+      //disabled on currently running bot
       // motor.enableVoltageCompensation(10);
-
-      motor.setSmartCurrentLimit(60);
-      motor.getEncoder().setMeasurementPeriod(8);
-      motor.getEncoder().setAverageDepth(2);
-      SparkFlexFixes.setFlexEncoderAverageDepth(motor, 2);
-      SparkFlexFixes.setFlexEncoderSampleDelta(motor, 8);
-
-      var pid = motor.getPIDController();
-      // pid.setFF(1/kMaxRPM*10_000/9_111.0*(10_000/10_300.0));
-      // pid.setP(0.0003*1.5*2*0.9);
-      pid.setP(0.000028853);
-      // pid.setD(0.00007*45);//want about .11
-      // pid.setI(0.0000000003*3*5);
-      pid.setOutputRange(-1,1); //dont know if we need this, adding just in case
-      pid.setSmartMotionMaxVelocity(kMaxRPM, 0);
-      pid.setSmartMotionMaxAccel(kMaxRPM*4*4, 0);
-      pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 200);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 1000);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 1000);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 1000);
-      motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 1000);
-
+      //not found, but feels assumed
+      // pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
     }
 
-    setIdleMode(IdleMode.kCoast);
-
-    
-    topMotor.burnFlash();
-    botMotor.burnFlash();
+    topMotor.configure(topconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    botMotor.configure(botconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -130,7 +132,7 @@ public class ShooterFlywheel extends SubsystemBase {
 
     // leftFlywheel.set(.1);
     
-    // leftFlywheelPIDController.setReference(1200, CANSparkMax.ControlType.kVelocity);
+    // leftFlywheelPIDController.setReference(1200, SparkMax.ControlType.kVelocity);
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -143,10 +145,10 @@ public class ShooterFlywheel extends SubsystemBase {
 
   public void setRPM(double targetRPM) {
     this.targetRPM = targetRPM;//Will need seprate target for right
-    // topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
-    // botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity);
-    topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, topFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
-    botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kVelocity, 0, botFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
+    // topMotor.getPIDController().setReference(targetRPM, SparkMax.ControlType.kVelocity);
+    // botMotor.getPIDController().setReference(targetRPM, SparkMax.ControlType.kVelocity);
+    topMotor.getClosedLoopController().setReference(targetRPM, SparkMax.ControlType.kVelocity, ClosedLoopSlot.kSlot0, topFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
+    botMotor.getClosedLoopController().setReference(targetRPM, SparkMax.ControlType.kVelocity, ClosedLoopSlot.kSlot0, botFlywheelFeedforward.calculate(targetRPM), ArbFFUnits.kVoltage);
   }
 
   public void setRPM(double topTargetRPM, double botTargetRPM) {
@@ -155,8 +157,8 @@ public class ShooterFlywheel extends SubsystemBase {
 
   public void setRPMProfiled(double rpm){
     this.targetRPM = targetRPM;//Will need seprate target for right
-    topMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
-    botMotor.getPIDController().setReference(targetRPM, CANSparkMax.ControlType.kSmartVelocity);
+    topMotor.getClosedLoopController().setReference(targetRPM, SparkMax.ControlType.kSmartVelocity);
+    botMotor.getClosedLoopController().setReference(targetRPM, SparkMax.ControlType.kSmartVelocity);
 
   }
 
@@ -191,8 +193,9 @@ public class ShooterFlywheel extends SubsystemBase {
   }
 
   public void setIdleMode(IdleMode mode){
-    topMotor.setIdleMode(mode);
-    botMotor.setIdleMode(mode);
+    var config = new SparkMaxConfig().idleMode(mode);
+    topMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    botMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   public double getTargetRpm(){
