@@ -66,7 +66,7 @@ public class Climber extends SubsystemBase {
     rightconfig.encoder.positionConversionFactor(kMaxHeight.in(Units.Inches)/80.146*23.1/25.3);//kMaxHeight.in(Units.Inches)/71.69
 
     //set soft limits
-    leftconfig.inverted(true);
+    leftconfig.inverted(false);
     rightconfig.inverted(true);
 
     leftMotor.configure(leftconfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
